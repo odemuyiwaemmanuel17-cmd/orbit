@@ -59,6 +59,17 @@ uvicorn main:app --port 8000
 The Vite dev server proxies `/api` to `http://127.0.0.1:8000`. Regenerate the
 demo catalog snapshot anytime with `python backend/tools/fetch_demo_catalog.py`.
 
+## Deploying the frontend (Vercel)
+
+A root `vercel.json` + `package.json` make the default Vercel import work out
+of the box: the build script compiles `frontend/` and publishes
+`frontend/dist`. The site is fully client-side (in-browser SGP4), so no
+backend is required for the demo. If you prefer dashboard configuration
+instead, set **Root Directory = `frontend`** (framework preset Vite, output
+`dist`) and skip the root scripts. To deploy the position/orbit APIs too, run
+`backend/` on any Python host (Railway, Fly.io, a VPS) and point the frontend
+at it — the endpoints are listed below.
+
 ## API
 
 | Endpoint | Purpose |
