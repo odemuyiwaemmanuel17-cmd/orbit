@@ -1,33 +1,54 @@
 # OrbitalPulse
 
-Interactive orbital mechanics & satellite tracker — an immersive 3D Earth
-(React Three Fiber) with live SGP4 satellite propagation (FastAPI + `sgp4`),
-a sci-fi glassmorphic HUD, and time-warp orbital playback.
+Interactive orbital mechanics & satellite tracking — a **3D scrollytelling
+website** where a fixed WebGL space scene (React Three Fiber) flies the camera
+through scroll keyframes while a live SGP4 tracker, telemetry HUD, and
+marketing sections scroll over it. Satellite positions are propagated **in the
+browser** with `satellite.js` from a curated 14-object CelesTrak demo catalog;
+the FastAPI + `sgp4` backend remains available for live catalog, positions, and
+90-minute orbit-polyline APIs.
 
 ![stack](https://img.shields.io/badge/React%2018-R3F%208-blue) ![api](https://img.shields.io/badge/FastAPI-SGP4-cyan)
 
 ## Architecture
 
 ```
-┌───────────────────────┐        /api proxy (Vite)       ┌──────────────────────┐
-│  React + R3F frontend │ ─────────────────────────────▶ │  FastAPI backend     │
-│  Earth · satellites · │                                │  CelesTrak TLE fetch │
-│  HUD overlays         │ ◀── catalog / positions /      │  SGP4 propagation    │
-│                       │     orbit polylines            │  CORS + TTL cache    │
-└───────────────────────┘                                └──────────────────────┘
+┌──────────────────────────────────┐      /api proxy (Vite)     ┌──────────────────────┐
+│ 3D scrollytelling frontend       │ ──────────────────────────▶│  FastAPI backend     │
+│ fixed R3F scene · scroll camera  │                            │  CelesTrak TLE fetch │
+│ in-browser SGP4 (satellite.js)   │  ◀── catalog / positions / │  SGP4 propagation    │
+│ tracker HUD · landing sections   │      orbit polylines       │  CORS + TTL cache    │
+└──────────────────────────────────┘                            └──────────────────────┘
 ```
 
 - `backend/` — FastAPI service. `propagation.py` is the deterministic SGP4
   core (pure computation, fully offline-testable); `catalog.py` fetches live
-  TLEs from CelesTrak with an embedded fallback set; `main.py` exposes the API.
-- `frontend/` — Vite + React 18 + Tailwind. `Earth.jsx` (textured globe,
-  Fresnel atmosphere, sun-locked terminator), `SatelliteScene.jsx` (instanced
-  satellites, orbit tracks, focus camera), `Sidebar.jsx`, `TelemetryHUD.jsx`,
-  `TopBar.jsx`, `Toasts.jsx`.
+  TLEs from CelesTrak with an embedded fallback set; `tools/fetch_demo_catalog.py`
+  regenerates the frontend's curated 14-satellite snapshot.
+- `frontend/` — Vite + React 18 + Tailwind, emerald mission-control theme.
+  - `components/scene/OrbitScene.jsx` — fixed WebGL canvas: graticule +
+    landmass point-cloud Earth, green Fresnel atmosphere, orbit rings,
+    satellite markers, scroll-keyframed camera rig.
+  - `lib/engine.js` — in-browser SGP4 engine: 10 Hz telemetry heartbeat,
+    simulated clock with pause + 1×–300× time-warp, per-satellite orbit
+    trajectory caches.
+  - `components/tracker/*` — catalog panel (search + LEO/MEO/GEO filters),
+    telemetry HUD (altitude/velocity/lat/lon + orbital elements), time-warp
+    controls.
+  - `components/site/*` — navbar, hero, tracker section, how-it-works,
+    services, gallery, about, FAQ, contact, footer.
 
 ## Run it (two terminals)
 
-**1. Backend**
+**1. Frontend** (self-contained — works without the backend)
+
+```bash
+cd frontend
+npm install          # add --legacy-peer-deps on npm >= 10 if peer resolution complains
+npm run dev          # → http://localhost:5173  (also on http://127.0.0.1:5173)
+```
+
+**2. Backend** (optional — live catalog & position APIs)
 
 ```bash
 cd backend
@@ -35,20 +56,8 @@ pip install -r requirements.txt
 uvicorn main:app --port 8000
 ```
 
-**2. Frontend**
-
-```bash
-cd frontend
-npm install
-npm run dev        # → http://localhost:5173
-```
-
-The Vite dev server proxies `/api` to `http://127.0.0.1:8000`.
-
-If the backend is unreachable the UI degrades gracefully to a bundled
-snapshot (`frontend/src/lib/offline-snapshot.json`; regenerate with
-`python backend/tools/gen_snapshot.py`). Earth textures stream from a CDN and
-fall back to a procedural globe when offline.
+The Vite dev server proxies `/api` to `http://127.0.0.1:8000`. Regenerate the
+demo catalog snapshot anytime with `python backend/tools/fetch_demo_catalog.py`.
 
 ## API
 
@@ -70,16 +79,19 @@ the catalog fallback path, and every API contract (happy / error / edge).
 
 ## Features
 
-- **Time-warp** (1×/10×/60× presets + 1–240× slider) accelerates the simulated
-  clock; the backend re-propagates telemetry at simulated timestamps.
-- **Focus mode** lerps the camera onto the locked satellite with damped
-  station-keeping.
-- **90-minute orbit tracks** rendered as glowing additive polylines in the
-  inertial frame.
-- **Live sun vector** — a low-precision solar ephemeris keeps the day/night
-  terminator aligned with the mission clock.
-- Sun-constrained damped `OrbitControls`, instanced satellite meshes,
-  per-group color coding, search + category filtering, toast status feed.
+- **3D scrollytelling** — the camera flies through six keyframes as you scroll;
+  hero → tracker → how-it-works → services/gallery → about/FAQ → contact.
+- **In-browser SGP4** — 14 curated spacecraft (8 LEO · 3 MEO · 3 GEO) propagated
+  locally with `satellite.js`; telemetry heartbeat at 10 Hz.
+- **Time-warp** (pause, 1×/10×/60×/300×) accelerates the simulated clock; orbit
+  rings, ground positions, and HUD stay consistent.
+- **Interactive globe** — drag to rotate, +/− to zoom, reset view; glowing
+  per-regime orbit trails for every tracked object.
+- **Telemetry HUD** — altitude, velocity, latitude/longitude plus period,
+  inclination, RAAN, eccentricity, semi-major axis, and launch year.
+- **Full landing experience** — searchable/filterable catalog, services grid,
+  how-it-works steps, SVG gallery mocks, about + team, FAQ accordion, contact
+  form with transmit confirmation, and footer.
 
 ## Known limitations
 

@@ -6,26 +6,27 @@
   color-scheme: dark;
 }
 
-html,
-body,
-#root {
-  height: 100%;
+html {
+  scroll-behavior: smooth;
+}
+
+body {
   margin: 0;
-  background: #030712;
-  overflow: hidden;
+  background: #020a06;
+  color: #ecfdf5;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Glassmorphic HUD panel chrome */
-.hud-panel {
-  @apply bg-space-900/70 backdrop-blur-md border border-pulse-line rounded-lg shadow-hud;
+::selection {
+  background: rgba(52, 211, 153, 0.35);
 }
 
-.hud-label {
-  @apply text-[10px] uppercase tracking-[0.18em] text-cyan-500/70 font-mono;
-}
-
-.hud-value {
-  @apply font-mono text-cyan-200 text-sm leading-tight;
+/* Glassmorphic panel chrome used across the landing sections */
+.glass {
+  background: rgba(4, 18, 11, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(52, 211, 153, 0.16);
 }
 
 /* Slim scrollbars inside side panels */
@@ -33,39 +34,11 @@ body,
   width: 4px;
 }
 .thin-scroll::-webkit-scrollbar-thumb {
-  background: rgba(34, 211, 238, 0.35);
+  background: rgba(52, 211, 153, 0.35);
   border-radius: 2px;
 }
 .thin-scroll::-webkit-scrollbar-track {
   background: transparent;
-}
-
-/* Neon range input for the time-warp slider */
-input[type='range'].warp-slider {
-  -webkit-appearance: none;
-  appearance: none;
-  height: 3px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, rgba(34, 211, 238, 0.7), rgba(34, 211, 238, 0.15));
-  outline: none;
-}
-input[type='range'].warp-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #22d3ee;
-  box-shadow: 0 0 8px rgba(34, 211, 238, 0.9);
-  cursor: pointer;
-}
-
-@keyframes toast-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.toast-enter {
-  animation: toast-in 220ms ease-out;
 }
 
 @keyframes pulse-dot {
@@ -74,4 +47,10 @@ input[type='range'].warp-slider::-webkit-slider-thumb {
 }
 .live-dot {
   animation: pulse-dot 1.6s ease-in-out infinite;
+}
+
+/* Dark dropdown options for the contact form select */
+select option {
+  background: #04120b;
+  color: #d1fae5;
 }
