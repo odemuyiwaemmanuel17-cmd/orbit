@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  background: #030712;
+  overflow: hidden;
+}
+
+/* Glassmorphic HUD panel chrome */
+.hud-panel {
+  @apply bg-space-900/70 backdrop-blur-md border border-pulse-line rounded-lg shadow-hud;
+}
+
+.hud-label {
+  @apply text-[10px] uppercase tracking-[0.18em] text-cyan-500/70 font-mono;
+}
+
+.hud-value {
+  @apply font-mono text-cyan-200 text-sm leading-tight;
+}
+
+/* Slim scrollbars inside side panels */
+.thin-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: rgba(34, 211, 238, 0.35);
+  border-radius: 2px;
+}
+.thin-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Neon range input for the time-warp slider */
+input[type='range'].warp-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(34, 211, 238, 0.7), rgba(34, 211, 238, 0.15));
+  outline: none;
+}
+input[type='range'].warp-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #22d3ee;
+  box-shadow: 0 0 8px rgba(34, 211, 238, 0.9);
+  cursor: pointer;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.toast-enter {
+  animation: toast-in 220ms ease-out;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.live-dot {
+  animation: pulse-dot 1.6s ease-in-out infinite;
+}

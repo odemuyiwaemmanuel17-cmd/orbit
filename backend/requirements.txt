@@ -1,0 +1,9 @@
+# OrbitalPulse backend — precise TLE propagation service
+# Pinned for reproducible local installs (Python 3.10 – 3.13 recommended).
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+sgp4==2.23
+httpx==0.28.1
+# skyfield is an optional higher-precision path; the tested deterministic core uses sgp4.
+skyfield==1.50
+pytest==8.3.4
