@@ -85,3 +85,67 @@ def test_orbit_steps_clamped(client):
     assert r.status_code == 422  # FastAPI Query validation bounds
     r = client.get("/api/satellites/norad-25544/orbit", params={"steps": 1})
     assert r.status_code == 422
+
+
+# ------------------------------------------- mission-analysis endpoints ----
+
+def test_footprint_endpoint(client):
+    r = client.get("/api/satellites/norad-25544/footprint")
+    assert r.status_code == 200
+    body = r.json()
+    for key in ("sub_lat_deg", "sub_lon_deg", "altitude_km", "horizon_deg",
+                "footprint_radius_km", "slant_range_max_km"):
+        assert key in body
+    assert body["footprint_radius_km"] > 1000
+
+
+def test_footprint_unknown_sat_404(client):
+    assert client.get("/api/satellites/norad-999999/footprint").status_code == 404
+
+
+def test_passes_endpoint_requires_observer(client):
+    assert client.get("/api/satellites/norad-25544/passes").status_code == 422
+    r = client.get("/api/satellites/norad-25544/passes",
+                   params={"lat": -1.29, "lon": 36.82, "hours": 24})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["observer"]["lat"] == pytest.approx(-1.29)
+    assert isinstance(body["passes"], list)
+    if body["passes"]:
+        p = body["passes"][0]
+        assert p["max_elevation_deg"] >= body["min_elevation_deg"]
+        assert {"rise_utc", "max_utc", "set_utc", "azimuth_at_max_deg"} <= set(p)
+
+
+def test_passes_rejects_bad_lat(client):
+    r = client.get("/api/satellites/norad-25544/passes",
+                   params={"lat": 999, "lon": 0})
+    assert r.status_code == 422
+
+
+def test_conjunctions_endpoint(client):
+    r = client.get("/api/conjunctions", params={"hours": 2, "threshold_km": 50})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["threshold_km"] == 50
+    assert body["scanned_pairs"] >= 60  # 12 fallback sats -> 66 pairs
+    dists = [e["distance_km"] for e in body["events"]]
+    assert dists == sorted(dists)
+
+
+def test_space_weather_endpoint(client, monkeypatch):
+    import httpx as _httpx
+    orig = _httpx.Client.send
+
+    def _fail_swpc(self, request, *a, **k):
+        if 'swpc' in str(request.url) or 'noaa' in str(request.url):
+            raise _httpx.ConnectError('offline')
+        return orig(self, request, *a, **k)
+
+    monkeypatch.setattr(_httpx.Client, 'send', _fail_swpc)
+    r = client.get("/api/space-weather")
+    assert r.status_code == 200
+    body = r.json()
+    assert 0 <= body["kp_index"] <= 9
+    assert body["density_multiplier"] >= 1.0
+    assert body["condition"]

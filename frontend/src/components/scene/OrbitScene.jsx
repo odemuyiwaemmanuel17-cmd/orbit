@@ -3,9 +3,12 @@ import * as THREE from 'three'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Stars, Line } from '@react-three/drei'
 import { engine } from '../../lib/engine.js'
+import { footprintOf } from '../../lib/analysis.js'
 import { geodeticToScene, REGIME_COLORS } from '../../lib/coords.js'
 
 const GREEN = '#22c55e'
+const CRIMSON = '#ef4444'
+const AMBER = '#f59e0b'
 const TMP = new THREE.Vector3()
 
 /* ------------------------------------------------------------------ Earth */
@@ -76,6 +79,22 @@ function Earth() {
     landDotsGeometry().then((g) => alive && setLandGeo(g))
     return () => { alive = false }
   }, [])
+
+  // Fresnel atmosphere; uStorm tints the rim amber/red during geomagnetic storms.
+  const atmoMat = useMemo(() => new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false,
+    side: THREE.BackSide, blending: THREE.AdditiveBlending,
+    uniforms: { uStorm: { value: 0 } },
+    vertexShader: 'varying vec3 vN; varying vec3 vV; void main(){ vN=normalize(normalMatrix*normal); vec4 mv=modelViewMatrix*vec4(position,1.0); vV=normalize(-mv.xyz); gl_Position=projectionMatrix*mv; }',
+    fragmentShader: 'uniform float uStorm; varying vec3 vN; varying vec3 vV; void main(){ float f=1.0-abs(dot(vN,vV)); vec3 calm=vec3(0.13,0.78,0.42); vec3 hot=vec3(1.0,0.42,0.12); gl_FragColor=vec4(mix(calm,hot,uStorm), pow(f,3.0)*(0.55+0.35*uStorm)); }',
+  }), [])
+  useFrame((_, dt) => {
+    const target = engine.weather?.storm
+      ? Math.min(1, Math.max(0, (engine.weather.kp_index - 4) / 4))
+      : 0
+    atmoMat.uniforms.uStorm.value += (target - atmoMat.uniforms.uStorm.value) * Math.min(1, dt * 2)
+  })
+
   return (
     <group>
       <mesh>
@@ -88,15 +107,100 @@ function Earth() {
           <pointsMaterial color="#34d399" size={0.013} transparent opacity={0.75} sizeAttenuation />
         </points>
       )}
-      <mesh>
+      <mesh material={atmoMat}>
         <sphereGeometry args={[1.05, 48, 48]} />
-        <shaderMaterial
-          transparent depthWrite={false} side={THREE.BackSide}
-          blending={THREE.AdditiveBlending}
-          vertexShader="varying vec3 vN; varying vec3 vV; void main(){ vN=normalize(normalMatrix*normal); vec4 mv=modelViewMatrix*vec4(position,1.0); vV=normalize(-mv.xyz); gl_Position=projectionMatrix*mv; }"
-          fragmentShader="varying vec3 vN; varying vec3 vV; void main(){ float f=1.0-abs(dot(vN,vV)); gl_FragColor=vec4(0.13,0.78,0.42, pow(f,3.0)*0.55); }"
-        />
       </mesh>
+    </group>
+  )
+}
+
+/* ------------------------------------------------------- Mission layers */
+
+/** Line-of-sight cone + ground footprint circle for the selected satellite. */
+function FootprintCone({ snapshot }) {
+  const groupRef = useRef()
+  const meshRef = useRef()
+  const sel = snapshot.find((s) => s.id === engine.selectedId)
+  const altBucket = sel ? Math.round(sel.alt / 10) : -1
+
+  const coneGeo = useMemo(() => {
+    if (!sel || altBucket < 0) return null
+    const satR = geodeticToScene(sel.lat, sel.lon, sel.alt, new THREE.Vector3()).length()
+    const theta = Math.acos(1 / satR)          // scene Earth radius = 1
+    const h = satR - Math.cos(theta)           // apex (sat) -> tangent circle plane
+    const g = new THREE.ConeGeometry(Math.sin(theta), h, 48, 1, true)
+    g.rotateX(Math.PI / 2)                     // axis along z, apex +z h/2
+    g.translate(0, 0, -h / 2)                  // apex at origin, base toward -z
+    return g
+  }, [altBucket, sel?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useFrame(({ clock }) => {
+    if (!groupRef.current || !sel) return
+    const p = geodeticToScene(sel.lat, sel.lon, sel.alt, TMP)
+    groupRef.current.position.copy(p)
+    groupRef.current.quaternion.setFromUnitVectors(
+      new THREE.Vector3(0, 0, -1), p.clone().normalize())
+    if (meshRef.current) {
+      meshRef.current.material.opacity = 0.10 + 0.03 * Math.sin(clock.elapsedTime * 2.2)
+    }
+  })
+
+  if (!sel || !coneGeo) return null
+  return (
+    <group ref={groupRef}>
+      <mesh ref={meshRef} geometry={coneGeo}>
+        <meshBasicMaterial color={GREEN} transparent opacity={0.11}
+                           side={THREE.DoubleSide} depthWrite={false}
+                           blending={THREE.AdditiveBlending} toneMapped={false} />
+      </mesh>
+    </group>
+  )
+}
+
+/** Pulsing crimson markers at flagged close-approach midpoints. */
+function AlertMarkers({ snapshot }) {
+  const risks = (engine.conjunctions?.events ?? []).filter((e) => e.risk)
+  const refs = useRef([])
+  useFrame(({ clock }) => {
+    const s = 1 + 0.35 * Math.sin(clock.elapsedTime * 5)
+    refs.current.forEach((m) => m && m.scale.setScalar(s))
+  })
+  if (!risks.length) return null
+  return (
+    <group>
+      {risks.map((e, i) => {
+        const a = snapshot.find((s) => s.id === e.a)
+        const b = snapshot.find((s) => s.id === e.b)
+        if (!a || !b) return null
+        const pa = geodeticToScene(a.lat, a.lon, a.alt, new THREE.Vector3())
+        const pb = geodeticToScene(b.lat, b.lon, b.alt, new THREE.Vector3())
+        return (
+          <mesh key={i} ref={(m) => { refs.current[i] = m }}
+                position={pa.add(pb).multiplyScalar(0.5)}>
+            <sphereGeometry args={[0.02, 12, 12]} />
+            <meshBasicMaterial color={CRIMSON} transparent opacity={0.85} toneMapped={false} />
+          </mesh>
+        )
+      })}
+    </group>
+  )
+}
+
+/** Retrograde amber vectors on LEO sats — storm-driven orbital decay hint. */
+function DragVectors({ snapshot }) {
+  const boost = Math.min(1, Math.max(0.25, (engine.weather?.density_multiplier ?? 1) / 3))
+  const items = snapshot.filter((s) => s.meta.regime === 'LEO' && s.velScene)
+  return (
+    <group>
+      {items.map((s) => {
+        const p = geodeticToScene(s.lat, s.lon, s.alt, new THREE.Vector3())
+        const tip = p.clone().addScaledVector(s.velScene, -0.09 * boost)
+        return (
+          <Line key={s.id} points={[p.toArray(), tip.toArray()]}
+                color={AMBER} lineWidth={1.2} transparent
+                opacity={0.35 + 0.5 * boost} toneMapped={false} />
+        )
+      })}
     </group>
   )
 }
@@ -105,17 +209,21 @@ function Earth() {
 
 function OrbitRings({ snapshot }) {
   const selected = engine.selectedId
+  const riskIds = engine.layers.alerts
+    ? new Set((engine.conjunctions?.events ?? []).filter((e) => e.risk).flatMap((e) => [e.a, e.b]))
+    : new Set()
   return (
     <group>
       {snapshot.map((s) => {
         const pts = engine.orbitPointsCached(s.id)
         if (pts.length < 4) return null
         const isSel = s.id === selected
+        const isRisk = riskIds.has(s.id)
         return (
           <Line key={s.id} points={pts}
-                color={REGIME_COLORS[s.meta.regime] ?? GREEN}
-                lineWidth={isSel ? 1.6 : 0.7}
-                transparent opacity={isSel ? 0.95 : 0.2}
+                color={isRisk ? CRIMSON : (REGIME_COLORS[s.meta.regime] ?? GREEN)}
+                lineWidth={isSel || isRisk ? 1.6 : 0.7}
+                transparent opacity={isRisk ? 0.95 : isSel ? 0.95 : 0.2}
                 toneMapped={false} />
         )
       })}
@@ -225,6 +333,9 @@ export default function OrbitScene() {
         <Earth />
         <OrbitRings snapshot={snapshot} />
         <Satellites snapshot={snapshot} />
+        {engine.layers.footprint && <FootprintCone snapshot={snapshot} />}
+        {engine.layers.alerts && <AlertMarkers snapshot={snapshot} />}
+        {engine.layers.drag && <DragVectors snapshot={snapshot} />}
       </GlobeGroup>
       <CameraRig />
     </Canvas>

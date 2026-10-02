@@ -1,10 +1,12 @@
 import * as sm from 'satellite.js'
+import * as THREE from 'three'
 import catalog from '../data/satellites.json'
 import { geodeticToScene } from './coords.js'
+import { fetchWeather, scanConjunctionsClient, predictPassesClient, syntheticWeather } from './analysis.js'
 
 /**
  * In-browser SGP4 tracker engine. Propagates the curated demo catalog with
- * satellite.js — the scene runs at 60 fps, DOM telemetry samples at 5 Hz,
+ * satellite.js — the scene runs at 60 fps, DOM telemetry samples at 10 Hz,
  * and the simulated clock supports pause + time-warp up to 300x.
  */
 class TrackerEngine {
@@ -23,8 +25,14 @@ class TrackerEngine {
     this.selectedId = 'norad-25544'
     this._listeners = new Set()
     this._orbitCaches = {}
+    // Toggleable 3D layers (footprint cone, conjunction alerts, decay vectors).
+    this.layers = { footprint: true, alerts: true, drag: false }
+    this.weather = syntheticWeather()
+    this.conjunctions = null
+    this.passes = null // { id, observer, list }
     this.tick = this.tick.bind(this)
     setInterval(this.tick, 100) // 10 Hz telemetry heartbeat
+    fetchWeather().then((w) => { this.weather = w; this.emit() })
   }
 
   // -- clock ---------------------------------------------------------------
@@ -47,20 +55,32 @@ class TrackerEngine {
   // -- propagation -----------------------------------------------------------
   propagateAll(date = this.date()) {
     const out = []
+    const later = new Date(date.getTime() + 20_000)
     for (const { meta, rec } of this.records) {
       const pv = sm.propagate(rec, date)
       if (!pv || !pv.position || Number.isNaN(pv.position.x)) { out.push(null); continue }
       const { position, velocity } = pv
       const gmst = sm.gstime(date)
       const geo = sm.eciToGeodetic(position, gmst)
+      const lat = sm.degreesLat(geo.latitude)
+      const lon = sm.degreesLong(geo.longitude)
+      // Finite-difference scene-space heading for the decay/drag vectors.
+      let velScene = null
+      const pv2 = sm.propagate(rec, later)
+      if (pv2?.position && !Number.isNaN(pv2.position.x)) {
+        const g2 = sm.eciToGeodetic(pv2.position, sm.gstime(later))
+        const p1 = geodeticToScene(lat, lon, geo.height, new THREE.Vector3())
+        const p2 = geodeticToScene(sm.degreesLat(g2.latitude), sm.degreesLong(g2.longitude), g2.height, new THREE.Vector3())
+        velScene = p2.sub(p1).normalize()
+      }
       out.push({
         id: meta.id,
         meta,
-        lat: sm.degreesLat(geo.latitude),
-        lon: sm.degreesLong(geo.longitude),
+        lat, lon,
         alt: geo.height,
         speed: Math.hypot(velocity.x, velocity.y, velocity.z),
         pos: position,
+        velScene,
       })
     }
     return out.filter(Boolean)
@@ -100,6 +120,44 @@ class TrackerEngine {
   select(id) {
     if (id === this.selectedId) return
     this.selectedId = id
+    this.emit()
+  }
+
+  toggleLayer(name) {
+    this.layers[name] = !this.layers[name]
+    this.emit()
+  }
+
+  /** Run the close-approach screening for the next `hours` (async chunked). */
+  async runConjunctionScan(hours = 6, thresholdKm = 50) {
+    this.scanning = true
+    this.emit()
+    // Yield first so the UI can show the scanning state.
+    await new Promise((r) => setTimeout(r, 0))
+    this.conjunctions = scanConjunctionsClient(this.records, this.simMs,
+                                               hours, thresholdKm)
+    this.scanning = false
+    this.emit()
+    return this.conjunctions
+  }
+
+  /** Flyover schedule for a satellite over an observer, computed locally. */
+  async computePasses(id, lat, lon, hours = 24, minElev = 10) {
+    this.passesBusy = true
+    this.emit()
+    await new Promise((r) => setTimeout(r, 0))
+    const entry = this.records.find((r) => r.meta.id === id)
+    const list = entry ? predictPassesClient(entry.rec, lat, lon, this.simMs,
+                                             hours, minElev) : []
+    this.passes = { id, observer: { lat, lon }, list, minElev, hours,
+                    generatedAt: this.simMs }
+    this.passesBusy = false
+    this.emit()
+    return this.passes
+  }
+
+  async refreshWeather() {
+    this.weather = await fetchWeather()
     this.emit()
   }
 

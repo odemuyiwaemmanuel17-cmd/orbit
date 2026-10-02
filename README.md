@@ -78,6 +78,25 @@ at it — the endpoints are listed below.
 | `GET /api/satellites[?refresh=true]` | catalog (names, groups, TLEs, inclination, epoch) |
 | `GET /api/satellites/positions?timestamp=<ISO>` | lat/lon/alt, velocity, ECI for every tracked object |
 | `GET /api/satellites/{id}/orbit?minutes=90&steps=180` | projected trajectory polyline |
+| `GET /api/satellites/{id}/footprint` | sub-satellite point + radio/optical horizon cone geometry |
+| `GET /api/satellites/{id}/passes?lat=&lon=&hours=24` | flyover schedule (rise, max elevation, azimuth, set) |
+| `GET /api/conjunctions?hours=6&threshold_km=50` | catalog close-approach screening (docked pairs filtered) |
+| `GET /api/space-weather` | NOAA SWPC Kp + F10.7 flux, synthetic fallback, drag multiplier |
+
+## Mission features
+
+- **Footprint cones** — line-of-sight frustum + ground circle for the selected
+  satellite (toggle `FOOTPRINT` in the viewport layer box; math mirrored at
+  `/footprint`).
+- **Conjunction alerts** — coarse+refine close-approach scan; risk pairs
+  (< threshold) glow crimson in the scene with pulsing midpoint markers and a
+  live T-minus countdown in the HUD `ALERTS` tab.
+- **Space weather & drag** — Kp/F10.7 feed in the `WX` tab; storms tint the
+  atmospheric rim amber-red and the `DECAY` layer draws retrograde drag
+  vectors on LEO objects scaled by the density model.
+- **Pass predictor** — the `PASSES` tab schedules 24 h flyovers for 8 preset
+  cities, browser geolocation, or a custom mask angle; identical math on the
+  backend endpoint.
 
 ## Tests
 
@@ -85,8 +104,8 @@ at it — the endpoints are listed below.
 cd backend && python -m pytest tests -q
 ```
 
-22 tests cover the propagation core, column-correct synthetic TLE generation,
-the catalog fallback path, and every API contract (happy / error / edge).
+39 tests cover the propagation core, column-correct synthetic TLE generation,
+the catalog fallback path, every API contract (happy / error / edge), plus the footprint, pass-prediction, conjunction, and space-weather analysis routines.
 
 ## Features
 
