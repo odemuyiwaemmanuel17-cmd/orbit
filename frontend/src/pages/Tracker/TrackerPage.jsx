@@ -168,6 +168,8 @@ function Diagnostics() {
     <div className="absolute top-16 left-1/2 -translate-x-1/2 z-40 font-mono text-[10px] text-emerald-400 bg-black/75 border border-emerald-400/25 rounded-md px-3 py-1.5 flex gap-4 pointer-events-none">
       <span>FPS {fps}</span>
       <span>SATS {engine.snapshot?.length ?? 0}</span>
+      <span>CONST {engine.activeConstellationGroups().reduce((a, g) => a + g.n, 0)}</span>
+      <span>SLICE {Math.round(engine.activeConstellationGroups().reduce((a, g) => a + g.lastSliceMs, 0))} ms</span>
       <span>PROP 10 Hz</span>
       <span>WARP {engine.warp}×</span>
       <span>SEL {engine.selectedId}</span>

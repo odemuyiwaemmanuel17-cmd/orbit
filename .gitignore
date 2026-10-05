@@ -6,3 +6,6 @@ __pycache__/
 .venv/
 venv/
 backend/de440s.bsp
+
+# synthetic perf fixtures (regenerate: backend/tools/gen_bench_fixtures.py)
+frontend/tools/fixtures/

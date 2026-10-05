@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Search, Satellite } from 'lucide-react'
 import { useEngine } from '../../hooks/useEngine.js'
 import { catalogSatellites } from '../../lib/engine.js'
+import { tleStale } from '../../lib/constellation.js'
 import { REGIME_COLORS } from '../../lib/coords.js'
 
 const FILTERS = ['ALL', 'LEO', 'MEO', 'GEO']
@@ -22,8 +23,14 @@ const CATEGORY = {
   goes: 'Weather',
   himawari: 'Weather',
   meteosat: 'Weather',
+  // Constellation layer slots (data/constellations/<key>.json use slot=key).
+  test: 'Test',
+  weather: 'Weather',
 }
 const CATEGORIES = ['ALL', ...new Set(Object.values(CATEGORY))]
+
+/** DOM rows rendered when a huge constellation is active — honest cap. */
+const MAX_ROWS = 120
 
 /** Left panel of the tracker: searchable, regime + category filtered catalog. */
 export default function CatalogPanel() {
@@ -38,12 +45,21 @@ export default function CatalogPanel() {
     return m
   }, [engine.snapshot])
 
-  const rows = catalogSatellites.filter((s) =>
+  // Featured catalog + every enabled constellation layer (deduped in engine).
+  const merged = useMemo(
+    () => [...catalogSatellites, ...engine.activeSatelliteMetas()],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [engine.constellationVersion],
+  )
+  const chips = [...engine.constellations.values()]
+
+  const rows = merged.filter((s) =>
     (filter === 'ALL' || s.regime === filter) &&
     (category === 'ALL' || CATEGORY[s.slot] === category) &&
     (!query.trim() ||
      s.name.toLowerCase().includes(query.trim().toLowerCase()) ||
      String(s.norad_id).includes(query.trim())))
+  const visibleRows = rows.slice(0, MAX_ROWS)
 
   return (
     <div className="glass rounded-xl p-4 flex flex-col h-full min-h-0">
@@ -53,7 +69,7 @@ export default function CatalogPanel() {
           <span className="font-semibold text-emerald-50 text-sm">Satellite Catalog</span>
         </div>
         <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border border-emerald-400/30 text-emerald-300">
-          {catalogSatellites.length} tracked
+          {merged.length} tracked
         </span>
       </div>
       <div className="relative mb-2">
@@ -89,8 +105,22 @@ export default function CatalogPanel() {
           </button>
         ))}
       </div>
+      <div className="flex gap-1 flex-wrap mb-2" role="group" aria-label="Constellation layers">
+        {chips.map((c) => (
+          <button key={c.key} onClick={() => engine.toggleConstellation(c.key)}
+                  aria-pressed={c.active}
+                  title={`Toggle ${c.label} constellation layer`}
+                  className={`px-2 py-0.5 rounded text-[9px] font-mono border transition
+                    ${c.active
+                      ? 'border-emerald-400/70 bg-emerald-400/15 text-emerald-200'
+                      : 'border-emerald-400/15 text-emerald-600 hover:text-emerald-300'}`}>
+            {c.label.toUpperCase()}
+            {c.loading ? ' …' : c.active && c.count ? ` ${c.count}` : ''}
+          </button>
+        ))}
+      </div>
       <ul className="flex-1 overflow-y-auto thin-scroll -mx-1">
-        {rows.map((s) => {
+        {visibleRows.map((s) => {
           const live = liveById[s.id]
           const sel = s.id === engine.selectedId
           return (
@@ -108,11 +138,21 @@ export default function CatalogPanel() {
                 </div>
                 <div className="text-[10px] font-mono text-emerald-600 mt-0.5">
                   NORAD {s.norad_id} · {live ? `${Math.round(live.alt)} km` : `${s.altitude_km} km`} · {s.inclination_deg}°
+                  {!live && tleStale(s.line1, s.line2, engine.date()) && (
+                    <span className="text-amber-400" title="TLE epoch beyond half the check period — propagated position is unreliable">
+                      {' '}· TLE AGED
+                    </span>
+                  )}
                 </div>
               </button>
             </li>
           )
         })}
+        {rows.length > MAX_ROWS && (
+          <li className="p-2 text-center text-[10px] font-mono text-emerald-700">
+            showing {MAX_ROWS} of {rows.length} — narrow the search
+          </li>
+        )}
         {rows.length === 0 && (
           <li className="p-3 text-center text-[11px] font-mono text-emerald-800">no matches</li>
         )}

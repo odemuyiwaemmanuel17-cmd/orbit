@@ -64,3 +64,19 @@ without touching its visual identity.
 - M6 ground track with antimeridian handling: next milestone
 - M2 photoreal texture/cloud/sun pass on the Earth, M9 categories/instancing,
   M10 camera fly-to
+
+---
+
+## 2026-10-05 — Constellation scaling layer (M13)
+
+**Goal:** extend the validated ISS pipeline to constellations without new orbital logic or UI redesign.
+
+- `frontend/src/lib/constellation.js`: pure `ConstellationGroup` — typed arrays (lat/lon/alt/px/py/pz/lastUpdate), contiguous round-robin slice scheduler (~1 Hz per unselected satellite at 10 Hz heartbeat), promoted-member skip.
+- Engine: lazy code-split constellation data, `toggleConstellation`, `_lookupEntry` spans featured + groups, selected constellation satellite is promoted into the exact full-accuracy entry path (telemetry/footprint/ground track/passes/orbit line).
+- Scene: one `InstancedMesh` per group, matrices written straight into the instanceMatrix Float32Array in `useFrame` — zero React churn, one draw call.
+- Catalog panel: additive constellation chip row (existing chip styling), merged search rows with 120-row honest render cap; `?debug` shows CONST count + slice ms; ALERTS discloses screened-object cap (64).
+- Backend: `constellations.py` + `GET /api/constellations{,/{key}}` reuse `parse_tle_file`/`tle_to_satrec`; live CelesTrak with bundle fallback, source labeled (`celestrak`/`bundle`/`unavailable`).
+- Data: `fetch_constellations.py` generated real bundles — test 8, gps 30, weather 40. Starlink blocked by CelesTrak 2 h group-dedupe; regenerate with `--key starlink` when the window opens (tool now detects the refusal).
+- Perf gates (node, `frontend/tools/constellation-check.mjs`): 8 → slice 1.0 ms; 30 → 0.5; 40 → 0.3; synthetic 2000 → 0.4 (window 223); synthetic 6000 → 0.7 (window 400, full refresh 1.5 s). Parse 6000 = 53 ms; budget 25 ms never approached. Scheduler invariant (every unselected refreshed per cycle, proven via `lastUpdate` stamps) passes at all sizes.
+- Tests: 48 backend pytest pass (5 new constellation tests incl. bundle-fallback provenance); frontend build green with per-group chunks (test 3.6 kB / gps 12.6 kB / weather 16.5 kB).
+- Deviations: large-scale bench uses clearly-labeled synthetic Starlink-shell fixtures (compute gate only, never app data); conjunction screening client cap 64 — full-catalog screening stays a server-side FUTURE item.

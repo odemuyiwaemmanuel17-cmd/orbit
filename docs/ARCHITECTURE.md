@@ -92,3 +92,30 @@ tested deterministic pipeline uses `sgp4` directly (no ephemeris download).
   propagation rate, warp, selected NORAD, sim clock. Hidden otherwise.
 - **Accessibility** — aria-pressed filter chips, aria-live boot list,
   `prefers-reduced-motion` disables pulse/bounce/spin animations.
+
+---
+
+## Addendum 2026-10-05 — Constellation scaling
+
+The ISS end-to-end pipeline is the reference architecture; constellations
+reuse it verbatim (TLE -> twoline2satrec -> SGP4 -> eciToGeodetic/GMST ->
+scene projection). What changes is only cadence and rendering:
+
+- **One scheduler**: `ConstellationGroup.tickSlice` advances a contiguous
+  window of `ceil(n/divisor)` satellites per 10 Hz tick (clamped 16..400),
+  giving ~1 Hz per unselected satellite and proven coverage via per-satellite
+  `lastUpdate` sim timestamps.
+- **Selection promotion**: the selected satellite never lives in the slice —
+  the engine re-propagates it through the full `_entryFrom` path each tick,
+  so telemetry, footprint, ground track, passes and orbit line are identical
+  to the featured pipeline.
+- **Rendering**: per group one InstancedMesh; instance matrices are written
+  directly into the typed array each frame (translation + 0/1 scale), colors
+  set once from regime palette. Dead TLEs stay uninitialized and scale-zero.
+- **Data flow**: seed bundles are generated from CelesTrak by
+  `backend/tools/fetch_constellations.py`, lazy-imported per group
+  (code-split). The backend mirrors the same provider with live fetch,
+  bundle fallback, and explicit `source` labeling.
+- **Honest limits**: client conjunction screening caps at 64 objects
+  (synchronous O(n^2)); ALERTS discloses it. Full-catalog screening is a
+  server-side roadmap item.

@@ -5,6 +5,7 @@ import { Stars, Line } from '@react-three/drei'
 import { engine } from '../../lib/engine.js'
 import { footprintOf } from '../../lib/analysis.js'
 import { geodeticToScene, REGIME_COLORS } from '../../lib/coords.js'
+import ConstellationField from './ConstellationField.jsx'
 
 const GREEN = '#22c55e'
 const CRIMSON = '#ef4444'
@@ -360,6 +361,9 @@ export default function OrbitScene({ mission = false }) {
       <Stars radius={28} count={2600} factor={2.4} saturation={0} fade speed={0.3} />
       <GlobeGroup>
         <Earth />
+        {engine.activeConstellationGroups().map((g) => (
+          <ConstellationField key={g.key} group={g} />
+        ))}
         <OrbitRings snapshot={snapshot} />
         <Satellites snapshot={snapshot} />
         {engine.layers.footprint && <FootprintCone snapshot={snapshot} />}

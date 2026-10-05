@@ -27,10 +27,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from analysis import (SpaceWeather, footprint, ground_track, predict_passes,
                       scan_conjunctions)
 from catalog import GROUPS, TleCatalog
+from constellations import ConstellationCatalog
 from propagation import (propagate_orbit_path, propagate_state,
                          sat_epoch, tle_to_satrec)
 
 catalog = TleCatalog()
+constellations = ConstellationCatalog()
 weather = SpaceWeather()
 
 app = FastAPI(
@@ -230,6 +232,25 @@ def conjunctions(hours: float = Query(6.0, ge=1, le=48),
                                hours=hours, threshold_km=threshold_km,
                                coarse_minutes=coarse_minutes)
     return result
+
+
+@app.get('/api/constellations')
+def constellation_list(refresh: bool = Query(False)):
+    """Available constellation layers with live counts and data provenance."""
+    if refresh:
+        for key in constellations.summary():
+            constellations.get(key["key"], force_refresh=True)
+    return {"constellations": constellations.summary()}
+
+
+@app.get('/api/constellations/{key}')
+def constellation_satellites(key: str, refresh: bool = Query(False)):
+    """One constellation layer (CelesTrak live, bundle fallback, labeled)."""
+    result = constellations.get(key, force_refresh=refresh)
+    if result.get("error") == "unknown_constellation":
+        raise HTTPException(status_code=404,
+                            detail=f"Unknown constellation: {key!r}")
+    return {k: v for k, v in result.items() if k != "at"}
 
 
 @app.get('/api/space-weather')

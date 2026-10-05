@@ -206,7 +206,7 @@ function AlertsTab() {
       </div>
       <div className="text-[10px] font-mono mb-2">
         {res
-          ? <>threshold {res.thresholdKm} km · {res.events.length} approaches · <span className={riskCount ? 'text-red-400' : 'text-emerald-500'}>{riskCount} RISK</span></>
+          ? <>threshold {res.thresholdKm} km · {res.events.length} approaches · <span className={riskCount ? 'text-red-400' : 'text-emerald-500'}>{riskCount} RISK</span> · screened {res.scanned}{res.capped ? ' (cap)' : ''} objects</>
           : <span className="text-emerald-700">no scan yet — press SCAN</span>}
       </div>
       <div className="flex-1 overflow-y-auto thin-scroll space-y-1.5">
