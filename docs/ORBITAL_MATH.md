@@ -1,0 +1,65 @@
+# Orbital Mechanics Notes (OrbitalPulse)
+
+## TLE — Two-Line Element sets
+A TLE encodes mean orbital elements fitted to the **SGP4** perturbation model
+by NORAD. Line 1 carries the catalog number, international designator, epoch
+(YY + day-of-year fraction), drag term `B*`, and mean-motion derivatives.
+Line 2 carries inclination, RAAN (Ω), eccentricity, argument of perigee (ω),
+mean anomaly (M), and mean motion (rev/day). TLEs are only meaningful with
+SGP4 + WGS-72 constants — they are not generic Keplerian elements.
+
+## SGP4
+SGP4 propagates the mean elements forward in time including J2–J4 zonal
+harmonics, drag (via B*), and resonance terms. Input: TLE + UTC time.
+Output: position/velocity in **TEME** (True Equator, Mean Equinox), km and
+km/s. Accuracy: a few km for LEO within ~1–2 days of epoch; it degrades as
+the TLE ages — which is why the catalog is refreshed from CelesTrak.
+
+## Coordinate frames used here
+| Frame | Definition | Where |
+|---|---|---|
+| TEME | true equator, mean equinox — native SGP4 output | `propagate()` results |
+| PEF/ECEF-like | Earth-fixed; obtained by rotating TEME by GMST | geodetic conversion |
+| Geodetic | lat/lon (spherical approx.) + height | HUD, ground track |
+| Scene | unit sphere, y-up; radius compressed: `1 + 0.26·log10(1+alt/90)` | 3D rendering |
+
+⚠ Scene radii are **compressed for visualization**; angles (lat/lon) are
+physically faithful, distances are not to scale. Telemetry always reports
+true km from SGP4, never scene units.
+
+## GMST & sub-satellite point
+θ_GMST = 280.46061837° + 360.98564736629°·d (IAU-82 expression). Rotating the
+TEME position by −GMST gives an Earth-fixed vector whose spherical angles are
+the sub-satellite latitude/longitude. (We use a spherical Earth; WGS-84
+geodetic latitude differs by up to ~0.2°.)
+
+## Ground track
+Sampling (lat, lon) over time traces the ground track. Crossing ±180° must
+split the polyline into segments, otherwise a straight line is drawn across
+the whole globe — the classic antimeridian artifact. (M6 in the roadmap.)
+
+## Coverage geometry
+For altitude h, the horizon half-angle seen from the satellite satisfies
+cos θ = R⊕/(R⊕+h). The instantaneous footprint is a spherical cap of ground
+radius R⊕·θ centered on the sub-satellite point; the tangent cone from the
+satellite to that circle is the line-of-sight frustum rendered in the scene.
+Slant range to the horizon: √((R⊕+h)² − R⊕²). A minimum-elevation mask (e.g.
+10°) shrinks the cap: cos c = (R⊕/(R⊕+h))·cos(el) − … (planned for M11).
+
+## Pass prediction
+For observer position O and satellite ECEF vector S: elevation
+el = asin( (S−O)·û / |S−O| ) with û the observer's up unit vector; azimuth is
+the clockwise-from-north angle of the horizontal component. A pass is a
+contiguous interval where el ≥ mask; rise/set are the interval endpoints and
+max elevation its extremum.
+
+## Conjunction screening
+Pairwise minimum distance over a time window: coarse uniform sampling finds
+the basin, ternary search refines the minimum (distance is unimodal near a
+close approach). Separations below ~1 km indicate docked or duplicate
+catalog entries, not collision threats, and are filtered out.
+
+## Space weather & drag
+The Kp index proxies geomagnetic activity; polar heating expands the
+thermosphere, raising density at LEO altitudes (our model:
+`ρ/ρ₀ ≈ 1 + 0.16·max(0, Kp−2)^1.75`) and accelerating orbital decay.

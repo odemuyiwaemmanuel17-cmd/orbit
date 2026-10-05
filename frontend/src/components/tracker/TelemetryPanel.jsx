@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Activity, Satellite, Telescope, TriangleAlert, CloudSun, Loader } from 'lucide-react'
 import { useEngine } from '../../hooks/useEngine.js'
 import { catalogSatellites } from '../../lib/engine.js'
-import { footprintOf } from '../../lib/analysis.js'
+import { footprintOf, tleDetails } from '../../lib/analysis.js'
 import { REGIME_COLORS, REGIME_LABELS } from '../../lib/coords.js'
 
 const TABS = [
@@ -42,6 +42,7 @@ function countdown(ms) {
 
 function TelemetryTab({ meta, live }) {
   const fp = live ? footprintOf(live.alt) : null
+  const det = useMemo(() => tleDetails(meta.line1, meta.line2), [meta])
   return (
     <>
       <div className="bg-emerald-400/[0.06] border border-emerald-400/25 rounded-lg p-3 mb-3">
@@ -75,8 +76,13 @@ function TelemetryTab({ meta, live }) {
           ['Period', `${meta.period_min.toFixed(1)} min`],
           ['Inclination', `${meta.inclination_deg.toFixed(2)}°`],
           ['RAAN', `${meta.raan_deg.toFixed(1)}°`],
+          ['Arg of perigee', `${det.argPerigeeDeg.toFixed(2)}°`],
+          ['Mean anomaly', `${det.meanAnomalyDeg.toFixed(2)}°`],
           ['Eccentricity', meta.eccentricity.toFixed(4)],
           ['Semi-major axis', `${meta.sma_km.toLocaleString()} km`],
+          ['Apogee', `${det.apogeeKm.toFixed(0)} km`],
+          ['Perigee', `${det.perigeeKm.toFixed(0)} km`],
+          ['TLE epoch', `${det.epochMs ? new Date(det.epochMs).toISOString().slice(0, 16).replace('T', ' ') : 'unavailable'} UTC`],
           ['Launched', String(meta.launched)],
         ].map(([k, v]) => (
           <div key={k} className="flex justify-between text-[11px] py-[3px] border-b border-emerald-400/[0.07] last:border-0">

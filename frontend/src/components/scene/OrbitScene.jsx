@@ -269,10 +269,11 @@ const KEYS = [
 ]
 const smooth = (t) => t * t * (3 - 2 * t)
 
-function CameraRig() {
+function CameraRig({ mission = false }) {
   const { camera } = useThree()
   const progress = useRef(0)
   useEffect(() => {
+    if (mission) return undefined // fixed close orbit; no scroll keyframes
     const onScroll = () => {
       const max = document.documentElement.scrollHeight - window.innerHeight
       progress.current = max > 0 ? window.scrollY / max : 0
@@ -280,18 +281,19 @@ function CameraRig() {
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  }, [mission])
   useFrame(({ clock }) => {
-    const p = progress.current
+    const p = mission ? 0.16 : progress.current
     let i = 0
     while (i < KEYS.length - 2 && p > KEYS[i + 1].p) i += 1
     const a = KEYS[i], b = KEYS[i + 1]
     const span = Math.max(1e-6, b.p - a.p)
     const t = smooth(Math.min(1, Math.max(0, (p - a.p) / span)))
-    const d = THREE.MathUtils.lerp(a.d, b.d, t) * engine.zoom
-    const lat = THREE.MathUtils.lerp(a.lat, b.lat, t)
-    const lon = THREE.MathUtils.lerp(a.lon, b.lon, t)
-            + clock.elapsedTime * 0.015 + engine.yaw * 0.25
+    const base = mission ? 2.9 : THREE.MathUtils.lerp(a.d, b.d, t)
+    const d = base * engine.zoom
+    const lat = mission ? 0.3 : THREE.MathUtils.lerp(a.lat, b.lat, t)
+    const lon = (mission ? 0.7 : THREE.MathUtils.lerp(a.lon, b.lon, t))
+            + clock.elapsedTime * (mission ? 0.03 : 0.015) + engine.yaw * 0.25
     camera.position.set(
       d * Math.cos(lat) * Math.cos(lon),
       d * Math.sin(lat),
@@ -313,7 +315,7 @@ function GlobeGroup({ children }) {
 
 /* ------------------------------------------------------------------ Scene */
 
-export default function OrbitScene() {
+export default function OrbitScene({ mission = false }) {
   const [snapshot, setSnapshot] = useState(() => engine.propagateAll())
   useEffect(() => engine.subscribe((e) => {
     if (e.snapshot) setSnapshot(e.snapshot)
@@ -337,7 +339,7 @@ export default function OrbitScene() {
         {engine.layers.alerts && <AlertMarkers snapshot={snapshot} />}
         {engine.layers.drag && <DragVectors snapshot={snapshot} />}
       </GlobeGroup>
-      <CameraRig />
+      <CameraRig mission={mission} />
     </Canvas>
   )
 }

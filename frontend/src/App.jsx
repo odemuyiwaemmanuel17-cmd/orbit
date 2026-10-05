@@ -1,38 +1,33 @@
-import OrbitScene from './components/scene/OrbitScene.jsx'
-import Navbar from './components/site/Navbar.jsx'
-import Hero from './components/site/Hero.jsx'
-import TrackerSection from './components/site/TrackerSection.jsx'
-import HowItWorks from './components/site/HowItWorks.jsx'
-import Services from './components/site/Services.jsx'
-import Gallery from './components/site/Gallery.jsx'
-import About from './components/site/About.jsx'
-import Faq from './components/site/Faq.jsx'
-import Contact from './components/site/Contact.jsx'
-import Footer from './components/site/Footer.jsx'
+import { lazy, Suspense } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import Landing from './pages/Landing.jsx'
+import RouteErrorBoundary from './components/common/RouteErrorBoundary.jsx'
+import SceneLoader from './components/common/SceneLoader.jsx'
+
+const TrackerPage = lazy(() => import('./pages/Tracker/TrackerPage.jsx'))
 
 /**
- * OrbitalPulse — a 3D scrollytelling site. The WebGL scene is fixed behind
- * the page; scrolling flies the camera through keyframes while the tracker,
- * telemetry HUD, and marketing sections scroll over it.
+ * OrbitalPulse route shell.
+ *   /         -> approved landing experience (untouched visuals)
+ *   /tracker  -> Mission Control (engineering interface)
  */
 export default function App() {
   return (
-    <>
-      <OrbitScene />
-      <div className="relative z-10">
-        <Navbar />
-        <main>
-          <Hero />
-          <TrackerSection />
-          <HowItWorks />
-          <Services />
-          <Gallery />
-          <About />
-          <Faq />
-          <Contact />
-        </main>
-        <Footer />
-      </div>
-    </>
+    <BrowserRouter>
+      <RouteErrorBoundary>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route
+            path="/tracker"
+            element={
+              <Suspense fallback={<SceneLoader label="INITIALIZING MISSION CONTROL" />}>
+                <TrackerPage />
+              </Suspense>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </RouteErrorBoundary>
+    </BrowserRouter>
   )
 }

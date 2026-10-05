@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 const STATS = [
   ['14', 'Spacecraft tracked'],
   ['3', 'Orbital regimes'],
@@ -30,10 +32,10 @@ export default function Hero() {
       </p>
 
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-        <a href="#tracker"
+        <Link to="/tracker"
            className="px-6 py-3 rounded-xl font-semibold text-sm bg-emerald-500 text-emerald-950 hover:bg-emerald-400 shadow-[0_0_28px_rgba(16,185,129,0.45)] transition">
           Launch the Tracker
-        </a>
+        </Link>
         <a href="#how"
            className="px-6 py-3 rounded-xl font-semibold text-sm border border-emerald-400/30 text-emerald-100 hover:border-emerald-400/70 bg-black/20 backdrop-blur transition">
           See How It Works

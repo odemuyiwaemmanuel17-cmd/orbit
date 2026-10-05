@@ -4,33 +4,9 @@ import CatalogPanel from '../tracker/CatalogPanel.jsx'
 import TelemetryPanel from '../tracker/TelemetryPanel.jsx'
 import TimeControls from '../tracker/TimeControls.jsx'
 import { useEngine } from '../../hooks/useEngine.js'
+import LayerToggles from '../tracker/LayerToggles.jsx'
 import { catalogSatellites } from '../../lib/engine.js'
 import { REGIME_LABELS } from '../../lib/coords.js'
-
-/** Toggleable 3D overlays — kept as compact checkboxes inside the viewport. */
-function LayerToggles() {
-  const engine = useEngine()
-  const layers = [
-    ['footprint', 'FOOTPRINT', '#4ade80'],
-    ['alerts', 'ALERTS', '#ef4444'],
-    ['drag', 'DECAY', '#f59e0b'],
-  ]
-  return (
-    <div className="flex flex-col gap-1 bg-black/60 backdrop-blur border border-emerald-400/25 rounded-lg px-2.5 py-2">
-      {layers.map(([key, label, color]) => (
-        <label key={key} className="flex items-center gap-1.5 cursor-pointer select-none">
-          <input type="checkbox" checked={engine.layers[key]}
-                 onChange={() => engine.toggleLayer(key)}
-                 className="w-3 h-3 accent-emerald-500" />
-          <span className="text-[9px] font-mono tracking-wider"
-                style={{ color: engine.layers[key] ? color : '#1d5c3c' }}>
-            {label}
-          </span>
-        </label>
-      ))}
-    </div>
-  )
-}
 
 /**
  * The scrollytelling centerpiece: catalog + live 3D viewport + telemetry HUD.

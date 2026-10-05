@@ -6,6 +6,29 @@ import * as sm from 'satellite.js'
 import { EARTH_RADIUS_KM } from './coords.js'
 
 const D2R = Math.PI / 180
+const MU_EARTH = 398600.4418 // km^3/s^2
+
+/** Parse the remaining engineering values straight from the TLE text. */
+export function tleDetails(line1, line2) {
+  const argp = parseFloat(line2.slice(34, 42))
+  const ma = parseFloat(line2.slice(43, 51))
+  const motion = parseFloat(line2.slice(52, 63)) // rev/day
+  const n = (motion * 2 * Math.PI) / 86400 // rad/s
+  const a = Math.cbrt(MU_EARTH / (n * n))
+  const ecc = parseFloat('0.' + line2.slice(26, 33))
+  const yy = parseInt(line1.slice(18, 20), 10)
+  const doy = parseFloat(line1.slice(20, 32))
+  const year = yy < 57 ? 2000 + yy : 1900 + yy
+  const epochMs = Date.UTC(year, 0, 1) + (doy - 1) * 86400000
+  return {
+    argPerigeeDeg: argp,
+    meanAnomalyDeg: ma,
+    smaKm: a,
+    apogeeKm: a * (1 + ecc) - EARTH_RADIUS_KM,
+    perigeeKm: a * (1 - ecc) - EARTH_RADIUS_KM,
+    epochMs,
+  }
+}
 
 export function footprintOf(altKm) {
   const horizon = Math.acos(EARTH_RADIUS_KM / (EARTH_RADIUS_KM + altKm))

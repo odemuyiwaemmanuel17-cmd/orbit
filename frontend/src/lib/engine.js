@@ -19,6 +19,9 @@ class TrackerEngine {
     this._lastReal = Date.now()
     this.warp = 1
     this.paused = false
+    // Live mode pins the simulation clock to wall-clock UTC; any manual
+    // control (pause, step, scrub) drops out of live automatically.
+    this.isLive = true
     this.zoom = 1
     this.yaw = 0.8
     this.pitch = 0.25
@@ -38,7 +41,11 @@ class TrackerEngine {
   // -- clock ---------------------------------------------------------------
   tick() {
     const now = Date.now()
-    if (!this.paused) this.simMs += (now - this._lastReal) * this.warp
+    if (this.isLive) {
+      this.simMs = now
+    } else if (!this.paused) {
+      this.simMs += (now - this._lastReal) * this.warp
+    }
     this._lastReal = now
     this.snapshot = this.propagateAll()
     this.emit()
@@ -86,15 +93,20 @@ class TrackerEngine {
     return out.filter(Boolean)
   }
 
-  /** One full orbital period of trajectory points, in scene coordinates. */
-  orbitPoints(id, steps = 96) {
+  /**
+   * Trajectory polyline from SGP4: 45 minutes of past track plus one full
+   * period ahead of the simulation clock (M5). Points are propagated, not
+   * fitted to a conic.
+   */
+  orbitPoints(id, steps = 120) {
     const entry = this.records.find((r) => r.meta.id === id)
     if (!entry) return []
-    const t0 = this.simMs
+    const t0 = this.simMs - 45 * 60_000
     const periodMs = entry.meta.period_min * 60_000
+    const spanMs = periodMs + 45 * 60_000
     const pts = []
     for (let i = 0; i <= steps; i += 1) {
-      const date = new Date(t0 + (i / steps) * periodMs)
+      const date = new Date(t0 + (i / steps) * spanMs)
       const pv = sm.propagate(entry.rec, date)
       if (!pv || !pv.position || Number.isNaN(pv.position.x)) continue
       const geo = sm.eciToGeodetic(pv.position, sm.gstime(date))
@@ -109,8 +121,25 @@ class TrackerEngine {
   }
 
   // -- controls ------------------------------------------------------------
-  setWarp(w) { this.warp = w; this.emit() }
-  togglePause() { this.paused = !this.paused; this._lastReal = Date.now(); this.emit() }
+  setWarp(w) { this.warp = w; this.isLive = false; this.paused = false; this._lastReal = Date.now(); this.emit() }
+  togglePause() { this.paused = !this.paused; this.isLive = false; this._lastReal = Date.now(); this.emit() }
+  setLive() { this.isLive = true; this.paused = false; this.warp = 1; this.emit() }
+  /** Jump the simulation clock by +/- `minutes` (drops out of live). */
+  stepBy(minutes) {
+    this.isLive = false
+    this.paused = true
+    this.simMs += minutes * 60_000
+    this._orbitCaches = {}
+    this.emit()
+  }
+  /** Timeline scrubber entry point: absolute time in epoch ms. */
+  setSimTime(ms) {
+    this.isLive = false
+    this.simMs = ms
+    this._lastReal = Date.now()
+    this._orbitCaches = {}
+    this.emit()
+  }
   setZoom(z) { this.zoom = Math.min(2.6, Math.max(0.55, z)); this.emit() }
   rotateBy(dyaw, dpitch) {
     this.yaw += dyaw

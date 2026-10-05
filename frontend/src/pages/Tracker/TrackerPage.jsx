@@ -1,0 +1,146 @@
+import { useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { ArrowLeft, List, Gauge, Orbit } from 'lucide-react'
+import OrbitScene from '../../components/scene/OrbitScene.jsx'
+import CatalogPanel from '../../components/tracker/CatalogPanel.jsx'
+import TelemetryPanel from '../../components/tracker/TelemetryPanel.jsx'
+import SimulationControls from '../../components/tracker/SimulationControls.jsx'
+import LayerToggles from '../../components/tracker/LayerToggles.jsx'
+import { useEngine } from '../../hooks/useEngine.js'
+
+/**
+ * Mission Control — the engineering surface behind the approved landing UI.
+ * Desktop: catalog left, telemetry dock right, Earth dominant in the middle.
+ * Mobile: Earth full-bleed with bottom sheets and a floating control dock.
+ */
+export default function TrackerPage() {
+  const engine = useEngine()
+  const [sheet, setSheet] = useState(null) // mobile: 'catalog' | 'hud'
+  const drag = useRef(null)
+
+  const clock = engine.date().toISOString().slice(11, 19)
+  const nowMs = Date.now()
+  const offsetMin = engine.isLive
+    ? 0
+    : Math.max(-720, Math.min(720, Math.round((engine.simMs - nowMs) / 60000)))
+
+  const onPointerDown = (e) => {
+    drag.current = { x: e.clientX, y: e.clientY }
+    e.currentTarget.setPointerCapture(e.pointerId)
+  }
+  const onPointerMove = (e) => {
+    if (!drag.current) return
+    engine.rotateBy((e.clientX - drag.current.x) * 0.006,
+                    (e.clientY - drag.current.y) * 0.005)
+    drag.current = { x: e.clientX, y: e.clientY }
+  }
+  const onPointerUp = () => { drag.current = null }
+
+  return (
+    <div className="fixed inset-0 bg-[#020a06] overflow-hidden">
+      <OrbitScene mission />
+
+      {/* Drag layer for globe rotation (below panels, above canvas) */}
+      <div
+        className="absolute inset-0 touch-none cursor-grab active:cursor-grabbing"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+      />
+
+      {/* ---------------- top bar ---------------- */}
+      <header className="absolute top-0 inset-x-0 z-30 h-14 flex items-center gap-3 px-4 bg-[#04120b]/85 backdrop-blur-md border-b border-emerald-400/15">
+        <Link to="/" className="flex items-center gap-2 text-emerald-300 hover:text-emerald-200 text-[12px] font-mono">
+          <ArrowLeft size={14} /> SITE
+        </Link>
+        <div className="w-px h-6 bg-emerald-400/15" />
+        <div className="flex items-center gap-2">
+          <Orbit size={16} className="text-emerald-400" />
+          <span className="font-bold text-[15px] tracking-tight">
+            <span className="text-emerald-50">Orbital</span><span className="text-emerald-400">Pulse</span>
+            <span className="ml-2 text-[9px] font-mono tracking-[0.25em] text-emerald-600 align-middle">
+              MISSION CONTROL
+            </span>
+          </span>
+        </div>
+        <div className="ml-auto flex items-center gap-2">
+          <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono border live-dot
+            ${engine.isLive ? 'border-emerald-400/50 text-emerald-300'
+                            : 'border-amber-400/50 text-amber-300'}`}>
+            {engine.isLive ? '● LIVE' : `⏱ WARP ${engine.warp}×`}
+          </span>
+          <span className="px-2.5 py-1 rounded-md bg-black/40 border border-emerald-400/20 text-[11px] font-mono text-emerald-200 tabular-nums">
+            {clock} UTC
+          </span>
+        </div>
+      </header>
+
+      {/* ---------------- desktop layout ---------------- */}
+      <div className="hidden lg:block absolute top-16 bottom-24 left-4 w-[300px] z-20 pointer-events-auto">
+        <CatalogPanel />
+      </div>
+      <div className="hidden lg:block absolute top-16 bottom-24 right-4 w-[330px] z-20 pointer-events-auto">
+        <TelemetryPanel />
+      </div>
+      <div className="hidden lg:block absolute left-4 top-1/2 z-20">
+        <LayerToggles />
+      </div>
+
+      {/* timeline + controls dock (desktop) */}
+      <div className="hidden lg:flex absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex-col items-center gap-2 w-[min(860px,92vw)]">
+        <TimelineScrubber value={offsetMin}
+                          onChange={(v) => engine.setSimTime(nowMs + v * 60000)}
+                          disabled={engine.isLive} />
+        <SimulationControls />
+      </div>
+
+      {/* ---------------- mobile layout ---------------- */}
+      <div className="lg:hidden absolute bottom-0 inset-x-0 z-40 flex flex-col items-center gap-2 pb-3 px-3">
+        {/* bottom sheet */}
+        {sheet && (
+          <div className="w-full max-h-[58vh] overflow-hidden glass rounded-t-2xl flex">
+            <div className="flex-1 min-h-0 max-h-[56vh] overflow-y-auto thin-scroll p-1">
+              {sheet === 'catalog' ? <CatalogPanel /> : <TelemetryPanel />}
+            </div>
+          </div>
+        )}
+        <SimulationControls />
+        <div className="flex gap-2">
+          <button onClick={() => setSheet(sheet === 'catalog' ? null : 'catalog')}
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-[11px] font-mono border backdrop-blur
+                    ${sheet === 'catalog' ? 'bg-emerald-500 text-emerald-950 border-emerald-400'
+                                          : 'bg-black/60 border-emerald-400/30 text-emerald-300'}`}>
+            <List size={13} /> CATALOG
+          </button>
+          <button onClick={() => setSheet(sheet === 'hud' ? null : 'hud')}
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-[11px] font-mono border backdrop-blur
+                    ${sheet === 'hud' ? 'bg-emerald-500 text-emerald-950 border-emerald-400'
+                                      : 'bg-black/60 border-emerald-400/30 text-emerald-300'}`}>
+            <Gauge size={13} /> TELEMETRY
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/** ±12 h scrubber around real now; disabled while LIVE pins the clock. */
+function TimelineScrubber({ value, onChange, disabled }) {
+  return (
+    <div className={`w-full flex items-center gap-3 bg-black/60 backdrop-blur border border-emerald-400/25 rounded-full px-4 py-2 ${disabled ? 'opacity-50' : ''}`}>
+      <span className="text-[9px] font-mono text-emerald-600 shrink-0">-12h</span>
+      <input
+        type="range" min={-720} max={720} step={1} value={value}
+        disabled={disabled}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="flex-1 accent-emerald-500"
+        aria-label="Simulation timeline offset in minutes"
+      />
+      <span className="text-[9px] font-mono text-emerald-600 shrink-0">+12h</span>
+      <span className="text-[10px] font-mono text-emerald-300 tabular-nums w-16 text-right shrink-0">
+        {value === 0 ? 'NOW±' : `${value > 0 ? '+' : ''}${value}m`}
+      </span>
+    </div>
+  )
+}
