@@ -1,8 +1,10 @@
 import * as sm from 'satellite.js'
 import * as THREE from 'three'
 import catalog from '../data/satellites.json'
-import { geodeticToScene } from './coords.js'
+import { geodeticToScene, sunDirection } from './coords.js'
 import { fetchWeather, scanConjunctionsClient, predictPassesClient, syntheticWeather } from './analysis.js'
+
+const SUN_TMP = new THREE.Vector3()
 
 /**
  * In-browser SGP4 tracker engine. Propagates the curated demo catalog with
@@ -28,8 +30,11 @@ class TrackerEngine {
     this.selectedId = 'norad-25544'
     this._listeners = new Set()
     this._orbitCaches = {}
+    this._gtCaches = {}
+    // Gentle focus easing target (set by focusOn, cleared by user drag).
+    this.focusTarget = null
     // Toggleable 3D layers (footprint cone, conjunction alerts, decay vectors).
-    this.layers = { footprint: true, alerts: true, drag: false }
+    this.layers = { footprint: true, groundtrack: true, alerts: true, drag: false }
     this.weather = syntheticWeather()
     this.conjunctions = null
     this.passes = null // { id, observer, list }
@@ -88,9 +93,61 @@ class TrackerEngine {
         speed: Math.hypot(velocity.x, velocity.y, velocity.z),
         pos: position,
         velScene,
+        sunlit: this.sunlitAt(lat, lon, geo.height, date),
       })
     }
     return out.filter(Boolean)
+  }
+
+  /**
+   * Cylindrical Earth-shadow model in scene units (Earth radius = 1):
+   * a satellite on the anti-sun side whose perpendicular distance from the
+   * sun axis is under one Earth radius is in eclipse.
+   */
+  sunlitAt(lat, lon, altKm, date) {
+    const p = geodeticToScene(lat, lon, altKm, new THREE.Vector3())
+    const s = sunDirection(date, SUN_TMP)
+    const along = p.dot(s)
+    if (along >= 0) return true
+    const perp2 = p.lengthSq() - along * along
+    return perp2 > 1.0
+  }
+
+  /** Antimeridian-safe ground track: { past, future } scene-unit segments. */
+  groundTrackSegments(id) {
+    const entry = this.records.find((r) => r.meta.id === id)
+    if (!entry) return { past: [], future: [] }
+    const cache = this._gtCaches[id]
+    if (cache && Math.abs(cache.t - this.simMs) < 60_000) return cache.out
+    const t0 = this.simMs - 45 * 60_000
+    const spanMs = (45 + 90) * 60_000
+    const steps = 270 // 30-second resolution
+    const raw = [] // [ [x,y,z], timeMin ]
+    let prev = null
+    let cur = []
+    for (let i = 0; i <= steps; i += 1) {
+      const date = new Date(t0 + (i / steps) * spanMs)
+      const pv = sm.propagate(entry.rec, date)
+      if (!pv || !pv.position || Number.isNaN(pv.position.x)) continue
+      const geo = sm.eciToGeodetic(pv.position, sm.gstime(date))
+      const lat = sm.degreesLat(geo.latitude)
+      const lon = sm.degreesLong(geo.longitude)
+      if (prev !== null && Math.abs(lon - prev) > 180) { raw.push(cur); cur = [] }
+      const v = geodeticToScene(lat, lon, 0, new THREE.Vector3()).multiplyScalar(1.006)
+      cur.push([[v.x, v.y, v.z], (i / steps) * 135 - 45])
+      prev = lon
+    }
+    if (cur.length) raw.push(cur)
+    const past = []
+    const future = []
+    for (const seg of raw) {
+      const p = seg.filter(([, m]) => m <= 0).map(([v]) => v)
+      const f = seg.filter(([, m]) => m >= 0).map(([v]) => v)
+      if (p.length > 1) past.push(p)
+      if (f.length > 1) future.push(f)
+    }
+    this._gtCaches[id] = { t: this.simMs, out: { past, future } }
+    return this._gtCaches[id].out
   }
 
   /**
@@ -130,6 +187,7 @@ class TrackerEngine {
     this.paused = true
     this.simMs += minutes * 60_000
     this._orbitCaches = {}
+    this._gtCaches = {}
     this.emit()
   }
   /** Timeline scrubber entry point: absolute time in epoch ms. */
@@ -138,12 +196,31 @@ class TrackerEngine {
     this.simMs = ms
     this._lastReal = Date.now()
     this._orbitCaches = {}
+    this._gtCaches = {}
     this.emit()
   }
   setZoom(z) { this.zoom = Math.min(2.6, Math.max(0.55, z)); this.emit() }
   rotateBy(dyaw, dpitch) {
+    this.focusTarget = null // user control cancels the focus ease
     this.yaw += dyaw
     this.pitch = Math.min(1.35, Math.max(-1.35, this.pitch + dpitch))
+  }
+
+  /**
+   * Ease the globe so the selected satellite faces the mission camera.
+   * Never teleports: GlobeGroup damps yaw/pitch toward this target per frame.
+   */
+  focusOn(id = this.selectedId) {
+    const s = (this.snapshot ?? []).find((x) => x.id === id)
+    if (!s) return
+    const lonRad = (s.lon * Math.PI) / 180
+    const latRad = (s.lat * Math.PI) / 180
+    // Camera azimuth in mission mode is ~0.7 rad + slow drift; globe yaw
+    // contributes to both terms, hence the 0.75 divisor.
+    let yaw = (0.7 - lonRad) / 0.75
+    yaw = Math.atan2(Math.sin(yaw - this.yaw), Math.cos(yaw - this.yaw)) + this.yaw
+    this.focusTarget = { yaw, pitch: Math.max(-1.2, Math.min(1.2, 0.3 - latRad * 0.85)) }
+    this.emit()
   }
   resetView() { this.zoom = 1; this.yaw = 0.8; this.pitch = 0.25; this.emit() }
   select(id) {

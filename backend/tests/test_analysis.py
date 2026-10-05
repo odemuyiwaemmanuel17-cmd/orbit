@@ -115,6 +115,31 @@ def test_conjunction_watch_list_sorted():
     assert res['scanned_pairs'] == 1
 
 
+# ---------------------------------------------------------------- ground track
+
+def test_ground_track_segments_never_cross_antimeridian():
+    from datetime import timedelta
+    from analysis import ground_track
+    t0 = datetime(2008, 9, 20, 12, 26, tzinfo=timezone.utc)
+    segs = ground_track(_iss(), t0, past_minutes=45, future_minutes=180, step_s=30)
+    assert len(segs) >= 1
+    for seg in segs:
+        lons = [p['lon'] for p in seg]
+        diffs = [abs(b - a) for a, b in zip(lons, lons[1:])]
+        assert all(d <= 180 for d in diffs), 'segment spans the date line'
+    total_pts = sum(len(s) for s in segs)
+    assert total_pts >= 200  # 4.25 h at 30 s
+
+
+def test_ground_track_offsets_span_past_and_future():
+    from analysis import ground_track
+    t0 = datetime(2008, 9, 20, 12, 26, tzinfo=timezone.utc)
+    segs = ground_track(_iss(), t0, past_minutes=45, future_minutes=90)
+    offsets = [p['offset_s'] for seg in segs for p in seg]
+    assert min(offsets) <= -40 * 60
+    assert max(offsets) >= 85 * 60
+
+
 # --------------------------------------------------------------- space weather
 
 def test_weather_synthetic_fallback(monkeypatch):

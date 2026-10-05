@@ -2,6 +2,7 @@ import { useEngine } from '../../hooks/useEngine.js'
 
 const LAYERS = [
   ['footprint', 'FOOTPRINT', '#4ade80'],
+  ['groundtrack', 'GND TRACK', '#22d3ee'],
   ['alerts', 'ALERTS', '#ef4444'],
   ['drag', 'DECAY', '#f59e0b'],
 ]

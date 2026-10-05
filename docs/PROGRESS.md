@@ -4,6 +4,27 @@ Living log — one entry per milestone delivery.
 
 ---
 
+## 2026-10-05 · Gap-closure milestone (M6, M8, M9, M10 + spec extras)
+
+**Files changed** — backend: `analysis.py` (+`ground_track`), `main.py`
+(+`/groundtrack`), 4 new tests (43 total). Frontend: `engine.js`
+(groundTrackSegments, sunlitAt, focusOn, cache invalidation), `coords.js`
+(sunDirection), `OrbitScene.jsx` (GroundTrack layer, focus easing),
+`CatalogPanel.jsx` (category chips, focus on select), `TelemetryPanel.jsx`
+(sunlight tile, NORAD tile, element tooltips), `LayerToggles.jsx` +
+`engine` layers (+GND TRACK), `SceneLoader.jsx` (real boot steps),
+`TrackerPage.jsx` (`?debug` diagnostics), `index.css` (reduced motion,
+toast-in).
+
+**Verified** — 43/43 pytest; production build green; Node math checks:
+3 antimeridian splits over 4.25 h ISS arc, 13% eclipse fraction (plausible
+for current geometry), GEO zenith/antipode elevation sanity.
+
+**Deviations (documented)** — no Zustand (engine singleton is the store),
+no TypeScript migration (would rewrite protected files), no InstancedMesh
+at 14 satellites. Next: photoreal Earth texture pass (M2), constellation
+expansion + instancing (M11 scale), min-elevation coverage masks.
+
 ## 2026-10-05 · Milestone 1 (+ M3–M5, M7–M8, M11–M12 closures)
 
 **Goal:** route the approved landing UI into a real engineering application

@@ -24,7 +24,7 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
-from analysis import (SpaceWeather, footprint, predict_passes,
+from analysis import (SpaceWeather, footprint, ground_track, predict_passes,
                       scan_conjunctions)
 from catalog import GROUPS, TleCatalog
 from propagation import (propagate_orbit_path, propagate_state,
@@ -197,6 +197,24 @@ def satellite_passes(sat_id: str,
         'window_hours': hours,
         'min_elevation_deg': min_elevation,
         'passes': passes,
+    }
+
+
+@app.get('/api/satellites/{sat_id}/groundtrack')
+def satellite_ground_track(sat_id: str,
+                           past_minutes: float = Query(45.0, ge=0, le=240),
+                           future_minutes: float = Query(90.0, ge=1, le=360),
+                           step: float = Query(30.0, ge=5, le=300),
+                           timestamp: Optional[str] = Query(None)):
+    """Sub-satellite ground track, split into segments at ±180° so renderers
+    never draw an antimeridian artifact across the globe."""
+    entry, sat = _satrec_for(sat_id)
+    t0 = _parse_timestamp(timestamp)
+    segments = ground_track(sat, t0, past_minutes, future_minutes, step)
+    return {
+        'id': sat_id, 'name': entry['name'], 'timestamp': t0.isoformat(),
+        'past_minutes': past_minutes, 'future_minutes': future_minutes,
+        'step_s': step, 'segments': segments,
     }
 
 

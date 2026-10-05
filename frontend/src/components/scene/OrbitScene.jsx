@@ -205,6 +205,24 @@ function DragVectors({ snapshot }) {
   )
 }
 
+/** Propagated sub-satellite ground track: solid past, dashed future. */
+function GroundTrack() {
+  const segs = engine.groundTrackSegments(engine.selectedId)
+  return (
+    <group>
+      {segs.past.map((pts, i) => (
+        <Line key={`p${i}`} points={pts} color="#34d399" lineWidth={1.4}
+              transparent opacity={0.55} toneMapped={false} />
+      ))}
+      {segs.future.map((pts, i) => (
+        <Line key={`f${i}`} points={pts} color="#22d3ee" lineWidth={1.4} dashed
+              dashSize={0.035} gapSize={0.02} transparent opacity={0.8}
+              toneMapped={false} />
+      ))}
+    </group>
+  )
+}
+
 /* ------------------------------------------------------- Orbits & markers */
 
 function OrbitRings({ snapshot }) {
@@ -304,10 +322,19 @@ function CameraRig({ mission = false }) {
   return null
 }
 
-/** Globe + payload group whose rotation follows drag input every frame. */
+/** Globe + payload group; rotation follows drag input and focus easing. */
 function GlobeGroup({ children }) {
   const ref = useRef()
-  useFrame(() => {
+  useFrame((_, dt) => {
+    if (engine.focusTarget) {
+      const k = Math.min(1, dt * 2.2)
+      engine.yaw += (engine.focusTarget.yaw - engine.yaw) * k
+      engine.pitch += (engine.focusTarget.pitch - engine.pitch) * k
+      if (Math.abs(engine.focusTarget.yaw - engine.yaw) < 0.01
+          && Math.abs(engine.focusTarget.pitch - engine.pitch) < 0.01) {
+        engine.focusTarget = null
+      }
+    }
     ref.current.rotation.set(engine.pitch, engine.yaw, 0)
   })
   return <group ref={ref}>{children}</group>
@@ -336,6 +363,7 @@ export default function OrbitScene({ mission = false }) {
         <OrbitRings snapshot={snapshot} />
         <Satellites snapshot={snapshot} />
         {engine.layers.footprint && <FootprintCone snapshot={snapshot} />}
+        {engine.layers.groundtrack && <GroundTrack />}
         {engine.layers.alerts && <AlertMarkers snapshot={snapshot} />}
         {engine.layers.drag && <DragVectors snapshot={snapshot} />}
       </GlobeGroup>

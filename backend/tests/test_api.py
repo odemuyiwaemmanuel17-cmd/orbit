@@ -133,6 +133,22 @@ def test_conjunctions_endpoint(client):
     assert dists == sorted(dists)
 
 
+def test_groundtrack_endpoint(client):
+    r = client.get('/api/satellites/norad-25544/groundtrack',
+                   params={'past_minutes': 45, 'future_minutes': 90})
+    assert r.status_code == 200
+    body = r.json()
+    assert body['past_minutes'] == 45
+    assert len(body['segments']) >= 1
+    for seg in body['segments']:
+        lons = [p['lon'] for p in seg]
+        assert all(abs(b - a) <= 180 for a, b in zip(lons, lons[1:]))
+
+
+def test_groundtrack_unknown_sat_404(client):
+    assert client.get('/api/satellites/norad-777777/groundtrack').status_code == 404
+
+
 def test_space_weather_endpoint(client, monkeypatch):
     import httpx as _httpx
     orig = _httpx.Client.send

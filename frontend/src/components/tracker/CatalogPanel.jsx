@@ -6,11 +6,31 @@ import { REGIME_COLORS } from '../../lib/coords.js'
 
 const FILTERS = ['ALL', 'LEO', 'MEO', 'GEO']
 
-/** Left panel of the tracker: searchable, regime-filtered satellite catalog. */
+/** Constellation / mission categories derived from the catalog slots. */
+const CATEGORY = {
+  iss: 'Stations',
+  hubble: 'Science',
+  sentinel2a: 'Earth Obs',
+  landsat9: 'Earth Obs',
+  noaa20: 'Weather',
+  terra: 'Earth Obs',
+  aqua: 'Earth Obs',
+  starlink: 'Starlink',
+  gps: 'Navigation',
+  gps2: 'Navigation',
+  galileo: 'Navigation',
+  goes: 'Weather',
+  himawari: 'Weather',
+  meteosat: 'Weather',
+}
+const CATEGORIES = ['ALL', ...new Set(Object.values(CATEGORY))]
+
+/** Left panel of the tracker: searchable, regime + category filtered catalog. */
 export default function CatalogPanel() {
   const engine = useEngine()
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState('ALL')
+  const [category, setCategory] = useState('ALL')
 
   const liveById = useMemo(() => {
     const m = {}
@@ -20,6 +40,7 @@ export default function CatalogPanel() {
 
   const rows = catalogSatellites.filter((s) =>
     (filter === 'ALL' || s.regime === filter) &&
+    (category === 'ALL' || CATEGORY[s.slot] === category) &&
     (!query.trim() ||
      s.name.toLowerCase().includes(query.trim().toLowerCase()) ||
      String(s.norad_id).includes(query.trim())))
@@ -46,14 +67,25 @@ export default function CatalogPanel() {
                      focus:border-emerald-400/40"
         />
       </div>
-      <div className="flex gap-1.5 mb-2">
+      <div className="flex gap-1.5 mb-1.5">
         {FILTERS.map((f) => (
-          <button key={f} onClick={() => setFilter(f)}
+          <button key={f} onClick={() => setFilter(f)} aria-pressed={filter === f}
                   className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono border transition
                     ${filter === f
                       ? 'bg-emerald-500 text-emerald-950 border-emerald-400 font-bold'
                       : 'border-emerald-400/20 text-emerald-400 hover:border-emerald-400/50'}`}>
             {f}
+          </button>
+        ))}
+      </div>
+      <div className="flex gap-1 flex-wrap mb-2">
+        {CATEGORIES.map((c) => (
+          <button key={c} onClick={() => setCategory(c)} aria-pressed={category === c}
+                  className={`px-2 py-0.5 rounded text-[9px] font-mono border transition
+                    ${category === c
+                      ? 'border-cyan-400/70 bg-cyan-400/15 text-cyan-200'
+                      : 'border-emerald-400/15 text-emerald-600 hover:text-emerald-300'}`}>
+            {c.toUpperCase()}
           </button>
         ))}
       </div>
@@ -63,7 +95,7 @@ export default function CatalogPanel() {
           const sel = s.id === engine.selectedId
           return (
             <li key={s.id}>
-              <button onClick={() => engine.select(s.id)}
+              <button onClick={() => { engine.select(s.id); engine.focusOn(s.id) }}
                       className={`w-full text-left px-2.5 py-2 rounded-lg mb-1 border transition
                         ${sel ? 'bg-emerald-400/10 border-emerald-400/50'
                               : 'border-transparent hover:bg-white/[0.04]'}`}>

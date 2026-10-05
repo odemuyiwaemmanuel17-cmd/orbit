@@ -260,6 +260,35 @@ class SpaceWeather:
 
 # ------------------------------------------------------ 4. Pass prediction
 
+def ground_track(sat, t0: datetime, past_minutes: float = 45.0,
+                 future_minutes: float = 90.0, step_s: float = 30.0) -> list[list[dict]]:
+    """Propagated sub-satellite path as antimeridian-safe segments.
+
+    A new segment starts wherever consecutive longitudes jump by more than
+    180 degrees, so no renderer ever draws a straight line across the globe
+    at the date line. Points carry signed offsets from t0: negative = past.
+    """
+    start = t0 - timedelta(minutes=past_minutes)
+    steps = int((past_minutes + future_minutes) * 60 // step_s)
+    segments: list[list[dict]] = []
+    prev_lon = None
+    for i in range(steps + 1):
+        t = start + timedelta(seconds=i * step_s)
+        st = _state_eci_km(sat, t)
+        if st is None:
+            continue
+        lat, lon, alt = _geodetic(st[0], t)
+        point = {'lat': round(lat, 4), 'lon': round(lon, 4),
+                 'alt_km': round(alt, 1),
+                 'offset_s': round((t - t0).total_seconds(), 1)}
+        if prev_lon is None or abs(lon - prev_lon) > 180.0:
+            segments.append([point])
+        else:
+            segments[-1].append(point)
+        prev_lon = lon
+    return [seg for seg in segments if len(seg) >= 2]
+
+
 def predict_passes(sat, obs_lat: float, obs_lon: float, t0: datetime,
                    hours: float = 24.0, min_elevation_deg: float = 10.0,
                    step_s: float = 30.0) -> list[dict]:

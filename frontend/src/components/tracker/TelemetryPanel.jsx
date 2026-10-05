@@ -65,27 +65,37 @@ function TelemetryTab({ meta, live }) {
         <Tile label="Longitude" value={live ? `${Math.abs(live.lon).toFixed(2)}° ${live.lon >= 0 ? 'E' : 'W'}` : '——'} />
       </div>
       {fp && (
-        <div className="grid grid-cols-2 gap-2 mb-3">
+        <div className="grid grid-cols-2 gap-2 mb-2">
           <Tile label="Horizon ∠" value={fp.horizonDeg.toFixed(1)} unit="deg" />
           <Tile label="Footprint r" value={fp.radiusKm.toFixed(0)} unit="km" />
         </div>
       )}
+      <div className="grid grid-cols-2 gap-2 mb-3">
+        <div className="bg-black/25 border border-emerald-400/10 rounded-lg px-3 py-2.5"
+             title="Cylindrical Earth-shadow model: LIT when the spacecraft is outside the umbra cone.">
+          <div className="text-[9px] uppercase tracking-[0.15em] text-emerald-600">Sunlight</div>
+          <div className={`font-mono text-sm mt-0.5 ${live?.sunlit ? 'text-amber-300' : 'text-cyan-300'}`}>
+            {live ? (live.sunlit ? '☀ LIT' : '☾ ECLIPSE') : '——'}
+          </div>
+        </div>
+        <Tile label="NORAD ID" value={String(meta.norad_id)} />
+      </div>
       <div className="text-[9px] uppercase tracking-[0.18em] text-emerald-600 mb-1.5">Orbital Elements</div>
       <div className="bg-black/20 border border-emerald-400/10 rounded-lg px-3 py-1.5">
         {[
-          ['Period', `${meta.period_min.toFixed(1)} min`],
-          ['Inclination', `${meta.inclination_deg.toFixed(2)}°`],
-          ['RAAN', `${meta.raan_deg.toFixed(1)}°`],
-          ['Arg of perigee', `${det.argPerigeeDeg.toFixed(2)}°`],
-          ['Mean anomaly', `${det.meanAnomalyDeg.toFixed(2)}°`],
-          ['Eccentricity', meta.eccentricity.toFixed(4)],
-          ['Semi-major axis', `${meta.sma_km.toLocaleString()} km`],
-          ['Apogee', `${det.apogeeKm.toFixed(0)} km`],
-          ['Perigee', `${det.perigeeKm.toFixed(0)} km`],
-          ['TLE epoch', `${det.epochMs ? new Date(det.epochMs).toISOString().slice(0, 16).replace('T', ' ') : 'unavailable'} UTC`],
-          ['Launched', String(meta.launched)],
-        ].map(([k, v]) => (
-          <div key={k} className="flex justify-between text-[11px] py-[3px] border-b border-emerald-400/[0.07] last:border-0">
+          ['Period', `${meta.period_min.toFixed(1)} min`, 'Time for one full revolution (from mean motion).'],
+          ['Inclination', `${meta.inclination_deg.toFixed(2)}°`, 'Tilt of the orbital plane vs the equator.'],
+          ['RAAN', `${meta.raan_deg.toFixed(1)}°`, 'Right ascension of the ascending node — where the orbit crosses the equator heading north.'],
+          ['Arg of perigee', `${det.argPerigeeDeg.toFixed(2)}°`, 'Angle from the ascending node to the lowest point of the orbit.'],
+          ['Mean anomaly', `${det.meanAnomalyDeg.toFixed(2)}°`, 'Fractional position along the orbit at epoch (not a geometric angle).'],
+          ['Eccentricity', meta.eccentricity.toFixed(4), '0 = circle; values here are near-circular LEO orbits.'],
+          ['Semi-major axis', `${meta.sma_km.toLocaleString()} km`, 'Half the long axis of the ellipse; sets the orbital energy.'],
+          ['Apogee', `${det.apogeeKm.toFixed(0)} km`, 'Highest point above the spherical-Earth surface.'],
+          ['Perigee', `${det.perigeeKm.toFixed(0)} km`, 'Lowest point above the spherical-Earth surface.'],
+          ['TLE epoch', `${det.epochMs ? new Date(det.epochMs).toISOString().slice(0, 16).replace('T', ' ') : 'unavailable'} UTC`, 'Reference time of the element set; accuracy degrades with age.'],
+          ['Launched', String(meta.launched), 'Year the spacecraft reached orbit.'],
+        ].map(([k, v, tip]) => (
+          <div key={k} title={tip} className="flex justify-between text-[11px] py-[3px] border-b border-emerald-400/[0.07] last:border-0 cursor-help">
             <span className="text-emerald-500">{k}</span>
             <span className="font-mono text-emerald-100 tabular-nums">{v}</span>
           </div>

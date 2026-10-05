@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, List, Gauge, Orbit } from 'lucide-react'
 import OrbitScene from '../../components/scene/OrbitScene.jsx'
@@ -48,6 +48,8 @@ export default function TrackerPage() {
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
       />
+
+      <Diagnostics />
 
       {/* ---------------- top bar ---------------- */}
       <header className="absolute top-0 inset-x-0 z-30 h-14 flex items-center gap-3 px-4 bg-[#04120b]/85 backdrop-blur-md border-b border-emerald-400/15">
@@ -141,6 +143,35 @@ function TimelineScrubber({ value, onChange, disabled }) {
       <span className="text-[10px] font-mono text-emerald-300 tabular-nums w-16 text-right shrink-0">
         {value === 0 ? 'NOW±' : `${value > 0 ? '+' : ''}${value}m`}
       </span>
+    </div>
+  )
+}
+
+/** Developer diagnostics — visible only with ?debug in the URL. */
+function Diagnostics() {
+  const engine = useEngine()
+  const [fps, setFps] = useState(0)
+  useEffect(() => {
+    if (!new URLSearchParams(window.location.search).has('debug')) return undefined
+    let frames = 0, last = performance.now(), raf
+    const loop = () => {
+      frames += 1
+      const now = performance.now()
+      if (now - last >= 1000) { setFps(Math.round((frames * 1000) / (now - last))); frames = 0; last = now }
+      raf = requestAnimationFrame(loop)
+    }
+    raf = requestAnimationFrame(loop)
+    return () => cancelAnimationFrame(raf)
+  }, [])
+  if (!new URLSearchParams(window.location.search).has('debug')) return null
+  return (
+    <div className="absolute top-16 left-1/2 -translate-x-1/2 z-40 font-mono text-[10px] text-emerald-400 bg-black/75 border border-emerald-400/25 rounded-md px-3 py-1.5 flex gap-4 pointer-events-none">
+      <span>FPS {fps}</span>
+      <span>SATS {engine.snapshot?.length ?? 0}</span>
+      <span>PROP 10 Hz</span>
+      <span>WARP {engine.warp}×</span>
+      <span>SEL {engine.selectedId}</span>
+      <span>SIM {engine.date().toISOString().slice(11, 23)}</span>
     </div>
   )
 }

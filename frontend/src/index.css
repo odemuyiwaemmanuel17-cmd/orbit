@@ -54,3 +54,25 @@ select option {
   background: #04120b;
   color: #d1fae5;
 }
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.toast-enter {
+  animation: toast-in 220ms ease-out;
+}
+
+/* Respect user motion preferences across landing + Mission Control */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .live-dot,
+  .toast-enter,
+  .animate-spin,
+  .animate-bounce {
+    animation: none !important;
+  }
+  * {
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -28,6 +28,24 @@ export const REGIME_COLORS = {
   GEO: '#a3e635',
 }
 
+/**
+ * Low-precision apparent sun direction (Meeus) as a unit vector in the same
+ * scene frame as geodeticToScene — used for eclipse tests and lighting.
+ */
+export function sunDirection(date = new Date(), target = new THREE.Vector3()) {
+  const jd = date.getTime() / 86400000 + 2440587.5
+  const n = jd - 2451545.0
+  const L = (280.46 + 0.9856474 * n) * DEG
+  const g = (357.528 + 0.98560028 * n) * DEG
+  const lambda = L + 1.915 * Math.sin(g) * DEG + 0.02 * Math.sin(2 * g) * DEG
+  const eps = (23.439 - 0.0000004 * n) * DEG
+  const ra = Math.atan2(Math.cos(eps) * Math.sin(lambda), Math.cos(lambda))
+  const dec = Math.asin(Math.sin(eps) * Math.sin(lambda))
+  const gmstDeg = ((280.46061837 + 360.98564736629 * n) % 360 + 360) % 360
+  const subsolarLon = (ra / DEG - gmstDeg + 540) % 360 - 180
+  return geodeticToScene(dec / DEG, subsolarLon, 0, target).normalize()
+}
+
 export const REGIME_LABELS = {
   LEO: 'Low Earth Orbit',
   MEO: 'Medium Earth Orbit',

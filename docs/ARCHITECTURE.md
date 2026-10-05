@@ -76,3 +76,19 @@ tested deterministic pipeline uses `sgp4` directly (no ephemeris download).
 ## Deploy
 - Vercel builds `frontend/` via root `package.json` + `vercel.json`.
 - Backend deploys independently (any uvicorn host); frontend works without it.
+
+## Gap-closure additions (2026-10-05)
+- **Ground track** — `engine.groundTrackSegments(id)` propagates −45/+90 min
+  sub-satellite points, splits every ±180° crossing into its own polyline,
+  and renders past (solid emerald) vs future (dashed cyan) at r = 1.006.
+  Server mirror: `GET /api/satellites/{id}/groundtrack`.
+- **Sunlight state** — cylindrical Earth-shadow test in scene units inside
+  `engine.sunlitAt`; shown as LIT / ECLIPSE in the telemetry tab.
+- **Camera focus** — `engine.focusOn(id)` sets a yaw/pitch easing target
+  consumed by `GlobeGroup` each frame; any drag input clears it.
+- **Categories** — mission-type chips (Stations, Starlink, Navigation,
+  Weather, Earth Obs, Science) layered on top of regime filters.
+- **Diagnostics** — `/tracker?debug` overlay: FPS, satellite count,
+  propagation rate, warp, selected NORAD, sim clock. Hidden otherwise.
+- **Accessibility** — aria-pressed filter chips, aria-live boot list,
+  `prefers-reduced-motion` disables pulse/bounce/spin animations.
