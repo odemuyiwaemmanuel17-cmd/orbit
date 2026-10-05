@@ -80,3 +80,15 @@ without touching its visual identity.
 - Perf gates (node, `frontend/tools/constellation-check.mjs`): 8 → slice 1.0 ms; 30 → 0.5; 40 → 0.3; synthetic 2000 → 0.4 (window 223); synthetic 6000 → 0.7 (window 400, full refresh 1.5 s). Parse 6000 = 53 ms; budget 25 ms never approached. Scheduler invariant (every unselected refreshed per cycle, proven via `lastUpdate` stamps) passes at all sizes.
 - Tests: 48 backend pytest pass (5 new constellation tests incl. bundle-fallback provenance); frontend build green with per-group chunks (test 3.6 kB / gps 12.6 kB / weather 16.5 kB).
 - Deviations: large-scale bench uses clearly-labeled synthetic Starlink-shell fixtures (compute gate only, never app data); conjunction screening client cap 64 — full-catalog screening stays a server-side FUTURE item.
+
+---
+
+## 2026-10-05 — Starlink phase 4 (real subset)
+
+- `frontend/src/data/constellations/starlink.json`: 120 live CelesTrak
+  starlink TLEs fetched at 14:32 UTC via `fetch_constellations.py`.
+- Perf gate (real data): n=120 parse 11 ms, sweep 5 ms, slice 0.3 ms/tick
+  (window 16 -> full refresh 8 ticks = 0.8 s); scheduler invariant PASS.
+- All four layers now ship real data; the STARLINK chip appears in /tracker.
+- Phase 5 (large catalogue, --cap 2000) awaits the next CelesTrak dedupe
+  window (~16:33 UTC); synthetic 2000/6000 gates already prove the budget.
