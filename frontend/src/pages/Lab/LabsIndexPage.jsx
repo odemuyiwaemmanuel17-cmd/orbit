@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Sigma, Rocket, Waypoints, Fuel, Construction } from 'lucide-react'
+import { ArrowLeft, Sigma, Rocket, Waypoints, Fuel, GitCompareArrows, Construction } from 'lucide-react'
 import OrbitScene from '../../components/scene/OrbitScene.jsx'
 
 const LABS = [
@@ -11,6 +11,8 @@ const LABS = [
     note: 'Two-impulse transfers with animated coast and real ΔV accounting' },
   { to: '/lab/dvbudget', icon: Fuel, tag: 'DESIGN', title: 'Mission ΔV Budget',
     note: 'Tsiolkovsky feasibility: events, propellant, margin, GO/NO-GO' },
+  { to: '/lab/planec', icon: GitCompareArrows, tag: 'DESIGN', title: 'Plane Change Simulator',
+    note: 'ΔV = 2v·sin(Δi/2) node-line burns, altitude ladder, combined-burn savings' },
 ]
 
 const NEXT_UP = [

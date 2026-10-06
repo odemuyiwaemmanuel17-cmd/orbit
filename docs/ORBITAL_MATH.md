@@ -130,3 +130,27 @@ Service: `frontend/src/lib/rocket.js`. g0 = 9.80665 m/s^2 from constants.js.
   and propellant shortfall.
 - Not modeled (labeled): gravity + drag losses, staging, tank residuals,
   thrust profile (impulsive assumption inherited from M2/M3).
+
+
+## Plane change (M5)
+
+Service: `frontend/src/lib/planechange.js`. Builds on kepler.js
+(circularVelocityKmS) and hohmann.js (transfer apogee/target speeds) — no
+duplicated orbital math.
+
+- Pure inclination change at speed v (|v| unchanged, vectors di apart),
+  executed exactly on the node line, impulsive, two-body:
+      dV = 2 v sin(di/2)
+  Endpoints are sanity anchors: di = 0 -> 0; di = 180 deg -> 2v (a full
+  flip is the largest plane change and costs twice the speed).
+- The cost scales with orbital speed, so the same di is far cheaper at GEO
+  than in LEO (30 deg: ~3.97 km/s at 400 km vs ~1.59 km/s at GEO).
+  Missions therefore change planes high, or combine.
+- Combined circularize + plane change at transfer apogee (velocity
+  triangle, law of cosines), using the validated Hohmann apogee speed:
+      dV = sqrt(v_a^2 + v_c^2 - 2 v_a v_c cos(di))
+  always <= separate plane-change-then-circularize (saving shown in UI;
+  proven per-triangle in tests, incl. di = 0 reducing to plain dv2).
+- Not modeled (labeled): finite-thrust arcs, low-thrust spiral plane
+  changes, J2 RAAN drift during the climb (M17 models J2), non-circular
+  endpoint pairs other than the two-midpoint transfer.

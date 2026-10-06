@@ -38,8 +38,8 @@ each reuses validated lower-level physics.
 | 2 | Maneuver Simulator (impulsive burn -> before/after elements) | **DONE** |
 | 3 | Hohmann Transfer Planner | **DONE** |
 | 4 | Delta-V Budget + Tsiolkovsky | **DONE** |
-| 5 | Plane Change Simulator | NEXT |
-| 6 | Ground Station System | TODO |
+| 5 | Plane Change Simulator | **DONE** |
+| 6 | Ground Station System | NEXT |
 | 7 | Pass Prediction over user stations | TODO |
 | 8 | Line-of-Sight visualization | TODO |
 | 9 | Coverage vs min-elevation | TODO |

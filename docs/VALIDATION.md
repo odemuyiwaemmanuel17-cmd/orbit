@@ -74,3 +74,16 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 | budget GO/NO-GO | required vs available | margin = avail - req | exact | 1e-6 |
 | shortfall accounting | over-budget mission | needed - carried | exact | 1e-6 |
 | preset reuse proof | LEO->GEO preset vs hohmann service | dv1/dv2 equal (rounded m/s) | equal | <1 m/s |
+
+## Plane change (frontend/tests/planechange.test.js)
+
+| Check | Reference | Expected | OrbitalPulse | Delta |
+|---|---|---|---|---|
+| 1 deg at 400 km | 2 sqrt(mu/6771) sin(0.5 deg) | 133.91 m/s (v = 7.6726 km/s) | 133.910 | 1e-6 |
+| 180 deg flip | dV = 2v (formula's own bound) | exact | matches | 1e-9 |
+| sign symmetry | +di vs -di same cost | identity | matches | 1e-12 |
+| altitude ladder | dV strictly decreases with alt | monotone for 30 deg | monotone | - |
+| GEO 30 deg pure plane change | classic ~1.6 km/s rule of thumb | 1.5-1.65 km/s band | 1.592 km/s | in-band |
+| combined burn, di = 0 | reduces to Hohmann dv2 | equals transfer dv2 | matches | 1e-4 |
+| combined <= separate | law of cosines vs plane+circ sum | saving >= 0 for 5/15/28.5 deg | holds | - |
+| triangle bound | combined <= va + vc | never exceeded | holds | - |

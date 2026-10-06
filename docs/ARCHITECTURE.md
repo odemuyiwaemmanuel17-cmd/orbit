@@ -180,3 +180,19 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
 - /lab (LabsIndexPage): ANALYZE/DESIGN hub; tracker header's three
   cumulative lab links consolidated into one LABS entry (own additions,
   not approved chrome); each lab header: TRACKER + LABS.
+
+## Addendum 2026-10-06 — M5 Plane Change Simulator
+
+- lib/planechange.js pure service: dV = 2v sin(di/2) (node-line, impulsive,
+  |v| unchanged), altitude ladder helper, and combined apogee burn via law
+  of cosines on the VALIDATED hohmann.js apogee/target speeds (reuse, no
+  duplicated transfer math).
+- /lab/planec: two rings sharing one ascending node (grey current orbit with
+  animated sat, dashed cyan target orbit), amber node line + node sphere
+  projected through the same eciToSceneKm/GMST contract as LabOrbit;
+  altitude + i1/i2 sliders, live Δi·v·ΔV readout, cheaper-at-altitude ladder
+  table, LEO→GEO combined-vs-separate saving card, substituted
+  SHOW CALCULATION, ANALYTICAL — IMPULSIVE accuracy badge.
+- Tests: vitest 53/53 (7 plane-change cases incl. 133.91 m/s reference,
+  180° = 2v bound, monotone ladder, GEO 30° band, di = 0 reduces to
+  Hohmann dv2, combined ≤ separate, triangle bound).

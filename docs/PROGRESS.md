@@ -195,3 +195,29 @@ without touching its visual identity.
   Build green; JSX text arrow literals fixed after esbuild flagged them.
 - Next: M5 plane change simulator (dV = 2v sin(di/2) with assumptions +
   combined-burn optimization note).
+
+---
+
+## 2026-10-06 - M5 Plane Change Simulator
+
+- lib/planechange.js: pure dV = 2v sin(di/2) service with documented
+  applicability (node-line, impulsive, |v| unchanged), altitude ladder
+  helper, and combined circularize+plane-change apogee burn via law of
+  cosines on the validated hohmann.js speeds — saving vs separate burns
+  reported, never fabricated (combined <= separate proven in tests).
+- /lab/planec: current orbit (grey, animated sat) and target orbit
+  (dashed cyan) sharing one ascending node; amber node line + sphere
+  through the same GMST/eciToSceneKm contract; alt/i1/i2 sliders, live
+  Δi·v·ΔV card, cheaper-at-altitude table, LEO->GEO combined-burn card,
+  substituted SHOW CALCULATION, ANALYTICAL — IMPULSIVE badge.
+- /lab hub gained the Plane Change card (DESIGN).
+- Tests: vitest 53/53 (7 new: 133.91 m/s reference at 1 deg/400 km,
+  0 and 180 deg endpoints incl. 2v flip bound, sign symmetry, strictly
+  decreasing ladder with GEO 30 deg in the classic ~1.6 km/s band,
+  di = 0 combined reduces to Hohmann dv2, combined <= separate, triangle
+  bound). Build green; route smoke 200 on /lab/planec.
+- Fix during verify: my test reference had hardcoded v = 7.6686 km/s
+  (equatorial-radius value) while the service correctly uses the mean
+  radius (7.6726) — fixed the test, not the physics.
+- Next: M6 Ground Station System (station model + map placement; feeds
+  pass prediction M7 and LOS M8).
