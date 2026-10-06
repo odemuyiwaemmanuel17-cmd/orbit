@@ -156,3 +156,23 @@ without touching its visual identity.
   options + exported eciToSceneKm. Tracker behavior unchanged.
 - Next: M3 Hohmann transfer planner (two-impulse circular->circular,
   analytic transfer ellipse + animated coast with the same engines).
+
+---
+
+## 2026-10-06 - M3 Hohmann Transfer Planner
+
+- lib/hohmann.js analytic two-impulse service on kepler.js (signed dV for
+  outward AND inward transfers, coast time, transfer elements for render).
+- /lab/hohmann (lazy 12 kB): initial/target altitude inputs, 4 presets
+  (LEO->GEO, LEO->GPS, SSO->SSO, GEO->LEO deorbit pair), inclination slider
+  (plane shared, plane-change cost deferred to M5 honestly labeled),
+  three-orbit scene (grey endpoint rings, dashed cyan ellipse, amber/sky
+  burn-site markers = transfer perigee/apogee), spacecraft animated via
+  Kepler solver on the sim clock with PLAY/PAUSE (phase freeze)/RESET/speed,
+  live coast-time readout, SHOW CALCULATION fully substituted.
+- Tests: vitest 37/37 (10 new: GEO 3.8-3.95 km/s band, 5.26 h coast,
+  apsis/identity checks, equal-radius zero-dV limit, up/down symmetry,
+  coast monotonicity). pytest 48/48. Build green. Fix during verify:
+  invalid lucide 'Transfer' icon -> Waypoints (rollup caught it).
+- Next: M4 Delta-V budget + Tsiolkovsky (rocket equation service + event
+  table + feasibility).

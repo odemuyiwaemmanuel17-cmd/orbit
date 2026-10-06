@@ -7,6 +7,7 @@ import SceneLoader from './components/common/SceneLoader.jsx'
 const TrackerPage = lazy(() => import('./pages/Tracker/TrackerPage.jsx'))
 const ElementsLabPage = lazy(() => import('./pages/Lab/ElementsLabPage.jsx'))
 const ManeuverLabPage = lazy(() => import('./pages/Lab/ManeuverLabPage.jsx'))
+const HohmannLabPage = lazy(() => import('./pages/Lab/HohmannLabPage.jsx'))
 
 /**
  * OrbitalPulse route shell.
@@ -14,6 +15,7 @@ const ManeuverLabPage = lazy(() => import('./pages/Lab/ManeuverLabPage.jsx'))
  *   /tracker     -> Mission Control (engineering interface)
  *   /lab/elements -> ANALYZE: Orbital Elements Lab (analytic two-body)
  *   /lab/maneuver -> DESIGN:  Maneuver Lab (impulsive burns on live states)
+ *   /lab/hohmann  -> DESIGN:  Hohmann Transfer Planner (analytic two-impulse)
  */
 export default function App() {
   return (
@@ -42,6 +44,14 @@ export default function App() {
             element={
               <Suspense fallback={<SceneLoader label="LOADING MANEUVER LAB" />}>
                 <ManeuverLabPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/lab/hohmann"
+            element={
+              <Suspense fallback={<SceneLoader label="LOADING TRANSFER PLANNER" />}>
+                <HohmannLabPage />
               </Suspense>
             }
           />

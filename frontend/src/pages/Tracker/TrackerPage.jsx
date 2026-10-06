@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, List, Gauge, Orbit, FlaskConical, Rocket } from 'lucide-react'
+import { ArrowLeft, List, Gauge, Orbit, FlaskConical, Rocket, Waypoints } from 'lucide-react'
 import OrbitScene from '../../components/scene/OrbitScene.jsx'
 import CatalogPanel from '../../components/tracker/CatalogPanel.jsx'
 import TelemetryPanel from '../../components/tracker/TelemetryPanel.jsx'
@@ -62,6 +62,9 @@ export default function TrackerPage() {
         </Link>
         <Link to="/lab/maneuver" className="hidden md:flex items-center gap-1.5 text-amber-400 hover:text-amber-200 text-[12px] font-mono">
           <Rocket size={14} /> MANEUVER
+        </Link>
+        <Link to="/lab/hohmann" className="hidden lg:flex items-center gap-1.5 text-emerald-300 hover:text-emerald-100 text-[12px] font-mono">
+          <Waypoints size={14} /> TRANSFER
         </Link>
         <div className="hidden md:block w-px h-6 bg-emerald-400/15" />
         <div className="flex items-center gap-2">

@@ -101,3 +101,18 @@ Service: `frontend/src/lib/maneuver.js` (imports kepler.js only).
 3. **Honesty model**: predicted orbit is analytic two-body from the
    post-burn state at the frozen burn epoch; live SGP4 state of the real
    satellite is never mutated (working copy in the UI layer only).
+
+
+## Hohmann transfer (M3)
+
+Service: `frontend/src/lib/hohmann.js`.
+
+a_t = (r1 + r2)/2; e_t = (r2 - r1)/(r2 + r1); burns from vis-viva on the
+transfer ellipse: dV1 = v_t(r1) - v_c(r1), dV2 = v_c(r2) - v_t(r2) (signed;
+inward transfers get both-negative retrograde pairs via perigee re-indexing,
+argPerigee flips 0/180 so the LOW apsis always sits at the lower radius).
+Coast = T_t/2 = pi*sqrt(a_t^3/mu). Animation phase: mean anomaly from the
+sim clock -> true anomaly via the validated Kepler solver; the return half
+is labeled DISPLAY LOOP (a real mission circularizes at apogee).
+Assumptions: impulsive, coplanar, circular endpoints; Earth-oblate and
+plane-change costs excluded (M4/M5 model those).

@@ -111,10 +111,12 @@ export default function LabOrbit({ elements, options, simMs }) {
                              toneMapped={false} />
         </mesh>
       ))}
-      <mesh position={satScene}>
-        <sphereGeometry args={[0.022, 12, 12]} />
-        <meshBasicMaterial color="#ffffff" toneMapped={false} />
-      </mesh>
+      {!options.hideSat && (
+        <mesh position={satScene}>
+          <sphereGeometry args={[0.022, 12, 12]} />
+          <meshBasicMaterial color="#ffffff" toneMapped={false} />
+        </mesh>
+      )}
     </group>
   )
 }

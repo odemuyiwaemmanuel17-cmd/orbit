@@ -47,3 +47,16 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 | plane tilt, normal burn | circular +100 m/s out-of-plane | Δi ≈ atan(dV/v) = 0.760° | 0.7592° | <0.001° |
 | induced e (2nd order) | normal burn finite dV | e ≈ (dV/v)² = 1.76e-4 | 1.756e-4 | <1% |
 | ISS live-state burn (E2E) | +100 m/s prograde at TLE epoch | Δa ≈ v·dV·2a²/μ? numeric integration | Δa +183.2 km, ΔT +3.78 min, ν_burn→0 (1.04°, live e≠0) | consistent |
+
+## Hohmann transfer (frontend/tests/hohmann.test.js)
+
+| Check | Reference | Expected | OrbitalPulse | Delta |
+|---|---|---|---|---|
+| 300 km -> GEO total dV | classic two-impulse LEO->GEO | 3.80-3.95 km/s band | in-band (per-run 3.85 km/s @400 km) | in-band |
+| 300 km -> GEO coast | half transfer period | ~5.1-5.4 h | 5.26 h | <0.05 h |
+| a_t, e_t formulas | (r1+r2)/2, (r2-r1)/(r2+r1) | identity | 1e-9 rel | - |
+| equal-radius limit | r1 = r2 | dV1 = dV2 = 0 | <1e-9 m/s | - |
+| direction symmetry | up vs down same endpoints | identical total dV, opposite signs | to 1e-6 m/s | - |
+| vis-viva identities | dV1 = v_p - v_c1 etc. | definition match | 1e-6 m/s | - |
+| apsis radii | a(1±e) = r1, r2 | exact | 1e-6 km | - |
+| coast monotonicity | t(nu) increasing, t(180)=T/2 | endpoints | 1e-3 s | - |

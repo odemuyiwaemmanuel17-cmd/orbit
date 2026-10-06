@@ -155,3 +155,17 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
   LabOrbit twice; amber burn vector via exported eciToSceneKm.
 - `/lab/maneuver`: lazy 13 kB chunk; PREVIEW before APPLY, burn stack with
   cumulative dV, before/LIVE/after engineering table, SHOW CALCULATION.
+
+
+## Addendum 2026-10-06 - M3 Hohmann Planner
+
+- lib/hohmann.js: pure analytic transfer service (radii in, signed dV out),
+  plus transferElements/circularElements for renderer-friendly element sets
+  and coastFractionSec for honest animation phasing.
+- /lab/hohmann: three-orbit overlay (initial/target circles via LabOrbit
+  hideSat, dashed transfer ellipse with perigee/apogee burn markers),
+  presets incl. inward transfer, altitude sliders + engineering inputs,
+  play/pause (freeze keeps last phase, no teleport)/reset/speed, full
+  SHOW CALCULATION with substituted numbers.
+- Tracker header: ELEMENTS LAB / MANEUVER / TRANSFER lab links (md/lg
+  breakpoints to avoid crowding); pages cross-link in headers.
