@@ -130,3 +130,29 @@ without touching its visual identity.
   repo; deferral documented).
 - Next: M2 Maneuver Simulator - impulsive burn in the rotating
   RSW frame -> new classical elements, before/after orbits via LabOrbit.
+
+---
+
+## 2026-10-06 - M2 Maneuver Simulator (Maneuver Lab)
+
+- New pure service lib/maneuver.js: RSW-basis impulsive burns (prograde,
+  retrograde, radial out/in, normal, anti-normal), exact applied-dV report,
+  before/after engineering deltas. Built strictly on validated kepler.js.
+- New route /lab/maneuver (lazy 13 kB): real satellite picker (featured
+  catalog + active constellations via engine.recordFor), direction chips,
+  dV slider + engineering input, PREVIEW BURN -> amber burn vector + dashed
+  cyan PREDICTED orbit alongside grey ORIGINAL (live SGP4-derived) orbit,
+  APPLY commits burn stacks with cumulative dV, RESET restores live state,
+  before/LIVE/after table (apogee/perigee altKm, period, e, a, i),
+  SHOW CALCULATION with identities and the RSW-vs-LVLH caveat.
+- The live satellite's SGP4 truth is never modified (working copy only) -
+  labeled ANALYTICAL - IMPULSIVE TWO-BODY.
+- Tests: vitest 27/27 (9 new maneuver cases: perigee/apogee identities,
+  energy bookkeeping, plane tilt atan(dV/v), second-order induced e,
+  orthonormal T/R/N, zero-dV identity, unknown-direction throws).
+  ISS end-to-end probe on a real TLE: +100 m/s prograde -> da +183 km,
+  dT +3.78 min, burn point -> new perigee (1.04°, live-e offset).
+- OrbitScene: additive `overlay` prop; LabOrbit: color/dashed/opacity
+  options + exported eciToSceneKm. Tracker behavior unchanged.
+- Next: M3 Hohmann transfer planner (two-impulse circular->circular,
+  analytic transfer ellipse + animated coast with the same engines).

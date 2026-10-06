@@ -344,7 +344,7 @@ function GlobeGroup({ children }) {
 
 /* ------------------------------------------------------------------ Scene */
 
-export default function OrbitScene({ mission = false, lab = null }) {
+export default function OrbitScene({ mission = false, lab = null, overlay = null }) {
   const [snapshot, setSnapshot] = useState(() => engine.propagateAll())
   useEffect(() => engine.subscribe((e) => {
     if (e.snapshot) setSnapshot(e.snapshot)
@@ -363,6 +363,7 @@ export default function OrbitScene({ mission = false, lab = null }) {
       <GlobeGroup>
         <Earth />
         {lab && <LabOrbit elements={lab.elements} options={lab.options} simMs={lab.simMs} />}
+        {overlay}
         {engine.activeConstellationGroups().map((g) => (
           <ConstellationField key={g.key} group={g} />
         ))}

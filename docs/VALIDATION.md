@@ -35,3 +35,15 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 - Scene display uses documented log radial compression (altToRadius); all *numbers* shown are SI, never scene units.
 - J2 formulas are first-order secular averages, valid for LEO/MEO study, not long-horizon prediction.
 - Browser pixel verification is performed manually (no headless browser in the build environment).
+
+## Impulsive maneuvers (frontend/tests/maneuver.test.js + ISS end-to-end probe)
+
+| Equation | Reference case | Expected | OrbitalPulse | Delta |
+|---|---|---|---|---|
+| v' = v + dV·d̂ (magnitude) | any direction, 37.5 m/s | applied \|Δv\| = requested | exact (1e-9) | - |
+| tangential prograde burn | circular r=7000 km, +100 m/s | burn point becomes perigee: a'(1−e') = 7000 | 7000.000000 km | <1e-6 |
+| energy bookkeeping | prograde 100 m/s at circular | ε' = ε + v·dV + dV²/2 | matches to 1e-9 | - |
+| retrograde identity | circular −50 m/s | burn point becomes apogee; Δapogee = 0 | 0 km / −25.9 km perigee | <1e-6 |
+| plane tilt, normal burn | circular +100 m/s out-of-plane | Δi ≈ atan(dV/v) = 0.760° | 0.7592° | <0.001° |
+| induced e (2nd order) | normal burn finite dV | e ≈ (dV/v)² = 1.76e-4 | 1.756e-4 | <1% |
+| ISS live-state burn (E2E) | +100 m/s prograde at TLE epoch | Δa ≈ v·dV·2a²/μ? numeric integration | Δa +183.2 km, ΔT +3.78 min, ν_burn→0 (1.04°, live e≠0) | consistent |

@@ -14,7 +14,7 @@ const ORBIT = '#4ade80'
 
 /** ECI km -> scene units through the SAME projection contract as real sats:
  *  geodetic lat/lon at the current GMST + the documented radial compression. */
-function eciToScene(x, y, z, gmstRad, target) {
+export function eciToSceneKm(x, y, z, gmstRad, target) {
   const v = target ?? new THREE.Vector3()
   const r = Math.hypot(x, y, z)
   const latDeg = Math.asin(THREE.MathUtils.clamp(z / r, -1, 1)) / RAD_PER_DEG
@@ -35,7 +35,7 @@ export default function LabOrbit({ elements, options, simMs }) {
   const gmst = sm.gstime(new Date(simMs))
   const TMP = useMemo(() => new THREE.Vector3(), [])
   const toScene = (p) => {
-    eciToScene(p.x, p.y, p.z, gmst, TMP)
+    eciToSceneKm(p.x, p.y, p.z, gmst, TMP)
     return [TMP.x, TMP.y, TMP.z]
   }
 
@@ -43,7 +43,7 @@ export default function LabOrbit({ elements, options, simMs }) {
     const flat = orbitPolylineKm(elements, 160)
     const pts = []
     for (let k = 0; k <= 160; k += 1) {
-      eciToScene(flat[k * 3], flat[k * 3 + 1], flat[k * 3 + 2], gmst, TMP)
+      eciToSceneKm(flat[k * 3], flat[k * 3 + 1], flat[k * 3 + 2], gmst, TMP)
       pts.push([TMP.x, TMP.y, TMP.z])
     }
     const mk = orbitMarkersKm(elements)
@@ -67,7 +67,7 @@ export default function LabOrbit({ elements, options, simMs }) {
         const ring = []
         for (let k = 0; k <= 64; k += 1) {
           const th = (k / 64) * 2 * Math.PI
-          eciToScene(Math.cos(th) * rKm, Math.sin(th) * rKm, 0, gmst, TMP)
+          eciToSceneKm(Math.cos(th) * rKm, Math.sin(th) * rKm, 0, gmst, TMP)
           ring.push([TMP.x, TMP.y, TMP.z])
         }
         return ring
@@ -90,7 +90,9 @@ export default function LabOrbit({ elements, options, simMs }) {
 
   return (
     <group>
-      <Line points={linePts} color={ORBIT} lineWidth={1.6} transparent opacity={0.9} toneMapped={false} />
+      <Line points={linePts} color={options.lineColor ?? ORBIT} lineWidth={1.6}
+            dashed={!!options.dashed} dashSize={0.04} gapSize={0.03}
+            transparent opacity={options.opacity ?? 0.9} toneMapped={false} />
       {options.showConstruction && apsidalLine && (
         <Line points={apsidalLine} color={PERIGEE} lineWidth={0.8} dashed dashSize={0.03} gapSize={0.02}
               transparent opacity={0.4} toneMapped={false} />

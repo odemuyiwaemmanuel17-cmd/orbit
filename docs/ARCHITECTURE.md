@@ -141,3 +141,17 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
   OrbitScene with a `lab` prop; Earth stays interactive (same drag layer +
   engine clock). The ISS pipeline is untouched: the lab renders alongside
   the live scene under the same projection contract.
+
+
+## Addendum 2026-10-06 — M2 Maneuver Lab
+
+- `lib/maneuver.js`: pure impulsive-burn service (RSW directions, apply +
+  before/after deltas) on top of kepler.js. No duplicated orbital math.
+- `engine.recordFor(id)`: public accessor so tools seed from real featured
+  or active-constellation satellites through the same record path.
+- OrbitScene gained an `overlay` node prop (inside GlobeGroup) — Maneuver
+  Lab draws ORIGINAL (grey, live SGP4-derived elements, updates with the
+  sim clock) + PREDICTED (dashed cyan, frozen burn epoch two-body) with
+  LabOrbit twice; amber burn vector via exported eciToSceneKm.
+- `/lab/maneuver`: lazy 13 kB chunk; PREVIEW before APPLY, burn stack with
+  cumulative dV, before/LIVE/after engineering table, SHOW CALCULATION.

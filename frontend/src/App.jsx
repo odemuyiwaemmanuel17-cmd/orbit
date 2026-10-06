@@ -6,12 +6,14 @@ import SceneLoader from './components/common/SceneLoader.jsx'
 
 const TrackerPage = lazy(() => import('./pages/Tracker/TrackerPage.jsx'))
 const ElementsLabPage = lazy(() => import('./pages/Lab/ElementsLabPage.jsx'))
+const ManeuverLabPage = lazy(() => import('./pages/Lab/ManeuverLabPage.jsx'))
 
 /**
  * OrbitalPulse route shell.
  *   /            -> approved landing experience (untouched visuals)
  *   /tracker     -> Mission Control (engineering interface)
  *   /lab/elements -> ANALYZE: Orbital Elements Lab (analytic two-body)
+ *   /lab/maneuver -> DESIGN:  Maneuver Lab (impulsive burns on live states)
  */
 export default function App() {
   return (
@@ -32,6 +34,14 @@ export default function App() {
             element={
               <Suspense fallback={<SceneLoader label="LOADING ELEMENTS LAB" />}>
                 <ElementsLabPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/lab/maneuver"
+            element={
+              <Suspense fallback={<SceneLoader label="LOADING MANEUVER LAB" />}>
+                <ManeuverLabPage />
               </Suspense>
             }
           />

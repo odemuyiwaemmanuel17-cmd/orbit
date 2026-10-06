@@ -365,6 +365,10 @@ class TrackerEngine {
     this.focusTarget = { yaw, pitch: Math.max(-1.2, Math.min(1.2, 0.3 - latRad * 0.85)) }
     this.emit()
   }
+  /** Public accessor: { meta, rec } for featured or active constellation
+   *  objects — used by analysis tools (maneuver lab) to seed real states. */
+  recordFor(id) { return this._lookupEntry(id) }
+
   resetView() { this.zoom = 1; this.yaw = 0.8; this.pitch = 0.25; this.emit() }
   select(id) {
     if (id === this.selectedId) return

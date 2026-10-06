@@ -84,3 +84,20 @@ Service: `frontend/src/lib/kepler.js` (pure, unit-tested). Constants:
 6. **Scene projection**: ECI -> (lat, lon at GMST, alt) -> geodeticToScene -
    the identical contract used by real SGP4 satellites, so lab orbits and
    live satellites share one frame. Earth rotates under the inertial ellipse.
+
+
+## Maneuver mechanics (M2)
+
+Service: `frontend/src/lib/maneuver.js` (imports kepler.js only).
+
+1. **Impulsive burn**: position continuous, velocity jumps by dV·d̂.
+   Directions use the RSW/velocity basis in ECI: T = v̂ (prograde),
+   R = r̂ (radial out), N = ĥ (out-of-plane); negatives for the other
+   three. Note RSW r̂ equals the true radial, which coincides with the
+   local-horizontal normal only for circular orbits - stated, not hidden.
+2. **New orbit** = stateToElements of (r, v'). Exact identities used as
+   tests: tangential prograde burn => burn point is new perigee;
+   retrograde => new apogee; out-of-plane => Δi = atan(dV/v) + O(dV²).
+3. **Honesty model**: predicted orbit is analytic two-body from the
+   post-burn state at the frozen burn epoch; live SGP4 state of the real
+   satellite is never mutated (working copy in the UI layer only).

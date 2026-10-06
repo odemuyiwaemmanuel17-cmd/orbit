@@ -35,8 +35,8 @@ each reuses validated lower-level physics.
 | # | Capability | Status |
 |---|---|---|
 | 1 | Orbital Elements Lab (analytic two-body; vitest physics suite; constants module) | **DONE** |
-| 2 | Maneuver Simulator (impulsive burn -> before/after elements) | NEXT |
-| 3 | Hohmann Transfer Planner | TODO |
+| 2 | Maneuver Simulator (impulsive burn -> before/after elements) | **DONE** |
+| 3 | Hohmann Transfer Planner | NEXT |
 | 4 | Delta-V Budget + Tsiolkovsky | TODO |
 | 5 | Plane Change Simulator | TODO |
 | 6 | Ground Station System | TODO |
