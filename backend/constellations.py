@@ -30,7 +30,7 @@ CONSTELLATIONS = {
     "test": ("Validation Set", [("iridium-next", 5), ("geo", 3)], 8),
     "gps": ("GPS", [("gps-ops", 31)], 31),
     "weather": ("NOAA / Weather", [("weather", 40)], 40),
-    "starlink": ("Starlink", [("starlink", 5000)], 120),
+    "starlink": ("Starlink", [("starlink", 5000)], 2000),
 }
 
 

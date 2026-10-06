@@ -27,7 +27,7 @@ CONSTELLATIONS = {
                                 ("geo", 3, "GEO comms smoke test", 2010)], 8),
     "gps": ("GPS", [("gps-ops", 31, "Navigation · USSF GPS", 2014)], 31),
     "weather": ("NOAA / Weather", [("weather", 40, "Weather · NOAA / operator", 2000)], 40),
-    "starlink": ("Starlink", [("starlink", 5000, "Broadband · SpaceX", 2020)], 120),
+    "starlink": ("Starlink", [("starlink", 5000, "Broadband · SpaceX", 2020)], 2000),
 }
 
 

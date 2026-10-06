@@ -92,3 +92,16 @@ without touching its visual identity.
 - All four layers now ship real data; the STARLINK chip appears in /tracker.
 - Phase 5 (large catalogue, --cap 2000) awaits the next CelesTrak dedupe
   window (~16:33 UTC); synthetic 2000/6000 gates already prove the budget.
+
+---
+
+## 2026-10-06 — Starlink large catalogue (phase 5, final)
+
+- Re-fetched the starlink group at 11:55 UTC (dedupe window open) and shipped
+  `starlink.json` at cap 2000 — 2000 live TLEs, 1.1 MB, lazy-loaded as its
+  own chunk; default tool cap raised 120 -> 2000 (backend config mirrors).
+- Real-data perf gate (twice): n=2000 parse 39-54 ms, full sweep 36 ms,
+  slice 1.2 ms/tick (window 223 -> 0.9 s per-satellite refresh), invariant
+  PASS. Matches the synthetic 2000 gate; 6000 synthetic retains ~20x headroom.
+- All five requested stages complete: test set -> GPS -> NOAA/weather ->
+  Starlink subset -> large Starlink catalogue, on one shared ISS pipeline.
