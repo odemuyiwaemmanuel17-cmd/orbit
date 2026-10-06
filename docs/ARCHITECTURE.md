@@ -119,3 +119,25 @@ scene projection). What changes is only cadence and rendering:
 - **Honest limits**: client conjunction screening caps at 64 objects
   (synchronous O(n^2)); ALERTS discloses it. Full-catalog screening is a
   server-side roadmap item.
+
+
+---
+
+## Addendum 2026-10-06 - Mission-analysis platform scaffolding (M1)
+
+Three-mode direction: TRACK (live tracker, unchanged), ANALYZE, DESIGN.
+Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
+
+- `lib/constants.js` - single source of physical constants (mu, J2, Re,
+  OmegaEarth, c, solar constant...), units in names, sources in comments.
+  New math imports from here; legacy inline constants migrate when touched.
+- `lib/kepler.js` - analytic two-body service: elements<->state, conic
+  geometry, bracketed-Newton Kepler solver, J2 secular rates, SSO design,
+  polyline/marker generation. Pure module (no THREE) -> node-testable.
+- `frontend/tests/` + `npm test` - vitest physics suite (18 tests), feeding
+  docs/VALIDATION.md. Validation architecture for later milestones: every
+  new equation ships with a reference-case test row.
+- `/lab/elements` - lazy route (11 kB chunk) mounting the existing
+  OrbitScene with a `lab` prop; Earth stays interactive (same drag layer +
+  engine clock). The ISS pipeline is untouched: the lab renders alongside
+  the live scene under the same projection contract.

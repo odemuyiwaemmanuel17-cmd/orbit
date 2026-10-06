@@ -105,3 +105,28 @@ without touching its visual identity.
   PASS. Matches the synthetic 2000 gate; 6000 synthetic retains ~20x headroom.
 - All five requested stages complete: test set -> GPS -> NOAA/weather ->
   Starlink subset -> large Starlink catalogue, on one shared ISS pipeline.
+
+---
+
+## 2026-10-06 - M1 Orbital Elements Lab (platform program)
+
+- Audit: ISS pipeline intact; gaps closed = scattered constants + no frontend
+  test runner.
+- New: lib/constants.js (sourced, unit-named); lib/kepler.js (elements<->state,
+  bracketed Newton Kepler solver, conic + markers, J2 + SSO math); vitest
+  physics suite 18/18; docs/VALIDATION.md (expected vs computed with deltas:
+  v_circ 7.6686 km/s, T 92.560 min, ISS J2 -4.956 deg/day, SSO 98.19 deg).
+- Route /lab/elements: six element sliders with units, presets
+  (ISS/Molniya/GEO/Sun-sync/GTO), orbit regenerated from Kepler geometry at
+  the 10 Hz engine beat via the shared projection contract; perigee/apogee/
+  node markers, apsidal + node construction lines, optional equatorial ring,
+  Kepler-II nu(t) playback (pause/warp/scrub act on it), SHOW CALCULATION
+  inspector, ENGINEERING readout, perigee-below-surface warning, fidelity
+  badge; mobile bottom-sheet panel. Landing + tracker behavior untouched.
+- Verification: vitest 18 pass (new runner), pytest 48 pass, vite build green
+  (lab 11 kB lazy chunk), dev server 200s for /tracker + /lab/elements;
+  browser pixel check pending by convention (no headless here).
+- Known limits: two-body only (labeled); J2 first-order; TS checks N/A (JS
+  repo; deferral documented).
+- Next: M2 Maneuver Simulator - impulsive burn in the rotating
+  RSW frame -> new classical elements, before/after orbits via LabOrbit.

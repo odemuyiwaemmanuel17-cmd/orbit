@@ -63,3 +63,24 @@ catalog entries, not collision threats, and are filtered out.
 The Kp index proxies geomagnetic activity; polar heating expands the
 thermosphere, raising density at LEO altitudes (our model:
 `ρ/ρ₀ ≈ 1 + 0.16·max(0, Kp−2)^1.75`) and accelerating orbital decay.
+
+
+---
+
+## Orbital Elements Lab math (Milestone 1, 2026-10-06)
+
+Service: `frontend/src/lib/kepler.js` (pure, unit-tested). Constants:
+`frontend/src/lib/constants.js`.
+
+1. **Conic**: r(nu) = a(1-e^2)/(1 + e*cos nu); periapsis a(1-e), apoapsis a(1+e).
+2. **Perifocal -> ECI** (Vallado Alg. 4): r_PQW = [r cos nu, r sin nu, 0],
+   v_PQW = sqrt(mu/p)*[-sin nu, e+cos nu, 0], rotated by R3(Omega)R1(i)R3(omega).
+3. **Kepler's equation** M = E - e*sinE solved by bracketed Newton
+   (monotone for e<1, |f|<1e-13); M->nu via half-angle atan2 identities.
+4. **Period/energy**: T = 2*pi*sqrt(a^3/mu); eps = -mu/2a; h = sqrt(mu*p);
+   vis-viva v = sqrt(mu(2/r - 1/a)).
+5. **J2 secular** (first-order, averaged): RAANdot = -3/2*J2*(Re/p)^2*n*cos i.
+   SSO inclination solves RAANdot = +360 deg/tropical year.
+6. **Scene projection**: ECI -> (lat, lon at GMST, alt) -> geodeticToScene -
+   the identical contract used by real SGP4 satellites, so lab orbits and
+   live satellites share one frame. Earth rotates under the inertial ellipse.

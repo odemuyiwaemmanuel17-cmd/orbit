@@ -23,3 +23,40 @@ Statuses: DONE · IN PROGRESS · NEXT · FUTURE
 ## Definition of done for each milestone
 Build green · backend tests green (when touched) · landing visually unchanged ·
 `/tracker` verified at 390px and desktop widths · no console errors.
+
+
+---
+
+## Platform milestones (mission-analysis program, 2026-10-06)
+
+Spec: 22 milestones across TRACK / ANALYZE / DESIGN. Build strictly in order;
+each reuses validated lower-level physics.
+
+| # | Capability | Status |
+|---|---|---|
+| 1 | Orbital Elements Lab (analytic two-body; vitest physics suite; constants module) | **DONE** |
+| 2 | Maneuver Simulator (impulsive burn -> before/after elements) | NEXT |
+| 3 | Hohmann Transfer Planner | TODO |
+| 4 | Delta-V Budget + Tsiolkovsky | TODO |
+| 5 | Plane Change Simulator | TODO |
+| 6 | Ground Station System | TODO |
+| 7 | Pass Prediction over user stations | TODO |
+| 8 | Line-of-Sight visualization | TODO |
+| 9 | Coverage vs min-elevation | TODO |
+| 10 | Communication link budget | TODO |
+| 11 | Attitude visualizer | TODO |
+| 12 | Reaction wheel demo | TODO |
+| 13 | Eclipse analysis (umbra/penumbra) | TODO |
+| 14 | Solar power (simplified, labeled) | TODO |
+| 15 | Atmospheric drag comparison | TODO |
+| 16 | Orbit decay demo (simplified, labeled) | TODO |
+| 17 | J2 perturbation visualization (math already in kepler.js) | TODO |
+| 18 | SSO designer (math already in kepler.js) | TODO |
+| 19 | Conjunction analyzer pair view | TODO |
+| 20 | Collision-avoidance maneuver | TODO |
+| 21 | Mission Builder (sequential events) | TODO |
+| 22 | Preset missions on real engines | TODO |
+
+Fidelity labels in use: REAL-TIME PROPAGATION (SGP4/TLE) - ANALYTICAL MODEL
+(two-body, Hohmann) - SIMPLIFIED MODEL (drag/decay/power) - EDUCATIONAL MODEL
+(reaction wheel). Never present a simplified number without its label.
