@@ -10,6 +10,7 @@ const ManeuverLabPage = lazy(() => import('./pages/Lab/ManeuverLabPage.jsx'))
 const HohmannLabPage = lazy(() => import('./pages/Lab/HohmannLabPage.jsx'))
 const DVBudgetLabPage = lazy(() => import('./pages/Lab/DVBudgetLabPage.jsx'))
 const PlaneChangeLabPage = lazy(() => import('./pages/Lab/PlaneChangeLabPage.jsx'))
+const GroundStationLabPage = lazy(() => import('./pages/Lab/GroundStationLabPage.jsx'))
 const LabsIndexPage = lazy(() => import('./pages/Lab/LabsIndexPage.jsx'))
 
 /**
@@ -21,6 +22,7 @@ const LabsIndexPage = lazy(() => import('./pages/Lab/LabsIndexPage.jsx'))
  *   /lab/hohmann  -> DESIGN:  Hohmann Transfer Planner (analytic two-impulse)
  *   /lab/dvbudget -> DESIGN:  Mission ΔV Budget (Tsiolkovsky feasibility)
  *   /lab/planec   -> DESIGN:  Plane Change Simulator (impulsive node-line burns)
+ *   /lab/stations -> DESIGN:  Ground Network (stations, look angles, masks)
  *   /lab          -> ANALYZE/DESIGN index (all labs)
  */
 export default function App() {
@@ -77,6 +79,14 @@ export default function App() {
             element={
               <Suspense fallback={<SceneLoader label="LOADING PLANE CHANGE" />}>
                 <PlaneChangeLabPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/lab/stations"
+            element={
+              <Suspense fallback={<SceneLoader label="LOADING GROUND NETWORK" />}>
+                <GroundStationLabPage />
               </Suspense>
             }
           />

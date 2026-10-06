@@ -39,8 +39,8 @@ each reuses validated lower-level physics.
 | 3 | Hohmann Transfer Planner | **DONE** |
 | 4 | Delta-V Budget + Tsiolkovsky | **DONE** |
 | 5 | Plane Change Simulator | **DONE** |
-| 6 | Ground Station System | NEXT |
-| 7 | Pass Prediction over user stations | TODO |
+| 6 | Ground Station System | **DONE** |
+| 7 | Pass Prediction over user stations | NEXT |
 | 8 | Line-of-Sight visualization | TODO |
 | 9 | Coverage vs min-elevation | TODO |
 | 10 | Communication link budget | TODO |

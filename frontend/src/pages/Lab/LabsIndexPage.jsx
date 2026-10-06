@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Sigma, Rocket, Waypoints, Fuel, GitCompareArrows, Construction } from 'lucide-react'
+import { ArrowLeft, Sigma, Rocket, Waypoints, Fuel, GitCompareArrows, RadioTower, Construction } from 'lucide-react'
 import OrbitScene from '../../components/scene/OrbitScene.jsx'
 
 const LABS = [
@@ -13,10 +13,12 @@ const LABS = [
     note: 'Tsiolkovsky feasibility: events, propellant, margin, GO/NO-GO' },
   { to: '/lab/planec', icon: GitCompareArrows, tag: 'DESIGN', title: 'Plane Change Simulator',
     note: 'ΔV = 2v·sin(Δi/2) node-line burns, altitude ladder, combined-burn savings' },
+  { to: '/lab/stations', icon: RadioTower, tag: 'DESIGN', title: 'Ground Station Network',
+    note: 'Anchor stations + your own, live elevation/slant range, min-elevation masks' },
 ]
 
 const NEXT_UP = [
-  'Ground Stations & Passes', 'Line-of-Sight & Coverage', 'Link Budget',
+  'Pass Prediction & LOS', 'Coverage vs Masks', 'Link Budget',
   'Attitude & Reaction Wheels', 'Eclipse & Power', 'Drag, Decay & J2',
   'Conjunction & Avoidance', 'Mission Builder',
 ]

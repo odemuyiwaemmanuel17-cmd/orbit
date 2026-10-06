@@ -154,3 +154,31 @@ duplicated orbital math.
 - Not modeled (labeled): finite-thrust arcs, low-thrust spiral plane
   changes, J2 RAAN drift during the climb (M17 models J2), non-circular
   endpoint pairs other than the two-midpoint transfer.
+
+
+## Ground stations & look angles (M6)
+
+Service: `frontend/src/lib/stations.js` — pure, THREE-free, storage-agnostic
+(the ground-network state domain lives beside, not inside, the engine).
+
+- Station = {latDeg, lonDeg, elevKm, minElevDeg}. Anchor catalogue uses
+  published coordinates of real DSN/Estrack/KSAT sites; site elevations are
+  approximate and labeled as such — never presented as surveyed values.
+- Spherical-elevation topocentric geometry (mean Earth R = 6371 km):
+      S = (R + h_sta)·û(lat,lon)   K = (R + h_sat)·û(lat,lon)
+      d = K − S,  cos ζ = (S·d)/(|S||d|),  elev = 90° − ζ
+  closed form (used as an independent test cross-check):
+      tan(elev) = (r_k cos γ − r_s) / (r_k sin γ)
+  slant range = |d| — this is what M10's link budget will consume.
+- Horizon identity: elev = 0 exactly when cos γ = r_s/r_k (geometric
+  horizon half-angle for a satellite shell). One subtle, verified fact:
+  for a satellite at FIXED altitude, a higher station sees a SMALLER
+  above-horizon cap and lower elevations at the same geocentric angle —
+  the "climb the mast to see farther" intuition belongs to the Earth's
+  surface horizon, not to a concentric satellite shell.
+- Honest approximation label (UI badge SPHERICAL EARTH): satellite.js
+  returns WGS84 geodetic coordinates; using them on a sphere introduces the
+  classic geodetic/parametric latitude tilt (~0.2° near LEO horizons).
+- Live-elevation card propagates the watched satellite through the ISS
+  reference pipeline (TLE -> SGP4 -> eciToGeodetic), no duplicated orbital
+  logic. minElevDeg mask verdicts feed M7 pass prediction and M8 LOS.

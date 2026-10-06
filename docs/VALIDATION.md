@@ -87,3 +87,19 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 | combined burn, di = 0 | reduces to Hohmann dv2 | equals transfer dv2 | matches | 1e-4 |
 | combined <= separate | law of cosines vs plane+circ sum | saving >= 0 for 5/15/28.5 deg | holds | - |
 | triangle bound | combined <= va + vc | never exceeded | holds | - |
+
+## Ground stations & look angles (frontend/tests/stations.test.js)
+
+| Check | Reference | Expected | OrbitalPulse | Delta |
+|---|---|---|---|---|
+| zenith | same lat/lon, sat alt 500 km | elev 90, slant 500 km | matches | 1e-6 |
+| antipode | sat at lon+180 | elev -90, slant rs+rk = 13242 km | matches | 1e-3 |
+| closed-form cross-check | atan2(rk cos g - rs, rk sin g), g = 10 deg | independent of module's dot path | matches | 1e-9 |
+| rising satellite | g: 70 to 0 deg | elev strictly up, slant strictly down | monotone | - |
+| horizon identity | cos(g) = rs/rk | elev exactly 0 | 1e-4 deg | - |
+| LEO 400 km sea-level horizon | acos(6371/6771) | 19.84 deg | matches | 1e-6 |
+| fixed-shell cap | higher station | SMALLER above-horizon cap (counter-intuitive, proven from closed form) | holds | - |
+| min-elevation mask | verdict across threshold | flips true/false at mask | holds | - |
+| catalogue validation | lat/lon/elev/mask ranges, finiteness, unique ids | invalid input never becomes a station | holds | - |
+| persistence | corrupt/empty storage payload | degrade to default catalogue, no throw | holds | - |
+| persistence round-trip | save custom list then load | exact equality | exact | - |

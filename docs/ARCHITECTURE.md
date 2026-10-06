@@ -196,3 +196,21 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
 - Tests: vitest 53/53 (7 plane-change cases incl. 133.91 m/s reference,
   180° = 2v bound, monotone ladder, GEO 30° band, di = 0 reduces to
   Hohmann dv2, combined ≤ separate, triangle bound).
+
+## Addendum 2026-10-06 — M6 Ground Station System
+
+- lib/stations.js: the ground-network state domain, deliberately separate
+  from the engine (stations are static infrastructure). Pure + THREE-free
+  + storage-agnostic (any getItem/setItem object) so node tests cover the
+  real persistence path. validateStation refuses out-of-range/NaN input;
+  loadStations degrades corrupt payloads to the anchor catalogue instead of
+  throwing; saves are best-effort (quota/private-mode safe).
+- Look angles on the mean sphere with an independent closed-form test
+  cross-check; slant range + min-elevation verdict exposed for M7/M8/M10.
+- /lab/stations: StationLayer markers via the same geodeticToScene
+  contract (sphere + true-radial drei Line mast), per-station live
+  elevation of the watched satellite through the ISS reference pipeline,
+  min-elevation slider, add/remove/reset UI with inline validation errors,
+  localStorage persistence, SHOW CALCULATION substituted, ANALYTICAL —
+  SPHERICAL EARTH + REAL-TIME PROPAGATION labels.
+- Tests: vitest 66/66 (13 station cases). pytest 48/48 unchanged.

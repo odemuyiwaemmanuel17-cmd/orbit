@@ -221,3 +221,35 @@ without touching its visual identity.
   radius (7.6726) — fixed the test, not the physics.
 - Next: M6 Ground Station System (station model + map placement; feeds
   pass prediction M7 and LOS M8).
+
+---
+
+## 2026-10-06 - M6 Ground Station System
+
+- lib/stations.js: ground-network state domain kept separate from the
+  engine (spec: no giant store). Pure, THREE-free, storage-agnostic:
+  validateStation (ranges/finiteness/unique ids), loadStations (corrupt
+  payloads degrade to the anchor catalogue), saveStations (best-effort).
+- Spherical look angles with an independent closed-form cross-check test:
+  tan(elev) = (rk cos(g) - rs)/(rk sin(g)); slant range + min-elevation
+  verdict exposed now for M7 passes, M8 LOS, M10 link budget.
+- Anchor catalogue = published coords of real sites (Goldstone, Madrid,
+  Canberra, Malargue, Svalbard); site elevations labeled approximate.
+- /lab/stations: station markers on the approved globe (same
+  geodeticToScene contract), live elevation of the watched sat through the
+  ISS pipeline (TLE -> SGP4 -> geodetic, zero duplicated orbital logic),
+  mask slider, add/remove/reset with inline errors, localStorage,
+  substituted SHOW CALCULATION, SPHERICAL EARTH + REAL-TIME PROPAGATION
+  labels, mobile bottom-panel layout.
+- Tests: vitest 66/66 (13 station cases incl. zenith/antipode identities,
+  horizon cos(g)=rs/rk, 19.84 deg LEO horizon anchor, monotone rise,
+  validation, persistence round-trip + corrupt fallback). pytest 48/48.
+  Build green; routes 200 incl. /lab/stations.
+- Self-caught during verify: two WRONG TEST EXPECTATIONS (higher-station
+  "dips horizon more" intuition applied to a fixed satellite shell is
+  backwards - the cap SHRINKS; and a persistence round-trip missing the
+  source field validation fills in). Physics unchanged; tests corrected
+  against the proven closed form.
+- Next: M7 pass prediction - elevation-vs-time over user stations from the
+  validated stations.js + Kepler services (on-demand, cached, tracker stays
+  responsive).
