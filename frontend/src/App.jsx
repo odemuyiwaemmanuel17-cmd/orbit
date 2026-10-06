@@ -8,6 +8,8 @@ const TrackerPage = lazy(() => import('./pages/Tracker/TrackerPage.jsx'))
 const ElementsLabPage = lazy(() => import('./pages/Lab/ElementsLabPage.jsx'))
 const ManeuverLabPage = lazy(() => import('./pages/Lab/ManeuverLabPage.jsx'))
 const HohmannLabPage = lazy(() => import('./pages/Lab/HohmannLabPage.jsx'))
+const DVBudgetLabPage = lazy(() => import('./pages/Lab/DVBudgetLabPage.jsx'))
+const LabsIndexPage = lazy(() => import('./pages/Lab/LabsIndexPage.jsx'))
 
 /**
  * OrbitalPulse route shell.
@@ -16,6 +18,8 @@ const HohmannLabPage = lazy(() => import('./pages/Lab/HohmannLabPage.jsx'))
  *   /lab/elements -> ANALYZE: Orbital Elements Lab (analytic two-body)
  *   /lab/maneuver -> DESIGN:  Maneuver Lab (impulsive burns on live states)
  *   /lab/hohmann  -> DESIGN:  Hohmann Transfer Planner (analytic two-impulse)
+ *   /lab/dvbudget -> DESIGN:  Mission ΔV Budget (Tsiolkovsky feasibility)
+ *   /lab          -> ANALYZE/DESIGN index (all labs)
  */
 export default function App() {
   return (
@@ -44,6 +48,17 @@ export default function App() {
             element={
               <Suspense fallback={<SceneLoader label="LOADING MANEUVER LAB" />}>
                 <ManeuverLabPage />
+              </Suspense>
+            }
+          />
+          <Route path="/lab" element={
+            <Suspense fallback={<SceneLoader label="LOADING LABS" />}><LabsIndexPage /></Suspense>
+          } />
+          <Route
+            path="/lab/dvbudget"
+            element={
+              <Suspense fallback={<SceneLoader label="LOADING DV BUDGET" />}>
+                <DVBudgetLabPage />
               </Suspense>
             }
           />

@@ -203,6 +203,8 @@ export default function ElementsLabPage() {
           <ArrowLeft size={14} /> TRACKER
         </Link>
         <div className="w-px h-6 bg-emerald-400/15" />
+        <Link to="/lab" className="text-[12px] font-mono text-emerald-400 hover:text-emerald-200">LABS</Link>
+        <div className="w-px h-6 bg-emerald-400/15" />
         <div className="flex items-center gap-2">
           <Orbit size={16} className="text-emerald-400" />
           <span className="font-bold text-[15px] tracking-tight">

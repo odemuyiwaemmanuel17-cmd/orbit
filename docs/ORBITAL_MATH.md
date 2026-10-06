@@ -116,3 +116,17 @@ sim clock -> true anomaly via the validated Kepler solver; the return half
 is labeled DISPLAY LOOP (a real mission circularizes at apogee).
 Assumptions: impulsive, coplanar, circular endpoints; Earth-oblate and
 plane-change costs excluded (M4/M5 model those).
+
+
+## Rocket equation (M4)
+
+Service: `frontend/src/lib/rocket.js`. g0 = 9.80665 m/s^2 from constants.js.
+
+- dV_avail = Isp * g0 * ln((m_dry + m_prop)/m_dry)   [Tsiolkovsky]
+- m_prop(required) = m_dry * (exp(dV_req/(Isp g0)) - 1)
+- Budget: dV_req = SUM(mission events). Preset LEO->GEO pulls its transfer
+  numbers from the validated hohmann.js service (engine reuse, not typed-in
+  constants). Feasibility compares required vs available with exact margin
+  and propellant shortfall.
+- Not modeled (labeled): gravity + drag losses, staging, tank residuals,
+  thrust profile (impulsive assumption inherited from M2/M3).

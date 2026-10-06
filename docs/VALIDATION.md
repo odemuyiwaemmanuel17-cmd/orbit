@@ -60,3 +60,17 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 | vis-viva identities | dV1 = v_p - v_c1 etc. | definition match | 1e-6 m/s | - |
 | apsis radii | a(1±e) = r1, r2 | exact | 1e-6 km | - |
 | coast monotonicity | t(nu) increasing, t(180)=T/2 | endpoints | 1e-3 s | - |
+
+## Rocket equation & budgets (frontend/tests/rocket.test.js)
+
+| Check | Reference | Expected | OrbitalPulse | Delta |
+|---|---|---|---|---|
+| dV for m0/m1 = e, Isp 300 s | dV = Isp g0 ln(m0/m1) | 300 x 9.80665 = 2941.995 m/s | matches | 1e-6 |
+| zero propellant | identity | 0 m/s | 0 (1e-12) | - |
+| forward/inverse round-trip | propellantForDv o dvAvailable | 2500 m/s | 2500.000 | 1e-6 |
+| Isp linearity | 250 s vs 450 s, same masses | ratio 1.8 | 1.800000000 | 1e-9 |
+| mass ratio | exp(3000/(300 g0)) | analytic | matches 1e-9 | - |
+| invalid vehicle | Isp <= 0 or dry <= 0 | throws, no fabricated numbers | throws | - |
+| budget GO/NO-GO | required vs available | margin = avail - req | exact | 1e-6 |
+| shortfall accounting | over-budget mission | needed - carried | exact | 1e-6 |
+| preset reuse proof | LEO->GEO preset vs hohmann service | dv1/dv2 equal (rounded m/s) | equal | <1 m/s |

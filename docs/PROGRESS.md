@@ -176,3 +176,22 @@ without touching its visual identity.
   invalid lucide 'Transfer' icon -> Waypoints (rollup caught it).
 - Next: M4 Delta-V budget + Tsiolkovsky (rocket equation service + event
   table + feasibility).
+
+---
+
+## 2026-10-06 - M4 Mission ΔV Budget + navigation hub
+
+- lib/rocket.js: Tsiolkovsky both directions, feasibility verdict with
+  exact margin/propellant shortfall/mass ratio; invalid vehicles throw
+  rather than fabricate.
+- /lab/dvbudget: add/remove/edit mission events with m/s inputs, LEO->GEO
+  preset pulls ΔV1/ΔV2 LIVE from the Hohmann service (reuse proof in
+  tests), stacked required vs available bars, GO/NO-GO card, substituted
+  SHOW CALCULATION. Simplifications labeled (no gravity/drag losses).
+- /lab hub page + consolidated tracker header (single LABS link replacing
+  our three cumulative links; approved chrome untouched).
+- Tests: vitest 46/46 (9 rocket cases incl. ln(e) identity, forward/inverse
+  round-trip, Isp linearity, preset-vs-hohmann equality). pytest 48/48.
+  Build green; JSX text arrow literals fixed after esbuild flagged them.
+- Next: M5 plane change simulator (dV = 2v sin(di/2) with assumptions +
+  combined-burn optimization note).

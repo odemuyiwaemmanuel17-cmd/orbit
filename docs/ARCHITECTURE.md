@@ -169,3 +169,14 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
   SHOW CALCULATION with substituted numbers.
 - Tracker header: ELEMENTS LAB / MANEUVER / TRANSFER lab links (md/lg
   breakpoints to avoid crowding); pages cross-link in headers.
+
+
+## Addendum 2026-10-06 - M4 ΔV Budget + lab navigation
+
+- lib/rocket.js pure service (Tsiolkovsky both directions, verdict object).
+- /lab/dvbudget: editable event table (preset transfers computed live from
+  hohmann.js), stacked required-dV bars vs vehicle capacity bar, GO/NO-GO
+  verdict with margin + propellant shortfall + mass ratio, SHOW CALCULATION.
+- /lab (LabsIndexPage): ANALYZE/DESIGN hub; tracker header's three
+  cumulative lab links consolidated into one LABS entry (own additions,
+  not approved chrome); each lab header: TRACKER + LABS.

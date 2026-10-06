@@ -253,9 +253,7 @@ export default function ManeuverLabPage() {
           <ArrowLeft size={14} /> TRACKER
         </Link>
         <div className="w-px h-6 bg-emerald-400/15" />
-        <Link to="/lab/elements" className="hidden md:flex items-center gap-1.5 text-emerald-400 hover:text-emerald-200 text-[12px] font-mono">
-          ELEMENTS LAB
-        </Link>
+        <Link to="/lab" className="text-[12px] font-mono text-emerald-400 hover:text-emerald-200">LABS</Link>
         <div className="hidden md:block w-px h-6 bg-emerald-400/15" />
         <div className="flex items-center gap-2">
           <Rocket size={16} className="text-emerald-400" />

@@ -196,8 +196,7 @@ export default function HohmannLabPage() {
           <ArrowLeft size={14} /> TRACKER
         </Link>
         <div className="w-px h-6 bg-emerald-400/15" />
-        <Link to="/lab/elements" className="hidden lg:flex text-[12px] font-mono text-emerald-400 hover:text-emerald-200">ELEMENTS</Link>
-        <Link to="/lab/maneuver" className="hidden lg:flex text-[12px] font-mono text-emerald-400 hover:text-emerald-200">MANEUVER</Link>
+        <Link to="/lab" className="text-[12px] font-mono text-emerald-400 hover:text-emerald-200">LABS</Link>
         <div className="hidden lg:block w-px h-6 bg-emerald-400/15" />
         <div className="flex items-center gap-2">
           <Waypoints size={16} className="text-emerald-400" />
@@ -208,7 +207,7 @@ export default function HohmannLabPage() {
             </span>
           </span>
         </div>
-        <Link to="/lab/elements" className="md:hidden ml-auto text-[11px] font-mono text-emerald-300">LABS ▾</Link>
+
       </header>
 
       <div className="absolute bottom-2 lg:top-16 lg:bottom-24 right-2 lg:right-4 left-2 lg:left-auto w-auto lg:w-[340px] z-40 pointer-events-auto max-h-[62vh] lg:max-h-none">
