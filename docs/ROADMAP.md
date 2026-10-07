@@ -43,8 +43,8 @@ each reuses validated lower-level physics.
 | 7 | Pass Prediction over user stations | **DONE** |
 | 8 | Line-of-Sight visualization | **DONE** |
 | 9 | Coverage vs min-elevation | **DONE** |
-| 10 | Communication link budget | NEXT |
-| 11 | Attitude visualizer | TODO |
+| 10 | Communication link budget | **DONE** |
+| 11 | Attitude visualizer | NEXT |
 | 12 | Reaction wheel demo | TODO |
 | 13 | Eclipse analysis (umbra/penumbra) | TODO |
 | 14 | Solar power (simplified, labeled) | TODO |

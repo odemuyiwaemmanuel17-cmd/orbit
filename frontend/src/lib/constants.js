@@ -41,4 +41,13 @@ export const SUN_MEAN_MOTION_DEGDAY = 0.98560028
 // Secular rates for reference comparisons
 export const NODE_PRECESSION_SSO_RADSDAY = 2 * Math.PI / 365.2421897 / 86400 // +360 deg/yr in RAAN
 
+// Link-budget noise constants.
+// Boltzmann constant k = 1.380649e-23 J/K is EXACT since the 2019 SI
+// redefinition, so its log form is unambiguous:
+//   k_dbwPerK  = 10*log10(k)                    = -228.598 dBW/K/Hz
+//   kDbmHz290  = 10*log10(k * 290 K) + 30       = -173.978 dBm/Hz
+// 290 K is the ITU-R reference noise temperature (Rec. ITU-R P.1540/TSF).
+export const K_DBW_PER_K = 10 * Math.log10(1.380649e-23)
+export const K_DBM_HZ_290K = K_DBW_PER_K + 10 * Math.log10(290) + 30
+
 export const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v))

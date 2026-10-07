@@ -144,3 +144,21 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 | grid vs analytic | GEO mask-0: weighted 10 deg grid | within 0.015 of (1-cos gamma)/2 = 0.4245 | holds | grid O(step^2) |
 | coverage growth | scrub 0..1 over LEO orbit | monotone, ends at final fraction | holds | - |
 | cap geometry | covered cells of equatorial track | abs(lat) < gamma + step | holds | - |
+
+## Link budget (frontend/tests/linkbudget.test.js)
+
+| Check | Reference | Expected | OrbitalPulse | Delta |
+|---|---|---|---|---|
+| slant at zenith | e = 90 deg | rho = altitude | exact | 1e-9 |
+| slant at horizon | e = 0 deg | sqrt(rk^2 - rs^2) tangent | exact | 1e-6 |
+| law of cosines | rk^2 = rs^2 + rho^2 + 2 rs rho sin e for e = 5..88 | identity | holds | 1e-6 |
+| FSPL hand value | 32.44 + 20log(400) + 20log(2200) | 151.33 dB | match | 1e-9 |
+| FSPL slope | distance doubling | +6.0206 dB | match | 1e-3 |
+| noise constants | 10log10(k exact SI), kT(290K) ITU-R | -228.598 dBW/K, -173.976 dBm/Hz | match | 1e-3 |
+| NF == G/T models | G/T = Grx - 10log(290*10^(NF/10)) | identical C/N0 and Prx | match | 1e-9 |
+| chain closure | Prx, Eb/N0, margin definitions | term-by-term recompute | match | 1e-9 |
+| bitrate vs power | +3.01 dB EIRP | max bitrate x2 | match | 1e-6 |
+| zero-margin fixed point | Rb := maxBitRate | margin = 0 | holds | 1e-6 |
+| preset bands | GEO S-band 64 kbps, 40 m-equivalent dish | C/N0 in (60, 75) dB-Hz, GO | holds | - |
+| AWGN capacity | Shannon transcription | monotone, equals formula | match | 1e-6 |
+| invalid input | alt 0, slant NaN, missing receiver | throws, no fabricated numbers | throws | - |

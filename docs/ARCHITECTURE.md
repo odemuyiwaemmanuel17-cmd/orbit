@@ -275,3 +275,23 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
   selects, ANALYTICAL MODEL badge with explicit "no J2/SGP4 here" note.
 - Landing HOW IT WORKS pass stage now names one-orbit coverage growth.
 - Tests: vitest 91/91 (10 new). pytest 48/48.
+
+## Addendum 2026-10-07 — M10 Communication Link Budget
+
+- constants.js gained the noise pair (k_dbW/K from the exact SI Boltzmann
+  value; -173.976 dBm/Hz at ITU-R 290 K), derived once in the central module.
+- lib/linkbudget.js: slantFromElevationKm (law-of-cosines root, exact at
+  zenith and tangent), fsplDb, linkBudgetKm (NF or G/T receiver model with
+  a proven 290·10^(NF/10) equivalence), channelCapacityBps AWGN reference,
+  LINK_PRESETS + MODULATION_REFERENCE_DB labeled EDUCATIONAL.
+- /lab/link: station picker; LIVE WORST CASE mode takes the current SGP4
+  altitude and the station's own mask into slantFromElevationKm; full dB
+  chain card EIRP → FSPL → Prx → C/N0 → Eb/N0 → margin → max bitrate with
+  GO/NO-GO badge; beam to the selected station colored by verdict;
+  substituted SHOW CALCULATION.
+- Self-caught during review: an NF-vs-G/T equivalence error (Tsys = 290 vs
+  290·F — the TEST caught it, service display fixed to not assume 290 K),
+  a "6 dB doubles bitrate" mistake (3.01 dB does), and a duplicated
+  -173.9755 literal (now imported from constants).
+- Tests: vitest 106/106 (15 new). pytest 48/48. Landing HOW IT WORKS lab
+  stage now names ground networks and link budgets.

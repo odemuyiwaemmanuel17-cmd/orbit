@@ -258,3 +258,30 @@ prediction source; the page badges ANALYTICAL MODEL.
   (1 - cos gamma)/2 within 0.015 at 10 deg for the 81-deg GEO cap.
 - Coverage scrub: first-cover timestamps make the union grow monotonically
   over the orbit (tested), rendered as point clouds + live cap ring.
+
+
+## Communication link budget (M10)
+
+Service: `frontend/src/lib/linkbudget.js`. Noise constants live in
+constants.js (k exact since the 2019 SI redefinition; 290 K is the ITU-R
+reference noise temperature), not inline in formulas.
+
+- Geometry: spherical slant range as the positive root of
+  rk^2 = rs^2 + rho^2 + 2 rs rho sin(e)  =>
+  rho = -rs sin e + sqrt(rs^2 sin^2 e + rk^2 - rs^2).
+  e = 90 gives the altitude, e = 0 the tangent length (both pinned).
+  Worst-case live mode = current SGP4 altitude at the station mask angle.
+- Chain (all dB): EIRP = Ptx + Gtx; FSPL = 32.44 + 20log10(d_km) +
+  20log10(f_MHz); Prx = EIRP - FSPL - L_atm - L_point - L_misc + Grx;
+  C/N0 = Prx - kT(290K) - NF  (dB-Hz);  Eb/N0 = C/N0 - 10log10(Rb) - L_impl;
+  margin = Eb/N0 - (Eb/N0)_required. Max bitrate = zero-margin fixed point.
+- Receiver dual-model identity: the NF path and the G/T path agree exactly
+  when G/T = Grx - 10log10(290 * 10^(NF/10)) (same physical receiver, two
+  datasheet dialects) — locked by test to 1e-9 dB.
+- Labeled simplifications (UI states them): lumped losses, not a propagation
+  study; MODULATION_REFERENCE Eb/N0 values are textbook typicals (BPSK/QPSK
+  uncoded BER 1e-5, CCSDS r=1/2) — EDUCATIONAL, not vendor curves; no
+  polarization or rain-model detail (single atmos knob); receiver desense,
+  interference and Doppler-free link (frequency enters only via FSPL).
+- channelCapacityBps gives the AWGN reference C = B log2(1 + C/N0·B⁻¹) for
+  context, separate from the required-margin verdict.

@@ -329,3 +329,31 @@ without touching its visual identity.
 - Tests: vitest 91/91 (10 new). pytest 48/48. Build green, routes 200.
 - Next: M10 link budget - Friis/EIRP/C-noise over slant ranges from M6,
   using the constants module (C_KMS) and per-pass worst-case geometry.
+
+---
+
+## 2026-10-07 - M10 Communication Link Budget
+
+- constants.js: noise pair centralized - k_dbW/K derived from the EXACT
+  2019-SI Boltzmann value, kT(290K) = -173.976 dBm/Hz (ITU-R reference).
+- lib/linkbudget.js: spherical slant rho(e,h) as the law-of-cosines root
+  (zenith = altitude, horizon = tangent length, both pinned); fsplDb;
+  linkBudgetKm full dB chain with DUAL receiver models - NF or G/T - whose
+  equivalence G/T = Grx - 10log(290*10^(NF/10)) is locked to 1e-9 dB;
+  channelCapacityBps AWGN reference; labeled EDUCATIONAL modulation targets
+  and typical-class presets (S-band, X-band, GEO slow telemetry).
+- /lab/link: LIVE WORST CASE mode = current SGP4 altitude at the station's
+  own mask -> exact spherical slant; dB chain card with GO/NO-GO + margin;
+  beam to selected station colored by verdict; substituted SHOW CALCULATION;
+  SIMPLIFIED MODEL + EDUCATIONAL labels everywhere lumped assumptions sit.
+- Tests caught ME twice (recorded honestly): my NF/G/T identity test wrongly
+  assumed Tsys=290 with NF>0 (real mapping is 290*F - service G/T Prx
+  display also stopped assuming 290 K), and "6 dB doubles bitrate" was
+  wrong (3.01 dB does; 6 dB quadruples). Also removed my own duplicated
+  -173.9755 literal before commit (constants rule applies to UI too).
+- Tests: vitest 106/106 (15 new). pytest 48/48. Build green, routes 200.
+- Landing: HOW IT WORKS mission-analysis stage now names ground networks
+  and link budgets.
+- Next: M11 attitude visualizer - orbit-fixed (LVLH/RWFS) frame rendering
+  with yaw/roll/pitch about velocity + nadir vectors from the validated
+  state pipeline.
