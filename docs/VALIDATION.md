@@ -116,3 +116,16 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 | elevation curve | GEO overhead, AOS−10m→LOS+10m | all samples > 70°, peak > 80° | holds | grid step 60s |
 | window-edge parity | client mirror vs backend bracketing | pass open at window end closes at last visible sample (fix in M7) | aligned | - |
 | labels | utcHm zero-pad, T-/T+ flip | exact strings | match | - |
+
+## Line-of-sight footprints (frontend/tests/los.test.js)
+
+| Check | Reference | Expected | OrbitalPulse | Delta |
+|---|---|---|---|---|
+| mask 0 closed form | gamma(0) = acos(Rs/rk) — M6 horizon identity | equal for 400/1000/20200/35786 km | equal | 1e-9 |
+| hand number | gamma(400 km, 10 deg) from formula | closed form | match | 1e-9 |
+| mask monotonicity | e: 0..85 deg | cap strictly shrinks; e=90 -> point | holds | - |
+| state thresholds | LINK/LOS/BLOCKED at elev >= mask / >= 0 / < 0 | built from exact gamma boundaries | correct sides | - |
+| state = lookAngleKm | losState vs direct M6 call | identical elevation | 1e-12 | - |
+| polygon invariance | all 97 vertices at angular radius gamma of sub-sat point | spherical-trig check | match | 1e-6 deg |
+| ring elevation | surface stations on the gamma(0) ring | elev within 0.02 deg of 0 | holds | - |
+| degenerate input | radius <= 0 | empty polygon, no garbage | holds | - |

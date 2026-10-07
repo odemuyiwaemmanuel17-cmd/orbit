@@ -238,3 +238,22 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
   analytics, and the TECHNOLOGY STACK chip block was removed from About.
 - Tests: vitest 73/73 (7 new incl. REAL GOES-15 + GPS TLE integration).
   pytest 48/48 unchanged.
+
+## Addendum 2026-10-07 — M8 Line-of-Sight Visualization
+
+- lib/los.js: closed-form footprint cap gamma(e) = acos((R⊕/rk)cos e) − e,
+  derived from the M6 tan(elev) form; gamma(0) is the M6 horizon identity
+  (locked by a cross-check test, not reimplemented). losState returns
+  LINK/LOS/BLOCKED using M6 lookAngleKm — the single source of elevation
+  truth, so M6, M7 and M8 can never disagree.
+- footprintPolygonDeg: constant-angular-radius ground ring by spherical
+  (asin/atan2) trig, closed; great-circle invariance tested.
+- /lab/los: live footprint ring + sub-satellite marker + station beams over
+  the persisted station set, colored by state; 97 projected points at the
+  engine's 10 Hz tick is trivial, so no quantization was added and ring /
+  dot / beams stay pixel-aligned. Toggles for footprint/beams, per-station
+  elev/mask/slant list, SHOW CALCULATION, REAL-TIME PROPAGATION badge, and an
+  explicit note that state is decided by computed elevation, not apparent
+  intersection in the compressed-radius scene.
+- StationLayer reused again (3rd consumer) — zero marker duplication.
+- Tests: vitest 81/81 (8 new LOS cases). pytest 48/48.

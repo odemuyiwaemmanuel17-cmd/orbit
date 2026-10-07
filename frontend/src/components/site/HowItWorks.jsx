@@ -3,7 +3,7 @@ const STEPS = [
   ['Propagate with SGP4', 'Each element set is propagated with perturbation-aware SGP4 models, converting orbital elements into inertial position and velocity vectors for any time.'],
   ['Render the 3D scene', 'The frontend projects inertial coordinates into an interactive 3D Earth scene — graticule, landmasses, orbit trails, and satellite markers at up to 60 fps.'],
   ['Stream live telemetry', 'The telemetry HUD samples the propagated state ten times per second, translating vectors into altitude, velocity, and sub-satellite latitude/longitude.'],
-  ['Predict ground station passes', 'A station network — real anchor sites or your own — screens the sky against each site\'s minimum-elevation mask, returning rise, closest-approach, and set times with max elevation and azimuth.'],
+  ['Predict ground station passes', 'A station network — real anchor sites or your own — screens the sky against each site\'s minimum-elevation mask, returns rise, closest-approach, and set times with max elevation and azimuth, and renders the live line-of-sight footprint and station beams in the 3D scene.'],
   ['Analyze & design missions', 'The Labs workspace runs the same validated pipeline analytically: orbital elements, impulsive maneuvers, Hohmann transfers, ΔV budgets, plane changes — every number traced to a published reference.'],
 ]
 

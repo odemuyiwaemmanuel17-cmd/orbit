@@ -281,3 +281,26 @@ without touching its visual identity.
   sorted/non-overlapping GPS schedule). pytest 48/48. Build green.
 - Next: M8 line-of-sight visualization - horizon shells + live LOS beams
   from stations using stations.js + engine positions.
+
+---
+
+## 2026-10-07 - M8 Line-of-Sight Visualization
+
+- lib/los.js: visibility cap closed form gamma(e) = acos((Rs/rk) cos e) - e
+  derived from the M6 tan(elev) identity; gamma(0) proven EQUAL to the M6
+  horizonHalfAngleDeg for 4 altitudes (cross-check, not reimplementation).
+  losState = LINK (elev>=mask) / LOS (0<=elev<mask) / BLOCKED (elev<0), all
+  from the single lookAngleKm - M6/M7/M8 can never disagree.
+- footprintPolygonDeg: constant-angular-radius ground ring (spherical
+  asin/atan2), closed; 97 vertices verified on great-circle distance.
+- /lab/los: live footprint ring + sub-sat dot + per-station beams colored by
+  state over the persisted network; FOOTPRINT/BEAMS toggles; counts row;
+  per-station elev/mask/slant rows; SHOW CALCULATION with substituted gamma;
+  REAL-TIME PROPAGATION badge + explicit compressed-scene honesty note.
+  StationLayer's 3rd consumer - still zero marker duplication.
+- Perf choice: ring recomputed every engine tick (97 projections at 10 Hz is
+  trivial) instead of memo-quantizing - ring, dot and beams stay aligned.
+- Landing: HOW IT WORKS pass stage now mentions live LOS footprint/beams.
+- Tests: vitest 81/81 (8 new). pytest 48/48. Build green; /lab/los 200.
+- Next: M9 coverage vs min-elevation - coverage caps of one orbit's shells
+  over the station set (reuses gamma(e) + orbitPolyline), cached on demand.

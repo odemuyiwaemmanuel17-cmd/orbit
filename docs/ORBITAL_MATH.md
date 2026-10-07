@@ -207,3 +207,27 @@ Propagation + look angles stay in the validated reference pipeline
   mean sphere surface) — sub-0.2° effect for real sites, consistent with
   the backend mirror; M6's lookAngleKm (which honors station elevation)
   remains the on-demand topocentric view.
+
+
+## Line-of-sight footprints (M8)
+
+Layer: `frontend/src/lib/los.js` — geometry only, on top of M6 look angles.
+
+- Visibility cap (spherical Earth): the set of surface points seeing a
+  satellite at radius r_k with elevation >= e is a circle centered on the
+  sub-satellite point with angular radius
+      gamma(e) = acos( (R⊕/r_k) cos e ) − e
+  from tan(elev) = (r_k cos g − R⊕)/(r_k sin g) via the auxiliary-angle
+  identity cos(g + e) = (R⊕/r_k) cos e. gamma(0) is exactly the M6 horizon
+  identity — locked by test rather than re-derived twice.
+- Three-state verdict per station: LINK (elev >= mask), LOS (0 <= elev <
+  mask), BLOCKED (elev < 0, Earth between). Elevation comes from the single
+  M6 lookAngleKm function — one geometry everywhere.
+- Boundary ring: constant-angular-radius circle by spherical trig
+  (asin/atan2 form), closed polygon, vertices verified on the great-circle
+  distance in tests.
+- Scene honesty: beams and the ring are drawn in the compressed-radius
+  scene (angles faithful, radius logarithmic); the UI states that computed
+  elevation, not apparent intersection on the compressed globe, decides
+  LINK/BLOCKED. Live cost: 97 projected points per frame at 10 Hz — trivial,
+  so no quantization was introduced.
