@@ -295,3 +295,23 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
   -173.9755 literal (now imported from constants).
 - Tests: vitest 106/106 (15 new). pytest 48/48. Landing HOW IT WORKS lab
   stage now names ground networks and link budgets.
+
+## Addendum 2026-10-07 — M11 Attitude Frames
+
+- lib/attitude.js: pure THREE-free frame math — lvlhBasisEciKm (Gram-
+  Schmidt, throws on degenerates), yawPitchRollMat (intrinsic Z-Y-X RWFS),
+  bodyAxesEciKm (column-weighted basis), angleBetweenDeg/nadirErrorDeg.
+  Conventions documented in the module header and pinned by tests.
+- /lab/attitude: live SGP4 state -> LVLH solid triad (along-track emerald,
+  wheel cyan, nadir amber) + dashed white body triad through the shared
+  eciToSceneKm GMST contract; ypr sliders with degree units; preset chips;
+  INERTIAL HOLD freezes body axes in ECI so the diverging frames dramatize
+  that nadir pointing = continuous orbit-rate rotation (rate readout from
+  periodSec — no duplicated mu math). REAL-TIME PROPAGATION badge; page
+  states geometry-only (M12 adds dynamics); orbit path via OrbitScene lab.
+- Delivery friction honestly logged: my own Edit-time bracket slip broke the
+  build (caught by esbuild, fixed), an early garbled bodyAxesEciKm was
+  rewritten, -0/+0 deep-equality artifacts moved to component-wise
+  comparisons, and a lucide icon name (Axes) was verified BEFORE writing
+  this time (it doesn't exist; Axis3d does).
+- Tests: vitest 114/114 (8 new). pytest 48/48.

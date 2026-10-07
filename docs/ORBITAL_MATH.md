@@ -285,3 +285,28 @@ reference noise temperature), not inline in formulas.
   interference and Doppler-free link (frequency enters only via FSPL).
 - channelCapacityBps gives the AWGN reference C = B log2(1 + C/N0·B⁻¹) for
   context, separate from the required-margin verdict.
+
+
+## Attitude frames (M11)
+
+Service: `frontend/src/lib/attitude.js` — frame geometry only (attitude
+DYNAMICS belong to M12). Built on the validated SGP4 state, no new physics.
+
+- LVLH/RWFS basis by Gram-Schmidt from ECI r, v:
+      ẑ = −r̂ (nadir),  x̂ = normalize(v − (v·r̂)r̂) (along-track),  ŷ = ẑ×x̂
+  For prograde orbits ŷ = −ĥ (classic Hill frame); x̂·v > 0 and a right-handed
+  x̂×ŷ=ẑ are verified as DEFINITIONS on real inclined states, and radial-only
+  velocity throws rather than inventing an axis.
+- Body attitude: intrinsic Z-Y-X (yaw ψ about nadir z, pitch θ about y,
+  roll φ about x): R = Rz(ψ)Ry(θ)Rx(φ) maps body coords -> LVLH coords, so
+  body axis i = Σ_j R[j][i]·LVLH_j (columns of R weight the basis — pinned
+  by an independent transcription). Boresight nadir angle = acos(ẑ_b·ẑ).
+- The teaching identity (tested analytically): a body FROZEN in ECI sees the
+  LVLH z-axis drift away at exactly the swept true anomaly — for a circular
+  orbit angle = n·t (0.05..0.3 period checks match Δν to 1e-6°). Nadir
+  pointing is therefore continuous rotation at the orbit rate, shown live
+  by the page's INERTIAL HOLD.
+- Numeric honesty: acos roundoff near |d| = 1 gives ~1e-6° jitter at double
+  precision; tests assert against that floor explicitly, not false 1e-12.
+- Not modeled here (labeled): torques, wheel speeds, detat, sun/moon
+  pointing (M12-M13). Scene axes reuse eciToSceneKm/GMST contract.

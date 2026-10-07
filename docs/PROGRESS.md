@@ -357,3 +357,34 @@ without touching its visual identity.
 - Next: M11 attitude visualizer - orbit-fixed (LVLH/RWFS) frame rendering
   with yaw/roll/pitch about velocity + nadir vectors from the validated
   state pipeline.
+
+---
+
+## 2026-10-07 - M11 Attitude Frames
+
+- lib/attitude.js: pure frame math on the live SGP4 state - LVLH/RWFS by
+  Gram-Schmidt (z = nadir, x = horizontal velocity, y = z x x = -h prograde;
+  right-handedness and axis definitions pinned on a REAL inclined state,
+  degenerate radial-only velocity throws), intrinsic Z-Y-X yaw/pitch/roll,
+  body axes as column-weighted basis combinations (verified against an
+  independent transcription).
+- The analytic teaching identity: a body frozen in ECI sees nadir drift by
+  EXACTLY the swept true anomaly (tested at 5/15/30% of period, circular) -
+  so INERTIAL HOLD in /lab/attitude turns "nadir pointing is a motion"
+  into something you can watch: solid LVLH triad (emerald/cyan/amber)
+  rotating away from the dashed white body triad at the orbit rate
+  (readout from periodSec, no duplicated mu math).
+- ypr sliders with units, preset chips (Nadir / Yaw180 / Pitch30 / Roll90),
+  nadir-angle card, SHOW CALCULATION (Gram-Schmidt + R + acos all with live
+  numbers), REAL-TIME PROPAGATION badge, page states geometry-only (M12 =
+  dynamics). Orbit path via the lab prop.
+- Test-suite honesty: fp floor of acos near |d|=1 (~1e-6 deg) asserted
+  explicitly; -0/+0 artifacts -> component-wise comparisons; icon existence
+  verified BEFORE writing (Axes doesn't exist, Axis3d does).
+- Friction logged: one Edit-time bracket slip broke the build (esbuild
+  caught), and an early garbled bodyAxesEciKm got rewritten when tests
+  exposed it - caught pre-commit, both times.
+- Tests: vitest 114/114 (8 new). pytest 48/48. Build green, routes 200.
+- Next: M12 reaction wheels - commanded slew with wheel momentum limits,
+  RK4 attitude dynamics (documented integrator) against analytic
+  small-angle/yaw-about-nadir references.

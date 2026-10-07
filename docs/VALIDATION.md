@@ -162,3 +162,17 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 | preset bands | GEO S-band 64 kbps, 40 m-equivalent dish | C/N0 in (60, 75) dB-Hz, GO | holds | - |
 | AWGN capacity | Shannon transcription | monotone, equals formula | match | 1e-6 |
 | invalid input | alt 0, slant NaN, missing receiver | throws, no fabricated numbers | throws | - |
+
+## Attitude frames (frontend/tests/attitude.test.js)
+
+| Check | Reference | Expected | OrbitalPulse | Delta |
+|---|---|---|---|---|
+| classic LVLH case | r=(7000,0,0), v=(0,7.5,0) | z=(-1,0,0), x=(0,1,0), y=(0,0,-1) | match | 1e-12 |
+| definition on real state | x horizontal-velocity, z=-r̂, y=zx, RH, unit | cross(x,y)=z | match | 1e-12 |
+| degeneracies | zero r / pure radial v | throw, no invented axis | throws | - |
+| yaw convention | +90° about nadir: x̂→LVLH-ŷ, boresight stays | exact | match | 1e-9 |
+| pitch/roll 90 | boresight tilts exactly 90° from nadir | acos(ẑb·ẑ)=90 | match | 1e-9 |
+| orthonormal body frame | arbitrary ypr incl. 180° yaw | unit, pairwise orthogonal | holds | 1e-12 |
+| column-combination check | body axis = Σ R[j,i]·lvlh_j (independent transcription) | identical | match | 1e-10 |
+| inertial-hold drift | frozen ECI body vs LVLH at true-anomaly +Δν | angle = Δν exactly (circular) | match | 1e-6 deg |
+| fp floor documented | acos near |d|=1 | 1e-6° jitter is double precision, asserted < 1e-4° | noted | - |

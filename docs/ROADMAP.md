@@ -44,8 +44,8 @@ each reuses validated lower-level physics.
 | 8 | Line-of-Sight visualization | **DONE** |
 | 9 | Coverage vs min-elevation | **DONE** |
 | 10 | Communication link budget | **DONE** |
-| 11 | Attitude visualizer | NEXT |
-| 12 | Reaction wheel demo | TODO |
+| 11 | Attitude visualizer | **DONE** |
+| 12 | Reaction wheel demo | NEXT |
 | 13 | Eclipse analysis (umbra/penumbra) | TODO |
 | 14 | Solar power (simplified, labeled) | TODO |
 | 15 | Atmospheric drag comparison | TODO |
