@@ -257,3 +257,21 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
   intersection in the compressed-radius scene.
 - StationLayer reused again (3rd consumer) — zero marker duplication.
 - Tests: vitest 81/81 (8 new LOS cases). pytest 48/48.
+
+## Addendum 2026-10-07 — M9 Coverage vs Min-Elevation
+
+- lib/coverage.js: analytic one-orbit coverage on top of kepler.js (M0+n t ->
+  nu -> ECI), satellite.js gstime for sidereal rotation, M8 gamma(e) caps and
+  M6 lookAngleKm. orbitGroundSamples / visibilityFromSamples / gridCoverage /
+  coveredFractionAt / capAreaFractionDeg — all pure, all node-tested.
+- Area math: cos(lat)-weighted equal-lat/lon grid with dot-product cap tests
+  (O(step^2) residual disclosed and bounded against the analytic cap fraction
+  in tests); station time-fraction from uniform time samples; passes need >= 2
+  samples (M7 parity).
+- /lab/coverage: on-demand ANALYZE ORBIT (one-frame yield, cached result — no
+  per-frame heavy compute), coverage-growth point cloud scrub with PLAY /
+  slider, live cap ring + ground track + stations (StationLayer, 4th use),
+  per-station visibility bars (unscaled), 5/10 deg grid + 0/5/10 deg mask
+  selects, ANALYTICAL MODEL badge with explicit "no J2/SGP4 here" note.
+- Landing HOW IT WORKS pass stage now names one-orbit coverage growth.
+- Tests: vitest 91/91 (10 new). pytest 48/48.

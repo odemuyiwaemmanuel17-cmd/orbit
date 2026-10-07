@@ -42,8 +42,8 @@ each reuses validated lower-level physics.
 | 6 | Ground Station System | **DONE** |
 | 7 | Pass Prediction over user stations | **DONE** |
 | 8 | Line-of-Sight visualization | **DONE** |
-| 9 | Coverage vs min-elevation | NEXT |
-| 10 | Communication link budget | TODO |
+| 9 | Coverage vs min-elevation | **DONE** |
+| 10 | Communication link budget | NEXT |
 | 11 | Attitude visualizer | TODO |
 | 12 | Reaction wheel demo | TODO |
 | 13 | Eclipse analysis (umbra/penumbra) | TODO |

@@ -13,6 +13,7 @@ const PlaneChangeLabPage = lazy(() => import('./pages/Lab/PlaneChangeLabPage.jsx
 const GroundStationLabPage = lazy(() => import('./pages/Lab/GroundStationLabPage.jsx'))
 const PassPredictionLabPage = lazy(() => import('./pages/Lab/PassPredictionLabPage.jsx'))
 const LosLabPage = lazy(() => import('./pages/Lab/LosLabPage.jsx'))
+const CoverageLabPage = lazy(() => import('./pages/Lab/CoverageLabPage.jsx'))
 const LabsIndexPage = lazy(() => import('./pages/Lab/LabsIndexPage.jsx'))
 
 /**
@@ -27,6 +28,7 @@ const LabsIndexPage = lazy(() => import('./pages/Lab/LabsIndexPage.jsx'))
  *   /lab/stations -> DESIGN:  Ground Network (stations, look angles, masks)
  *   /lab/passes   -> ANALYZE: Pass Prediction over the station network
  *   /lab/los      -> ANALYZE: Line-of-Sight footprints + live station beams
+ *   /lab/coverage -> ANALYZE: One-orbit coverage vs min-elevation (analytic)
  *   /lab          -> ANALYZE/DESIGN index (all labs)
  */
 export default function App() {
@@ -107,6 +109,14 @@ export default function App() {
             element={
               <Suspense fallback={<SceneLoader label="LOADING LINE OF SIGHT" />}>
                 <LosLabPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/lab/coverage"
+            element={
+              <Suspense fallback={<SceneLoader label="LOADING COVERAGE ANALYSIS" />}>
+                <CoverageLabPage />
               </Suspense>
             }
           />

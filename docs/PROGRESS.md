@@ -304,3 +304,28 @@ without touching its visual identity.
 - Tests: vitest 81/81 (8 new). pytest 48/48. Build green; /lab/los 200.
 - Next: M9 coverage vs min-elevation - coverage caps of one orbit's shells
   over the station set (reuses gamma(e) + orbitPolyline), cached on demand.
+
+---
+
+## 2026-10-07 - M9 Coverage vs Min-Elevation
+
+- lib/coverage.js: pure analytic coverage on validated services only -
+  kepler M0+nt -> nu -> ECI, gstime sidereal rotation, M8 gamma(e) cap,
+  M6 lookAngleKm. orbitGroundSamples, visibilityFromSamples (fraction,
+  maxElev, pass runs >= 2 samples M7 parity), gridCoverage
+  (cos(lat)-weighted cells, dot-product cap test, first-cover time),
+  coveredFractionAt scrub, capAreaFractionDeg analytic reference.
+- Tests caught the truth before I wrote them wrong: GEO at a=42157 km
+  drifts 0.16 deg/period (mu-derived period vs sidereal day) - pinned-test
+  tolerance set to 0.3 with a comment; LEO west-drift equals -omega_E*T to
+  < 1 deg. Grid vs analytic cap cross-check within 0.015 at 10 deg step.
+- /lab/coverage: ANALYZE ORBIT on demand (cached, one-frame yield),
+  coverage-growth point cloud with PLAY/slider scrub, live cap ring +
+  ground track + station markers (StationLayer 4th consumer), per-station
+  visibility bars UNscaled (I removed my own 4x exaggeration before
+  commit), 5/10 deg grid + mask selects, ANALYTICAL MODEL badge + explicit
+  no-J2/SGP4 and O(step^2) disclosures.
+- Landing: HOW IT WORKS pass stage now includes one-orbit coverage growth.
+- Tests: vitest 91/91 (10 new). pytest 48/48. Build green, routes 200.
+- Next: M10 link budget - Friis/EIRP/C-noise over slant ranges from M6,
+  using the constants module (C_KMS) and per-pass worst-case geometry.

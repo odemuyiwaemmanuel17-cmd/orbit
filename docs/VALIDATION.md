@@ -129,3 +129,18 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 | polygon invariance | all 97 vertices at angular radius gamma of sub-sat point | spherical-trig check | match | 1e-6 deg |
 | ring elevation | surface stations on the gamma(0) ring | elev within 0.02 deg of 0 | holds | - |
 | degenerate input | radius <= 0 | empty polygon, no garbage | holds | - |
+
+## One-orbit coverage (frontend/tests/coverage.test.js)
+
+| Check | Reference | Expected | OrbitalPulse | Delta |
+|---|---|---|---|---|
+| great-circle | 90 deg apart, identical, antipodes | 90 / 0 / 180 | match | 1e-9 |
+| cap area | hemisphere gamma=90 -> 1/2; 0 -> 0; monotone | exact | match | 1e-12 |
+| GEO pinned track | e=0 i=0 a=42157 km | lat 0, alt exact, lon |lon| < 0.3 deg (real 0.16 deg period drift, sidereal vs mu-derived period) | holds | - |
+| sidereal drift | equatorial LEO, delta-lon over one period | -omega_E * T = -23.2 deg | holds | < 1 deg |
+| equatorial station | under-track station, LEO i=0 | >= 1 pass, fraction in (0, 0.5) | holds | - |
+| never-visible bound | station lat 60 vs equatorial 400 km orbit (cap 19.8 deg) | fraction 0, maxElev < 0 | holds | - |
+| pass parity (M7) | single-sample blip | not counted as a pass | excluded | - |
+| grid vs analytic | GEO mask-0: weighted 10 deg grid | within 0.015 of (1-cos gamma)/2 = 0.4245 | holds | grid O(step^2) |
+| coverage growth | scrub 0..1 over LEO orbit | monotone, ends at final fraction | holds | - |
+| cap geometry | covered cells of equatorial track | abs(lat) < gamma + step | holds | - |

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Sigma, Rocket, Waypoints, Fuel, GitCompareArrows, RadioTower, CalendarClock, Radar, Construction } from 'lucide-react'
+import { ArrowLeft, Sigma, Rocket, Waypoints, Fuel, GitCompareArrows, RadioTower, CalendarClock, Radar, Globe2, Construction } from 'lucide-react'
 import OrbitScene from '../../components/scene/OrbitScene.jsx'
 
 const LABS = [
@@ -19,10 +19,12 @@ const LABS = [
     note: 'AOS/TCA/LOS over your station masks, elevation curves, SGP4 pipeline' },
   { to: '/lab/los', icon: Radar, tag: 'ANALYZE', title: 'Line of Sight',
     note: 'Live visibility footprint + station beams: LINK / LOS / BLOCKED' },
+  { to: '/lab/coverage', icon: Globe2, tag: 'ANALYZE', title: 'Orbit Coverage',
+    note: 'One-orbit coverage growth vs masks — analytic model, honest grid' },
 ]
 
 const NEXT_UP = [
-  'Coverage vs Masks', 'Link Budget',
+  'Link Budget',
   'Attitude & Reaction Wheels', 'Eclipse & Power', 'Drag, Decay & J2',
   'Conjunction & Avoidance', 'Mission Builder',
 ]

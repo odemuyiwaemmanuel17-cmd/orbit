@@ -231,3 +231,30 @@ Layer: `frontend/src/lib/los.js` — geometry only, on top of M6 look angles.
   elevation, not apparent intersection on the compressed globe, decides
   LINK/BLOCKED. Live cost: 97 projected points per frame at 10 Hz — trivial,
   so no quantization was introduced.
+
+
+## One-orbit coverage vs min-elevation (M9)
+
+Layer: `frontend/src/lib/coverage.js` — analytic MODEL track (two-body
+Kepler from kepler.js, sidereal rotation from satellite.js gstime, M8 cap
+gamma(e), M6 look angles). The live tracker/SGP4 path remains the real
+prediction source; the page badges ANALYTICAL MODEL.
+
+- Ground track: for uniform time samples over one period,
+  M = M0 + n t -> nu (M1 Kepler solver) -> ECI (Vallado Alg 4) ->
+  sub-satellite (lat = asin z/r, lon = atan2 - gstime(t), wrapped).
+  Verified: GEO pinned to < 0.3 deg (the true 0.16 deg/period difference
+  between the mu-derived period at 42157 km and the sidereal day is a
+  FEATURE the test documents, not noise), and equatorial LEO drifts west by
+  exactly omega_E * T = -23.2 deg per period.
+- Station visibility: count of samples with elev >= mask / sample count;
+  pass runs require >= 2 samples (M7 parity). Bounds proven in tests
+  (equatorial 400 km orbit is geometrically invisible from lat 60).
+- Area coverage: cos(lat)-weighted equal-lat/lon grid; a cell counts as
+  covered when its dot product with a sub-satellite unit vector reaches
+  cos(gamma(alt, mask)) — one acos per sample, none per cell. Weighting
+  removes the naive pole overweight; residual O(step^2) discretization is
+  disclosed and cross-checked against the exact cap fraction
+  (1 - cos gamma)/2 within 0.015 at 10 deg for the 81-deg GEO cap.
+- Coverage scrub: first-cover timestamps make the union grow monotonically
+  over the orbit (tested), rendered as point clouds + live cap ring.
