@@ -214,3 +214,27 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
   localStorage persistence, SHOW CALCULATION substituted, ANALYTICAL —
   SPHERICAL EARTH + REAL-TIME PROPAGATION labels.
 - Tests: vitest 66/66 (13 station cases). pytest 48/48 unchanged.
+
+## Addendum 2026-10-07 — M7 Pass Prediction + landing content
+
+- lib/passes.js: pure merge/schedule layer over the EXISTING validated pass
+  math (analysis.predictPassesClient == backend predict_passes) and the M6
+  station domain. predictSchedule(rec, stations, t0, hours, step) merges all
+  stations into one AOS-sorted schedule with cap disclosure;
+  elevationCurve samples the pipeline for the per-pass SVG chart; utcHm and
+  passAgeLabel are pure formatters (tested).
+- Parity bug fixed on the way (contract-first): client mirror now closes
+  window-edge passes like the server and never emits LOS-less single-sample
+  windows (analysis.js; documented in ORBITAL_MATH M7).
+- /lab/passes: station chips (enable/disable, own masks), 6/12/24 h window,
+  30/60 s grid select, on-demand PREDICT (cached result, one-frame yield
+  before the sweep — tracker stays responsive), merged pass rows with
+  AOS/TCA/LOS + T−/T+ vs sim clock, elevation curve per pass, SHOW METHOD
+  bracketing steps, SGP4 REAL-TIME PROPAGATION + grid-resolution labels.
+  StationLayer exported from /lab/stations and reused (no duplication).
+- Landing content updates by owner request (not a redesign; style untouched):
+  HOW IT WORKS grew 4 -> 6 stages (added pass prediction + mission-analysis
+  labs; 3x2 grid, same card design), backend note now mentions server-side
+  analytics, and the TECHNOLOGY STACK chip block was removed from About.
+- Tests: vitest 73/73 (7 new incl. REAL GOES-15 + GPS TLE integration).
+  pytest 48/48 unchanged.

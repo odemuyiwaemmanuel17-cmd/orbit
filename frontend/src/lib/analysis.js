@@ -91,11 +91,16 @@ export function predictPassesClient(rec, obsLat, obsLon, t0Ms, hours = 24,
         cur.los = t
       }
     } else if (cur) {
-      out.push(formatPass(cur))
+      // Backend parity: a window needs at least two visible samples
+      // (an explicit los) before it is reported as a pass.
+      if (cur.los !== undefined) out.push(formatPass(cur))
       cur = null
     }
     if (out.length >= 20) break
   }
+  // Mirror backend/analysis.py: a pass still above the mask at the window
+  // end closes at the last visible sample instead of silently vanishing.
+  if (cur && cur.los > cur.aos) out.push(formatPass(cur))
   return out
 }
 

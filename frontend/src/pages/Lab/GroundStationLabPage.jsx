@@ -13,8 +13,9 @@ import {
 const CUR = '#f59e0b'
 const SEL = '#22d3ee'
 
-/** Station markers on the approved globe — meshes only, no per-station React tree. */
-function StationLayer({ stations, selectedId }) {
+/** Station markers on the approved globe — meshes only, no per-station React tree.
+ *  Exported for reuse by M7 (pass schedule scene). */
+export function StationLayer({ stations, selectedId }) {
   return (
     <group>
       {stations.map((s) => {

@@ -11,6 +11,7 @@ const HohmannLabPage = lazy(() => import('./pages/Lab/HohmannLabPage.jsx'))
 const DVBudgetLabPage = lazy(() => import('./pages/Lab/DVBudgetLabPage.jsx'))
 const PlaneChangeLabPage = lazy(() => import('./pages/Lab/PlaneChangeLabPage.jsx'))
 const GroundStationLabPage = lazy(() => import('./pages/Lab/GroundStationLabPage.jsx'))
+const PassPredictionLabPage = lazy(() => import('./pages/Lab/PassPredictionLabPage.jsx'))
 const LabsIndexPage = lazy(() => import('./pages/Lab/LabsIndexPage.jsx'))
 
 /**
@@ -23,6 +24,7 @@ const LabsIndexPage = lazy(() => import('./pages/Lab/LabsIndexPage.jsx'))
  *   /lab/dvbudget -> DESIGN:  Mission ΔV Budget (Tsiolkovsky feasibility)
  *   /lab/planec   -> DESIGN:  Plane Change Simulator (impulsive node-line burns)
  *   /lab/stations -> DESIGN:  Ground Network (stations, look angles, masks)
+ *   /lab/passes   -> ANALYZE: Pass Prediction over the station network
  *   /lab          -> ANALYZE/DESIGN index (all labs)
  */
 export default function App() {
@@ -87,6 +89,14 @@ export default function App() {
             element={
               <Suspense fallback={<SceneLoader label="LOADING GROUND NETWORK" />}>
                 <GroundStationLabPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/lab/passes"
+            element={
+              <Suspense fallback={<SceneLoader label="LOADING PASS SCHEDULE" />}>
+                <PassPredictionLabPage />
               </Suspense>
             }
           />

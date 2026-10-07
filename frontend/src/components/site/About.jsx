@@ -1,8 +1,3 @@
-const STACK = [
-  'SGP4 / SDP4 Propagation', 'WebGL · React Three Fiber', 'React 18', 'FastAPI Backend',
-  'TLE Ingest Pipelines', 'CelesTrak Data', 'Tailwind CSS', 'satellite.js',
-]
-
 export default function About() {
   return (
     <section id="about" className="relative py-24 px-5">
@@ -25,16 +20,6 @@ export default function About() {
             hemisphere, study a Starlink shell&apos;s geometry, or verify a ground station pass
             window — all in real time, all in the browser.
           </p>
-          <div className="mt-7">
-            <div className="text-[10px] font-mono tracking-[0.25em] text-emerald-500 mb-3">TECHNOLOGY STACK</div>
-            <div className="flex flex-wrap gap-2">
-              {STACK.map((t) => (
-                <span key={t} className="px-3 py-1 rounded-full text-[11px] border border-emerald-400/25 bg-emerald-400/5 text-emerald-200">
-                  {t}
-                </span>
-              ))}
-            </div>
-          </div>
         </div>
         <div>
           <div className="text-[10px] font-mono tracking-[0.25em] text-emerald-500 mb-4">

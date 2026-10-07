@@ -103,3 +103,16 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 | catalogue validation | lat/lon/elev/mask ranges, finiteness, unique ids | invalid input never becomes a station | holds | - |
 | persistence | corrupt/empty storage payload | degrade to default catalogue, no throw | holds | - |
 | persistence round-trip | save custom list then load | exact equality | exact | - |
+
+## Pass scheduling (frontend/tests/passes.test.js)
+
+| Check | Reference | Expected | OrbitalPulse | Delta |
+|---|---|---|---|---|
+| GEO overhead, real TLE | GOES-15 (shipped CelesTrak fixture), co-longitudinal station | one continuous pass spanning the window, max elev > 80° | holds | - |
+| GEO antipodal | same TLE, station at lon+180 | zero passes | 0 | - |
+| schedule order | GPS MEO, 2 stations, 12 h | sorted by AOS, non-overlapping per station, inside window | holds | - |
+| pass structure | AOS < TCA <= LOS, elev at TCA >= mask | per row | holds | - |
+| cap disclosure | predictPassesClient 20-pass cap | capped flag surfaced in UI | boolean | - |
+| elevation curve | GEO overhead, AOS−10m→LOS+10m | all samples > 70°, peak > 80° | holds | grid step 60s |
+| window-edge parity | client mirror vs backend bracketing | pass open at window end closes at last visible sample (fix in M7) | aligned | - |
+| labels | utcHm zero-pad, T-/T+ flip | exact strings | match | - |

@@ -253,3 +253,31 @@ without touching its visual identity.
 - Next: M7 pass prediction - elevation-vs-time over user stations from the
   validated stations.js + Kepler services (on-demand, cached, tracker stays
   responsive).
+
+---
+
+## 2026-10-07 - M7 Pass Prediction over user stations + landing content
+
+- lib/passes.js: merge/schedule layer ONLY - propagation, look angles and
+  pass bracketing stay in the validated pipeline (predictPassesClient,
+  mirror of backend predict_passes). Merged AOS-sorted schedule across
+  enabled stations with per-station masks, 20-pass cap disclosure,
+  elevation curve sampler for the chart, pure formatters.
+- Parity fix found while testing (contract-first): the client mirror
+  dropped passes still open at the window end (backend closes them) and
+  could emit LOS-less single-sample windows. Both aligned in analysis.js;
+  the GEO-overhead test only passes because of the fix.
+- /lab/passes: station chips + 6/12/24h window + 30/60s grid, on-demand
+  PREDICT cached in state (one-frame yield; tracker unaffected), pass rows
+  with AOS/TCA/LOS, T-/T+ vs sim clock, max elev + azimuth, per-pass
+  elevation curve (SVG, mask line, AOS/LOS markers, peak dot), SHOW METHOD,
+  SGP4 REAL-TIME PROPAGATION badge + honest grid-resolution note. Station
+  markers reused from /lab/stations (exported StationLayer).
+- Landing (owner request, content-only, style untouched): HOW IT WORKS 4->6
+  stages (pass prediction + mission-analysis labs) in the same card design;
+  TECHNOLOGY STACK chip block removed from About.
+- Tests: vitest 73/73 (7 new; REAL GOES-15 + GPS TLE integration: overhead
+  GEO = one continuous >80 deg pass spanning window, antipodal = zero,
+  sorted/non-overlapping GPS schedule). pytest 48/48. Build green.
+- Next: M8 line-of-sight visualization - horizon shells + live LOS beams
+  from stations using stations.js + engine positions.

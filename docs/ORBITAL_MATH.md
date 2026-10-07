@@ -182,3 +182,28 @@ Service: `frontend/src/lib/stations.js` — pure, THREE-free, storage-agnostic
 - Live-elevation card propagates the watched satellite through the ISS
   reference pipeline (TLE -> SGP4 -> eciToGeodetic), no duplicated orbital
   logic. minElevDeg mask verdicts feed M7 pass prediction and M8 LOS.
+
+
+## Pass scheduling (M7)
+
+Layer: `frontend/src/lib/passes.js` — a scheduling/merge layer only.
+Propagation + look angles stay in the validated reference pipeline
+(analysis.predictPassesClient, which mirrors backend predict_passes).
+
+- Pass definition: maximal interval where elev(t) >= station.minElevDeg.
+  Reported as AOS (rise), TCA (grid argmax elevation, with azimuth there),
+  LOS (set), duration arc.
+- Resolution trade, disclosed in UI: the search walks the sky on a stepS
+  grid (30/60 s), so AOS/LOS/TCA times carry up to ±stepS discretization;
+  no sub-grid refinement is claimed. Cap: 20 passes per station per window
+  (backend parity; the UI says when a station hits it).
+- M7 parity fix (contract-first): the client mirror dropped a pass still
+  open at the window end while backend/analysis.py closes it at the last
+  visible sample; it also could emit single-sample windows without a LOS.
+  Both aligned to the backend's bracketing semantics (analysis.js).
+  Tracker behavior only gains previously-dropped edge passes — no other
+  numeric change.
+- Station elevations (km) are ignored in the pass search (observer at the
+  mean sphere surface) — sub-0.2° effect for real sites, consistent with
+  the backend mirror; M6's lookAngleKm (which honors station elevation)
+  remains the on-demand topocentric view.

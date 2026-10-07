@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Sigma, Rocket, Waypoints, Fuel, GitCompareArrows, RadioTower, Construction } from 'lucide-react'
+import { ArrowLeft, Sigma, Rocket, Waypoints, Fuel, GitCompareArrows, RadioTower, CalendarClock, Construction } from 'lucide-react'
 import OrbitScene from '../../components/scene/OrbitScene.jsx'
 
 const LABS = [
@@ -15,10 +15,12 @@ const LABS = [
     note: 'ΔV = 2v·sin(Δi/2) node-line burns, altitude ladder, combined-burn savings' },
   { to: '/lab/stations', icon: RadioTower, tag: 'DESIGN', title: 'Ground Station Network',
     note: 'Anchor stations + your own, live elevation/slant range, min-elevation masks' },
+  { to: '/lab/passes', icon: CalendarClock, tag: 'ANALYZE', title: 'Pass Prediction',
+    note: 'AOS/TCA/LOS over your station masks, elevation curves, SGP4 pipeline' },
 ]
 
 const NEXT_UP = [
-  'Pass Prediction & LOS', 'Coverage vs Masks', 'Link Budget',
+  'Line-of-Sight & Coverage', 'Link Budget',
   'Attitude & Reaction Wheels', 'Eclipse & Power', 'Drag, Decay & J2',
   'Conjunction & Avoidance', 'Mission Builder',
 ]
