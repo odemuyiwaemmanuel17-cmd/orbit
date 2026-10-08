@@ -176,3 +176,20 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 | column-combination check | body axis = Σ R[j,i]·lvlh_j (independent transcription) | identical | match | 1e-10 |
 | inertial-hold drift | frozen ECI body vs LVLH at true-anomaly +Δν | angle = Δν exactly (circular) | match | 1e-6 deg |
 | fp floor documented | acos near |d|=1 | 1e-6° jitter is double precision, asserted < 1e-4° | noted | - |
+
+## Reaction-wheel dynamics bench (frontend/tests/wheels.test.js)
+
+| Check | Reference | Expected | OrbitalPulse | Delta |
+|---|---|---|---|---|
+| quat axis-angle round-trip | 2 atan2(v·axis, s) | pi/3 exact | match | 1e-12 |
+| quat vector rotation | hand rotation of x by 60 deg about z | (cos, sin, 0) | match | 1e-12 |
+| quat composition | shared-axis angles add | 0.7 + (-0.2) = 0.5 | match | 1e-12 |
+| planner identity | theta = k a t1^2, k = Iw/(I+Iw) | exact for t1 | match | 1e-9 |
+| torque scaling | 4x torque | t1 halves | match | 1e-9 |
+| invalid plan | zero angle / negative inertia | throws | throws | - |
+| RK4 final angle vs closed form | 30 deg slew, I 100, Iw 0.1, tau 0.05, dt 0.02 s segment-aligned | settles at 30.00 | match | < 5e-3 deg |
+| momentum conservation | H_total from rest | 0 through every sample (RK4 preserves linear invariants) | holds | < 1e-6 Nms |
+| reaction pair | Iw*omega_wheel_abs = -I*omega_bus | mirror at peak | match | 1e-9 |
+| peak wheel momentum | I*w_peak closed form | within sample-grid 0.25 s | match | ~6e-3 Nms |
+| saturation demo | 60 deg on 2 Nms wheel | required peak exceeds limit (honest early-stop warning) | flagged | - |
+| quat normalization | every emitted sample | unit to 1e-9 | holds | - |

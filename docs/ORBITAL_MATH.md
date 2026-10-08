@@ -308,5 +308,6 @@ DYNAMICS belong to M12). Built on the validated SGP4 state, no new physics.
   by the page's INERTIAL HOLD.
 - Numeric honesty: acos roundoff near |d| = 1 gives ~1e-6° jitter at double
   precision; tests assert against that floor explicitly, not false 1e-12.
-- Not modeled here (labeled): torques, wheel speeds, detat, sun/moon
+- Not modeled here (labeled): torques, wheel speeds, desat, sun/moon
   pointing (M12-M13). Scene axes reuse eciToSceneKm/GMST contract.
+  Wheel dynamics (M12) are documented in docs/SPACECRAFT_DYNAMICS.md.

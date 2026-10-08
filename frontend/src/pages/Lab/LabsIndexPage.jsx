@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Sigma, Rocket, Waypoints, Fuel, GitCompareArrows, RadioTower, CalendarClock, Radar, Globe2, Signal, Axis3d, Construction } from 'lucide-react'
+import { ArrowLeft, Sigma, Rocket, Waypoints, Fuel, GitCompareArrows, RadioTower, CalendarClock, Radar, Globe2, Signal, Axis3d, Disc3, Construction } from 'lucide-react'
 import OrbitScene from '../../components/scene/OrbitScene.jsx'
 
 const LABS = [
@@ -25,6 +25,8 @@ const LABS = [
     note: 'EIRP → FSPL → C/N₀ → Eb/N₀ margin with live worst-case slant' },
   { to: '/lab/attitude', icon: Axis3d, tag: 'ANALYZE', title: 'Attitude Frames',
     note: 'LVLH/RWFS vs body: yaw-pitch-roll, nadir pointing, inertial hold' },
+  { to: '/lab/wheels', icon: Disc3, tag: 'ANALYZE', title: 'Reaction Wheels',
+    note: 'RK4 slew bench: momentum exchange, saturation limits, exact closed form' },
 ]
 
 const NEXT_UP = [

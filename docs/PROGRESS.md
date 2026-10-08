@@ -388,3 +388,36 @@ without touching its visual identity.
 - Next: M12 reaction wheels - commanded slew with wheel momentum limits,
   RK4 attitude dynamics (documented integrator) against analytic
   small-angle/yaw-about-nadir references.
+
+---
+
+## 2026-10-08 - M12 Reaction Wheel Demo
+
+- lib/wheels.js: platform's first DYNAMICS module - bus+wheel state
+  [w, q, Omega], reduced-inertia motor coupling (tau = u I Iw/(I+Iw)),
+  Euler equations + quaternion kinematics, documented fixed-step RK4
+  (dt 0.02 s) SEGMENT-ALIGNED to command corners, quat renormalized per
+  step. Closed-form trapezoid planner: theta = k a t1^2, wheel momentum
+  peak = I w_peak via H = 0. Reaction sign: wheel counter-accelerates
+  (test-enforced).
+- Tests pin the integrator against analysis: settle < 5e-3 deg, H_total
+  1e-6 per sample (linear invariant => RK4 exact-ish), mirror momentum at
+  peak 1e-9, t1 scaling 4x torque = half time, quat unit norm.
+- /lab/wheels: floating 3D bench (fixed inertial triad + rotating bus
+  triad + box mesh from sample quaternion), axis/angle/inertia/torque/
+  limit controls, plan card with substituted identities, three mini
+  charts (angle / wheel rpm / momentum vs +-limit), timeline scrub + loop,
+  honest SATURATES banner (integrator continues past the limit to show
+  infeasibility; early-stop/desat labeled out of scope). BENCH + RK4
+  labels front and center; HOW IT WORKS stage updated.
+- New required doc: docs/SPACECRAFT_DYNAMICS.md (frames, orbit-rate fact
+  from M11, wheel math + integrator + validity limits from M12).
+- Self-caught defects before commit (logged with evidence in ARCHITECTURE):
+  garbled quatRotVec expansion, missing reaction SIGN, command-corner
+  integration error (fixed by segment alignment), a botched mid-file edit
+  that put the loop before its definitions (restructured), dead helper +
+  void hacks, setInterval inside useMemo.
+- Tests: vitest 126/126 (12 new). pytest 48/48. Build green, routes 200.
+- Next: M13 eclipse analysis - umbra/penumbra cylinder-cone model vs the
+  validated sunDirection ephemeris; eclipse fraction per orbit analytical
+  cross-check; feeds M14 power.

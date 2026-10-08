@@ -315,3 +315,29 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
   comparisons, and a lucide icon name (Axes) was verified BEFORE writing
   this time (it doesn't exist; Axis3d does).
 - Tests: vitest 114/114 (8 new). pytest 48/48.
+
+## Addendum 2026-10-08 — M12 Reaction Wheel Bench
+
+- lib/wheels.js: first DYNAMICS module. State [ω(3), q(4), Ω(3)]; internal
+  motor torque with reduced-inertia coupling; Euler equations + quaternion
+  kinematics; documented fixed-step RK4 (dt 0.02 s), SEGMENT-ALIGNED to
+  command corners (a plain grid showed ~2e-4 corner error — the aligned
+  version settles the closed-form angle to <5e-3°), quat renormalized per
+  step. planSlew exposes the exact trapezoid identities (θ = k a t1²,
+  t1 = √(θ(I+Iw)/τ), H_wheel = I·ω_peak via H = 0).
+- Momentum conservation is a LINEAR invariant → RK4 preserves it to ~1e-13;
+  tests assert H_total ≈ 0 and the wheel/bus momentum mirror per sample.
+- /lab/wheels: axis + 5-60° slew, inertia/torque/limit inputs, plan card,
+  RUN SIMULATION (cached, one-frame yield), floating 3D bench: fixed inertial
+  triad + rotating bus frame + box mesh driven by the sample quaternion,
+  three mini-charts (angle, wheel rpm, momentum vs ±limit lines), timeline
+  scrub + play loop, honest saturation warning (integrator continues past
+  the limit to SHOW infeasibility). BENCH + RK4 labels up front.
+- New doc: docs/SPACECRAFT_DYNAMICS.md (frames, orbit-rate fact, wheel math,
+  integrator + validity limits) — required platform doc, started here.
+- Delivery honesty: several of my own defects caught pre-commit by tests and
+  self-review (garbled quatRotVec expansion, missing reaction-wheel SIGN
+  (wheel must counter-accelerate), segment-boundary corner error, a broken
+  mid-function edit reorder, dead helper + void hacks, interval-in-useMemo
+  misuse). All fixed with evidence, none shipped.
+- Tests: vitest 126/126 (12 new). pytest 48/48.
