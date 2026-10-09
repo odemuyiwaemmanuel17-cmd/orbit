@@ -4,7 +4,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Stars, Line } from '@react-three/drei'
 import { engine } from '../../lib/engine.js'
 import { footprintOf } from '../../lib/analysis.js'
-import { geodeticToScene, REGIME_COLORS } from '../../lib/coords.js'
+import { geodeticToScene, sunDirection, REGIME_COLORS } from '../../lib/coords.js'
 import ConstellationField from './ConstellationField.jsx'
 import LabOrbit from './LabOrbit.jsx'
 
@@ -15,42 +15,79 @@ const TMP = new THREE.Vector3()
 
 /* ------------------------------------------------------------------ Earth */
 
-function landDotsGeometry() {
-  /** Sample a Blue Marble texture into a green point-cloud of landmasses.
-   *  Resolves to null when the texture is unavailable — graticule still renders. */
-  return new Promise((resolve) => {
-    const img = new Image()
-    img.crossOrigin = 'anonymous'
-    img.onerror = () => resolve(null)
-    img.onload = () => {
-      const W = 512, H = 256
-      const cv = document.createElement('canvas')
-      cv.width = W; cv.height = H
-      const ctx = cv.getContext('2d')
-      ctx.drawImage(img, 0, 0, W, H)
-      let data
-      try { data = ctx.getImageData(0, 0, W, H).data } catch { resolve(null); return }
-      const verts = []
-      for (let y = 0; y < H; y += 2) {
-        for (let x = 0; x < W; x += 2) {
-          const i = (y * W + x) * 4
-          const r = data[i], g = data[i + 1], b = data[i + 2]
-          // crude land mask: green/brown terrain is red-dominant vs ocean blue
-          if (r > 60 && r > b * 0.85 && !(b > 120 && b > r)) {
-            const lon = (x / W) * 360 - 180
-            const lat = 90 - (y / H) * 180
-            geodeticToScene(lat, lon, 0, TMP)
-            verts.push(TMP.x * 1.002, TMP.y * 1.002, TMP.z * 1.002)
-          }
-        }
-      }
-      const geo = new THREE.BufferGeometry()
-      geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3))
-      resolve(verts.length ? geo : null)
-    }
-    img.src = 'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg'
-  })
+/**
+ * Photoreal Earth (phase C/D). Textures are vendored same-origin under
+ * public/textures (NASA-derived, see ATTRIBUTION.md). Orientation contract:
+ * the scene frame is Earth-fixed exactly like geodeticToScene, so the sphere
+ * NEVER self-rotates; alignment comes from the pinned UV flip in
+ * tests/earthTexture.test.js (s = 1 - u). Sunlight/terminator track
+ * engine.simMs through the validated sunDirection ephemeris — day/night
+ * lines land where the simulation epoch says they must.
+ */
+const TEX = {
+  day: '/textures/earth_atmos_2048.jpg',
+  night: '/textures/earth_lights_2048.png',
+  ocean: '/textures/earth_specular_2048.jpg',
+  clouds: '/textures/earth_clouds_1024.png',
 }
+
+function loadEarthTextures() {
+  const loader = new THREE.TextureLoader()
+  return Promise.all([
+    loader.loadAsync(TEX.day), loader.loadAsync(TEX.night),
+    loader.loadAsync(TEX.ocean), loader.loadAsync(TEX.clouds),
+  ]).then(([day, night, ocean, clouds]) => {
+    for (const t of [day, night, clouds]) {
+      t.colorSpace = THREE.SRGBColorSpace
+      t.wrapS = THREE.RepeatWrapping
+      t.repeat.x = -1 // pinned lon-alignment flip (earthTexture.test.js)
+      t.offset.x = 1
+      t.anisotropy = 4
+    }
+    ocean.wrapS = THREE.RepeatWrapping // linear mask: same geometry mapping, no sRGB
+    ocean.repeat.x = -1
+    ocean.offset.x = 1
+    return { day, night, ocean, clouds }
+  }).catch(() => null)
+}
+
+const EARTH_VERT = `
+varying vec2 vUv; varying vec3 vPos;
+void main() {
+  vUv = uv; vPos = position;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}`
+
+const EARTH_FRAG = `
+uniform sampler2D uDay; uniform sampler2D uNight; uniform sampler2D uOcean;
+uniform vec3 uSun; uniform vec3 uCam;
+varying vec2 vUv; varying vec3 vPos;
+void main() {
+  vec3 n = normalize(vPos);
+  vec3 s = normalize(uSun);
+  float ndl = dot(n, s);
+  float t = smoothstep(-0.12, 0.06, ndl);          // natural-day terminator
+  vec3 day = texture2D(uDay, vUv).rgb;
+  vec3 dayCol = day * (0.05 + 1.10 * max(ndl, 0.0)) + vec3(0.015, 0.03, 0.06);
+  vec3 nightCol = texture2D(uNight, vUv).rgb * 1.25 + day * 0.012;
+  vec3 col = mix(nightCol, dayCol, t);
+  float ocean = texture2D(uOcean, vUv).r;
+  vec3 v = normalize(uCam - vPos);
+  vec3 h = normalize(v + s);
+  float spec = pow(max(dot(n, h), 0.0), 90.0) * ocean * t;
+  col += vec3(0.30, 0.45, 0.65) * spec;            // sun glint on water only
+  gl_FragColor = vec4(col, 1.0);
+}`
+
+const CLOUD_FRAG = `
+uniform sampler2D uClouds; uniform vec3 uSun; uniform float uOpacity;
+varying vec2 vUv; varying vec3 vPos;
+void main() {
+  vec4 c = texture2D(uClouds, vUv);
+  float ndl = dot(normalize(vPos), normalize(uSun));
+  float lit = smoothstep(-0.15, 0.25, ndl);
+  gl_FragColor = vec4(c.rgb * mix(0.08, 1.0, lit), c.a * uOpacity);
+}`
 
 function Graticule() {
   const geo = useMemo(() => {
@@ -69,18 +106,47 @@ function Graticule() {
   }, [])
   return (
     <lineSegments geometry={geo}>
-      <lineBasicMaterial color={GREEN} transparent opacity={0.22} />
+      <lineBasicMaterial color={GREEN} transparent opacity={0.08} />
     </lineSegments>
   )
 }
 
 function Earth() {
-  const [landGeo, setLandGeo] = useState(null)
+  const [tex, setTex] = useState(null)
+  const earthRef = useRef()
+  const scratch = useMemo(() => ({
+    sun: new THREE.Vector3(), cam: new THREE.Vector3(), q: new THREE.Quaternion(),
+  }), [])
   useEffect(() => {
     let alive = true
-    landDotsGeometry().then((g) => alive && setLandGeo(g))
+    loadEarthTextures().then((t) => alive && setTex(t))
     return () => { alive = false }
   }, [])
+
+  const uniforms = useMemo(() => ({
+    uSun: { value: new THREE.Vector3(1, 0, 0) },
+    uCam: { value: new THREE.Vector3(0, 0, 5) },
+  }), [])
+
+  const earthMat = useMemo(() => new THREE.ShaderMaterial({
+    vertexShader: EARTH_VERT, fragmentShader: EARTH_FRAG,
+    uniforms: {
+      uDay: { value: null }, uNight: { value: null }, uOcean: { value: null },
+      ...uniforms,
+    },
+  }), [uniforms])
+  const cloudMat = useMemo(() => new THREE.ShaderMaterial({
+    vertexShader: EARTH_VERT, fragmentShader: CLOUD_FRAG, transparent: true,
+    depthWrite: false,
+    uniforms: { uClouds: { value: null }, uOpacity: { value: 0.85 }, ...uniforms },
+  }), [uniforms])
+  useEffect(() => {
+    if (!tex) return
+    earthMat.uniforms.uDay.value = tex.day
+    earthMat.uniforms.uNight.value = tex.night
+    earthMat.uniforms.uOcean.value = tex.ocean
+    cloudMat.uniforms.uClouds.value = tex.clouds
+  }, [tex, earthMat, cloudMat])
 
   // Fresnel atmosphere; uStorm tints the rim amber/red during geomagnetic storms.
   const atmoMat = useMemo(() => new THREE.ShaderMaterial({
@@ -90,25 +156,43 @@ function Earth() {
     vertexShader: 'varying vec3 vN; varying vec3 vV; void main(){ vN=normalize(normalMatrix*normal); vec4 mv=modelViewMatrix*vec4(position,1.0); vV=normalize(-mv.xyz); gl_Position=projectionMatrix*mv; }',
     fragmentShader: 'uniform float uStorm; varying vec3 vN; varying vec3 vV; void main(){ float f=1.0-abs(dot(vN,vV)); vec3 calm=vec3(0.18,0.52,0.98); vec3 hot=vec3(1.0,0.45,0.25); gl_FragColor=vec4(mix(calm,hot,uStorm), pow(f,3.0)*(0.55+0.35*uStorm)); }',
   }), [])
-  useFrame((_, dt) => {
+
+  useFrame(({ camera }, dt) => {
     const target = engine.weather?.storm
       ? Math.min(1, Math.max(0, (engine.weather.kp_index - 4) / 4))
       : 0
     atmoMat.uniforms.uStorm.value += (target - atmoMat.uniforms.uStorm.value) * Math.min(1, dt * 2)
+    if (!earthRef.current) return
+    // Sun direction for the CURRENT simulation epoch, expressed in the
+    // globe group's local frame (group rotation is user viewpoint only —
+    // Earth orientation itself stays locked to the coordinate math).
+    sunDirection(new Date(engine.simMs), scratch.sun)
+    earthRef.current.getWorldQuaternion(scratch.q).invert()
+    uniforms.uSun.value.copy(scratch.sun).applyQuaternion(scratch.q).normalize()
+    uniforms.uCam.value.copy(camera.position).applyQuaternion(scratch.q)
   })
 
   return (
     <group>
-      <mesh>
-        <sphereGeometry args={[0.995, 64, 64]} />
-        <meshBasicMaterial color="#0A1830" transparent opacity={0.92} />
-      </mesh>
+      <group ref={earthRef}>
+        {tex ? (
+          <mesh material={earthMat}>
+            <sphereGeometry args={[0.998, 96, 96]} />
+          </mesh>
+        ) : (
+          // graceful degradation until (or if) textures resolve
+          <mesh>
+            <sphereGeometry args={[0.998, 64, 64]} />
+            <meshBasicMaterial color="#0A1830" transparent opacity={0.95} />
+          </mesh>
+        )}
+        {tex && (
+          <mesh material={cloudMat}>
+            <sphereGeometry args={[1.006, 72, 72]} />
+          </mesh>
+        )}
+      </group>
       <Graticule />
-      {landGeo && (
-        <points geometry={landGeo}>
-          <pointsMaterial color="#38D9FF" size={0.013} transparent opacity={0.75} sizeAttenuation />
-        </points>
-      )}
       <mesh material={atmoMat}>
         <sphereGeometry args={[1.05, 48, 48]} />
       </mesh>
@@ -353,8 +437,8 @@ export default function OrbitScene({ mission = false, lab = null, overlay = null
   return (
     <Canvas
       camera={{ fov: 45, near: 0.05, far: 60, position: [4, 2, 6] }}
-      gl={{ antialias: true, alpha: true }}
-      dpr={[1, 2]}
+      gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+      dpr={[1, 1.75]}
       style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}
     >
       <color attach="background" args={['#050B17']} />
