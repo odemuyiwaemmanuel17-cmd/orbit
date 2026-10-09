@@ -193,3 +193,22 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 | peak wheel momentum | I*w_peak closed form | within sample-grid 0.25 s | match | ~6e-3 Nms |
 | saturation demo | 60 deg on 2 Nms wheel | required peak exceeds limit (honest early-stop warning) | flagged | - |
 | quat normalization | every emitted sample | unit to 1e-9 | holds | - |
+
+## Eclipse & sun ephemeris (frontend/tests/eclipse.test.js)
+
+| Check | Reference | Expected | OrbitalPulse | Delta |
+|---|---|---|---|---|
+| sun-direction regression pins | pre-refactor coords.sunDirection vectors, 3 dates (Mar 20 / Jun 21 / Dec 21 2026) | byte-identical after extraction to lib/sun.js | match | 1e-8 |
+| ECI sun z = sin(dec) | dec invariant under GMST rotation | -0.397708 at Dec solstice; unit norm | match | 1e-8 / 1e-12 |
+| June solstice declination | +obliquity 23.439 deg | z = sin(eps) | match | 1e-3 |
+| umbra apex | Lu = R·d/(Rs-R) similar triangles | ~1.384e6 km, > any Earth orbit radius | match | 1e-6 rel |
+| day/night half-space | rAnti = p·(-sun) <= 0 | SUNLIT, no cone radii invented | match | exact |
+| axis point in shadow | x=-1000 on -sun axis | UMBRA, obscuration 100% | match | exact |
+| cone radii at r=6771 | rhoU = R - r(Rs-R)/d; rhoP = R + r(Rs+R)/d | 6339.8 / 6402.8 km (band ~63 km — thin, real) | match | 1e-6 |
+| penumbra band | point at (rhoU+rhoP)/2 | PENUMBRA at ~50% linear obscuration; monotone toward umbra | match | exact |
+| umbra-vs-cylinder | point at perp 0.5r < rhoU | UMBRA (deep inside cone) | match | exact |
+| orbit scan vs analytic cone root | psi_e = asin(R/(a*sqrt(1+k^2))) - atan(k), k=(Rs-R)/d; fraction = psi_e/pi | 360-step sun-plane scan matches | match | ~5e-3 (grid) |
+| cylindrical textbook ref | asin(R/a)/pi | within 0.5 pp of cone scan at LEO | match | <0.005 |
+| polar-at-equinox | plane normal along sun | 0 eclipse over all 360 samples | match | exact |
+| GEO < LEO | umbra fraction 6771 vs 42165 km | shorter GEO band, > 0.3 h sanity | match | - |
+| degenerate inputs | a <= R, zero-length normal | throw RangeError | throws | - |
