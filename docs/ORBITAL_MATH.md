@@ -311,3 +311,50 @@ DYNAMICS belong to M12). Built on the validated SGP4 state, no new physics.
 - Not modeled here (labeled): torques, wheel speeds, desat, sun/moon
   pointing (M12-M13). Scene axes reuse eciToSceneKm/GMST contract.
   Wheel dynamics (M12) are documented in docs/SPACECRAFT_DYNAMICS.md.
+
+## Eclipse & shadow-cone geometry (M13)
+
+Source: `frontend/src/lib/sun.js`, `frontend/src/lib/eclipse.js`. Tests:
+`frontend/tests/eclipse.test.js`. Model label: **SIMPLIFIED CONE** (labeled in
+UI); the sun ephemeris is the same Meeus low-precision chain that already
+drives scene lighting, extracted verbatim and pinned by reference vectors.
+
+- Sun apparent position (Meeus, low precision): mean longitude
+  L = 280.46 + 0.9856474 n; mean anomaly g = 357.528 + 0.98560028 n;
+  apparent ecliptic longitude λ = L + 1.915 sin g + 0.02 sin 2g; obliquity
+  ε = 23.439 − 4e-7 n. Equatorial: RA = atan2(cos ε sin λ, cos λ),
+  dec = asin(sin ε sin λ). ECI unit vector = (cos δ cos α, cos δ sin α,
+  sin δ) in the satellite.js-compatible frame (z = celestial north, x = March
+  equinox; Earth rotation NOT applied — GMST handled separately). Accuracy
+  ~0.01° in position, adequate for eclipse onset/loss at LEO/GEO.
+- Shadow cone (similar triangles), R = R_earth, Rs = R_sun, d = 1 AU:
+  umbra apex distance Lu = R·d/(Rs − R) ≈ 1.384e6 km — far beyond every Earth
+  orbit, so no orbit reaches the umbra apex (no cone-tip edge case). At
+  along-axis depth r_anti into the anti-sun half-space the cone radii are
+  ρu(r) = R − r(Rs−R)/d (umbra) and ρp(r) = R + r(Rs+R)/d (penumbra). The
+  penumbral band is only ~63 km wide at r = 6771 km — that thinness is real
+  physics, not a modeling shortcut.
+- Point classification: r_anti = p·(−ŝun). If r_anti ≤ 0 the point is on the
+  sun-facing half-space → SUNLIT (no radii invented). Else perp = √(|p|² −
+  r_anti²); UMBRA if perp ≤ ρu (obscuration 100%), PENUMBRA if perp ≤ ρp,
+  otherwise SUNLIT. Penumbral obscuration uses a **linear ramp**
+  (ρp − perp)/(ρp − ρu), labeled — the exact value is a circle-overlap area
+  integral, which we deliberately do not fake.
+- Orbit eclipse fraction: circular orbit of radius a, plane unit normal n,
+  uniform 360-position scan classifies each point with the rule above;
+  fraction = region count / steps. Cross-checked against the independent
+  analytic cone root for a sun-plane orbit: ψ_e = asin(R/(a√(1+k²))) −
+  atan(k), k = (Rs−R)/d, umbra fraction = ψ_e/π — the scan matches to the
+  0.5° grid resolution (~5e-3). The textbook cylindrical-shadow limit
+  asin(R/a)/π stays within 0.5 pp at LEO and is shown as a reference, NOT the
+  shipped number (the cone is narrower). Sanity invariants tested: polar
+  orbit at equinox (n ∥ sun) is never eclipsed; the GEO umbra band is far
+  shorter than LEO's.
+- Sun angle β (angle between the sun vector and the orbit plane) is the live
+  control: n = sin β·ŝun + cos β·ŵ, ŵ = unit(z − (z·ŝun)ŝun). β=0° (sun in
+  plane) is maximum eclipse; β=90° is continuously sunlit — the reason
+  high-β orbits are chosen for power/momentum hygiene (feeds M14).
+- Deliverability: umbra/penumbra fractions times the Keplerian period give
+  min/orbit in each region; the LIVE badge runs the same shadowStateKm on the
+  real SGP4-propagated watch-satellite position every tick (REAL-TIME
+  PROPAGATION label).

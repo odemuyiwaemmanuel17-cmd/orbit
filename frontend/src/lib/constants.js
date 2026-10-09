@@ -38,6 +38,10 @@ export const SOLAR_CONSTANT_WM2 = 1361
 export const AU_KM = 1.495978707e8
 export const SUN_MEAN_MOTION_DEGDAY = 0.98560028
 
+// Sun nominal radius [km] (IAU 2015 nominal solar radius; sufficient for
+// shadow-cone geometry, whose sensitivity to Rs is << the model's own error).
+export const SUN_RADIUS_KM = 6.957e5
+
 // Secular rates for reference comparisons
 export const NODE_PRECESSION_SSO_RADSDAY = 2 * Math.PI / 365.2421897 / 86400 // +360 deg/yr in RAAN
 

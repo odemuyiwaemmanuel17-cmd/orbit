@@ -46,8 +46,8 @@ each reuses validated lower-level physics.
 | 10 | Communication link budget | **DONE** |
 | 11 | Attitude visualizer | **DONE** |
 | 12 | Reaction wheel demo | **DONE** |
-| 13 | Eclipse analysis (umbra/penumbra) | NEXT |
-| 14 | Solar power (simplified, labeled) | TODO |
+| 13 | Eclipse analysis (umbra/penumbra) | **DONE** |
+| 14 | Solar power (simplified, labeled) | NEXT |
 | 15 | Atmospheric drag comparison | TODO |
 | 16 | Orbit decay demo (simplified, labeled) | TODO |
 | 17 | J2 perturbation visualization (math already in kepler.js) | TODO |

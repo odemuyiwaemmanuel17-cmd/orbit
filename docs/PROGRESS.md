@@ -421,3 +421,35 @@ without touching its visual identity.
 - Next: M13 eclipse analysis - umbra/penumbra cylinder-cone model vs the
   validated sunDirection ephemeris; eclipse fraction per orbit analytical
   cross-check; feeds M14 power.
+
+## 2026-10-09 - M13 Eclipse Analysis (umbra/penumbra)
+
+- Safe extraction, not a new approximation: the Meeus low-precision sun
+  chain inside coords.sunDirection moved VERBATIM to lib/sun.js
+  (sunEquatorialRad/sunEciUnit/subsolarLonDeg); coords.sunDirection delegates
+  and is pinned byte-identical to pre-refactor scene vectors at three dates
+  (1e-8). One ephemeris now drives both scene lighting and eclipse math.
+- SUN_RADIUS_KM (6.957e5, IAU nominal) added to constants.js; AU_KM and
+  R_EARTH_MEAN_KM reused - no scattered magic numbers.
+- lib/eclipse.js: similar-triangle umbra/penumbra cones. apex Lu = R d/(Rs-R)
+  ~1.384e6 km. shadowStateKm returns SUNLIT (no invented radii) on the
+  sun-facing half-space; penumbral obscuration is a labeled LINEAR band ramp,
+  not the exact circle-overlap integral. orbitEclipseKm 360-pt scan is
+  cross-checked against an independent analytic cone root psi_e/pi, with the
+  cylindrical asin(R/a)/pi as a shown (not shipped) reference. Degenerate
+  inputs throw.
+- /lab/eclipse: LIVE watch-satellite shadow badge (shadowStateKm on the real
+  SGP4 position each tick, REAL-TIME PROPAGATION label) + SIMPLIFIED CONE
+  test-orbit scan: altitude + sun-beta sliders (b=0 max eclipse, b=90 always
+  sunlit), USE LIVE ORBIT (a + normal from stateToElementsKm), on-demand
+  ANALYZE (frozen sun snapshot, region-colored ring via eciToSceneKm), min/orbit
+  in umbra, SHOW CALCULATION. Feeds M14 power.
+- HOW IT WORKS stage 6 updated (eclipse/umbra-penumbra named) per standing
+  request; Lab index card + /lab/eclipse route wired.
+- Self-caught defects (logged in ARCHITECTURE): cone test point mislabeled
+  deep-umbra as PENUMBRA (fixed by placing sample in the true ~63 km band,
+  not by loosening physics); re-used a stale worktree dir name once - all
+  edits confirmed landed in the registered task/eclipse worktree.
+- Tests: vitest 136/136 (10 new). pytest 48/48. Build green, routes 200.
+- Next: M14 solar power (simplified, labeled) - orbits fed by M13 eclipse
+  fractions + SOLAR_CONSTANT_WM2; cosine incidence, power budget.

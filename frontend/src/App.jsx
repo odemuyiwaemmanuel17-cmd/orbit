@@ -17,6 +17,7 @@ const CoverageLabPage = lazy(() => import('./pages/Lab/CoverageLabPage.jsx'))
 const LinkBudgetLabPage = lazy(() => import('./pages/Lab/LinkBudgetLabPage.jsx'))
 const AttitudeLabPage = lazy(() => import('./pages/Lab/AttitudeLabPage.jsx'))
 const WheelsLabPage = lazy(() => import('./pages/Lab/WheelsLabPage.jsx'))
+const EclipseLabPage = lazy(() => import('./pages/Lab/EclipseLabPage.jsx'))
 const LabsIndexPage = lazy(() => import('./pages/Lab/LabsIndexPage.jsx'))
 
 /**
@@ -35,6 +36,7 @@ const LabsIndexPage = lazy(() => import('./pages/Lab/LabsIndexPage.jsx'))
  *   /lab/link     -> DESIGN:  Communication link budget (EIRP -> Eb/N0)
  *   /lab/attitude -> ANALYZE: Attitude frames (LVLH/RWFS, yaw-pitch-roll)
  *   /lab/wheels   -> ANALYZE: Reaction wheel slew bench (RK4 momentum exchange)
+ *   /lab/eclipse  -> ANALYZE: Eclipse analysis (umbra/penumbra cones + sun ephemeris)
  *   /lab          -> ANALYZE/DESIGN index (all labs)
  */
 export default function App() {
@@ -147,6 +149,14 @@ export default function App() {
             element={
               <Suspense fallback={<SceneLoader label="LOADING WHEEL BENCH" />}>
                 <WheelsLabPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/lab/eclipse"
+            element={
+              <Suspense fallback={<SceneLoader label="LOADING ECLIPSE LAB" />}>
+                <EclipseLabPage />
               </Suspense>
             }
           />

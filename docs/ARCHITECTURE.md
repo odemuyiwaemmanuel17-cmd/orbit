@@ -341,3 +341,37 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
   mid-function edit reorder, dead helper + void hacks, interval-in-useMemo
   misuse). All fixed with evidence, none shipped.
 - Tests: vitest 126/126 (12 new). pytest 48/48.
+
+## Addendum 2026-10-09 — M13 Eclipse & Sun Ephemeris
+
+- SAFE REFACTOR of an existing primitive, not a new approximation: the Meeus
+  low-precision sun chain that already lived inside coords.sunDirection was
+  extracted VERBATIM into lib/sun.js (sunEquatorialRad / sunEciUnit /
+  subsolarLonDeg); coords.sunDirection now delegates. The pre-refactor scene
+  vectors for three dates were captured from main FIRST and are pinned in
+  tests/eclipse.test.js to 1e-8 — so the ISS scene lighting and eclipse tests
+  share one byte-identical ephemeris, zero behavior drift.
+- SUN_RADIUS_KM (6.957e5, IAU nominal) added to constants.js — no new magic
+  number in the lib. AU_KM and R_EARTH_MEAN_KM reused.
+- lib/eclipse.js: similar-triangle umbra/penumbra cones. shadowStateKm does
+  NOT invent radii on the sun-facing half-space (r_anti ≤ 0 returns SUNLIT
+  with null cone radii); penumbral obscuration is a labeled LINEAR band
+  approximation, explicitly NOT the exact circle-overlap integral. The thin
+  (~63 km) LEO penumbral band is a tested real-physics consequence, not a bug.
+- orbitEclipseKm fraction scan is cross-checked against an INDEPENDENT
+  analytic cone root (psi_e = asin(R/(a√(1+k²)))−atan(k), fraction psi_e/pi),
+  not just against itself; the cylindrical textbook limit asin(R/a)/pi is a
+  shown reference, never the shipped number. Degenerate inputs throw.
+- /lab/eclipse: LIVE watch-satellite shadow badge (shadowStateKm on the real
+  SGP4 position, re-evaluated every tick, REAL-TIME PROPAGATION label) +
+  TEST-ORBIT fraction scan with sun-angle-beta slider (β=0 max eclipse, β=90
+  always sunlit) and USE LIVE ORBIT (a + plane normal from stateToElementsKm).
+  On-demand ANALYZE (frozen sun snapshot, cached 360-pt ring colored by
+  region, rendered through eciToSceneKm/GMST); SHOW CALCULATION exposes apex,
+  cone radii, analytic root. Feeds M14 power.
+- Delivery honesty: my first write of the cone test mislabeled a deep-umbra
+  point (y=0.5r, perp 3386 < rhoU 6340) as PENUMBRA — caught by the assertion,
+  fixed by placing the sample inside the true band, not by loosening physics.
+  Also recovered from re-using a stale worktree directory name; all M13 edits
+  landed in the registered task/eclipse-20261009-144651 worktree (confirmed).
+- Tests: vitest 136/136 (10 new). pytest 48/48. Build green, /lab/eclipse 200.
