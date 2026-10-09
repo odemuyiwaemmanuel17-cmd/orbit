@@ -375,3 +375,21 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
   Also recovered from re-using a stale worktree directory name; all M13 edits
   landed in the registered task/eclipse-20261009-144651 worktree (confirmed).
 - Tests: vitest 136/136 (10 new). pytest 48/48. Build green, /lab/eclipse 200.
+
+## Addendum 2026-10-09 — Cinematic Visual Program (phases A–E)
+
+- User directive SUPERSEDES the earlier "keep green / do not redesign landing"
+  constraint set: new navy/blue/cyan design tokens (docs/VISUAL_SYSTEM.md),
+  photoreal Earth replacing the dot-matrix globe, spacecraft LOD models.
+  Physics, routes, engine pipeline and all 142 frontend + 48 backend tests
+  remain untouched contracts.
+- Earth orientation is guaranteed by tests/earthTexture.test.js, not by
+  eyeballing: three SphereGeometry UV convention (λ = 180 − 360u, north-up)
+  and the compensating texture flip (repeat.x=-1, offset.x=1) are pinned
+  numerically, so texture upgrades/rotations cannot silently desync the
+  planet from geodeticToScene, ground tracks or the terminator.
+- Terminator + key light read engine.simMs through sun.js — the same ephemeris
+  validated for M13 eclipse analysis. Visual realism and science share one
+  source of truth; the globe never "fakes" rotation.
+- Commits kept reviewable per phase: c6b8af9 tokens (B), ccdff0d Earth+sun (C/D),
+  e1e6b18 lighting/craft/orbits (E).

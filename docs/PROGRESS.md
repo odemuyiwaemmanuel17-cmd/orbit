@@ -453,3 +453,23 @@ without touching its visual identity.
 - Tests: vitest 136/136 (10 new). pytest 48/48. Build green, routes 200.
 - Next: M14 solar power (simplified, labeled) - orbits fed by M13 eclipse
   fractions + SOLAR_CONSTANT_WM2; cosine incidence, power budget.
+
+## 2026-10-09 - Cinematic Visual Program: phases A-E
+
+- Phase A audit: R3F three 0.169 + drei 9.114, single OrbitScene canvas,
+  Earth-fixed scene frame (geodeticToScene/GMST), satellite.js SGP4 engine,
+  Tailwind 3.4; baseline at 8efdd6f: vitest 136/136, pytest 48/48, build green,
+  routes 200. Screenshot capture unavailable headless - numeric contracts +
+  user eyeball used instead (stated limitation).
+- B: design tokens + 735 emerald remap + green-hex sweep (residue 0),
+  REGIME palette rebalanced, glass -> mission panel navy.
+- C+D: photoreal Earth (NASA textures vendored + ATTRIBUTION.md), pinned UV
+  orientation contract (new earthTexture.test.js, +6 tests => 142), terminator/
+  clouds/ocean glint from sim-epoch sun ephemeris, sRGB correctness, dpr cap.
+- E: sun-synced directional+ambient rig, LOD spacecraft (generic models,
+  illustrative orientation stated), restrained orbit paths (13% unselected),
+  ground-track past=blue/future=dashed-cyan.
+- Verified: vitest 142/142, pytest 48/48, vite build green, preview smoke:
+  all app routes + texture assets 200.
+- Next: F tracker interface redesign, G labs polish, H homepage hero,
+  I camera/responsive/perf, J visual QC vs reference + regression sweep.
