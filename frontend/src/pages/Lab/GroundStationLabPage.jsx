@@ -10,7 +10,7 @@ import {
   DEFAULT_STATIONS, loadStations, saveStations, validateStation, lookAngleKm,
 } from '../../lib/stations.js'
 
-const CUR = '#f59e0b'
+const CUR = '#F5B942'
 const SEL = '#22d3ee'
 
 /** Station markers on the approved globe — meshes only, no per-station React tree.
@@ -107,37 +107,37 @@ export default function GroundStationLabPage() {
     <div className="glass rounded-xl p-4 overflow-y-auto thin-scroll h-full">
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-2">
-          <RadioTower size={15} className="text-emerald-400" />
-          <span className="font-semibold text-emerald-50 text-sm">Ground Network</span>
+          <RadioTower size={15} className="text-hi" />
+          <span className="font-semibold text-fg text-sm">Ground Network</span>
         </div>
         <span className="text-[9px] font-mono px-2 py-0.5 rounded-full border border-cyan-400/40 text-cyan-300">
           ANALYTICAL — SPHERICAL EARTH
         </span>
       </div>
-      <p className="text-[9px] text-emerald-700 mb-3">
+      <p className="text-[9px] text-mut mb-3">
         Stations are static infrastructure (own state domain, persisted locally).
         Look angles use the spherical mean Earth; WGS84-vs-spherical tilt (~0.2°
         near LEO horizons) is a labeled simplification, not hidden.
       </p>
 
-      <div className="text-[10px] font-mono text-emerald-500 mb-1">
-        LIVE ELEVATION {satGeo ? <>· <span className="text-emerald-300">{satGeo.name.toUpperCase()}</span>
-          <span className="text-emerald-700"> (REAL-TIME PROPAGATION)</span></> : '· no satellite selected'}
+      <div className="text-[10px] font-mono text-pri mb-1">
+        LIVE ELEVATION {satGeo ? <>· <span className="text-hi">{satGeo.name.toUpperCase()}</span>
+          <span className="text-mut"> (REAL-TIME PROPAGATION)</span></> : '· no satellite selected'}
       </div>
       <div className="space-y-1.5 mb-3">
         {looks.map(({ station: s, look }) => (
           <button key={s.id} onClick={() => setSelId(s.id)}
                   className={`w-full text-left rounded-lg px-3 py-2 border transition
-                    ${s.id === selected?.id ? 'border-cyan-400/50 bg-cyan-400/[0.06]' : 'border-emerald-400/10 bg-black/25'}`}>
+                    ${s.id === selected?.id ? 'border-cyan-400/50 bg-cyan-400/[0.06]' : 'border-hi/10 bg-black/25'}`}>
             <div className="flex items-baseline justify-between">
-              <span className="text-[11px] font-semibold text-emerald-100">{s.name}</span>
+              <span className="text-[11px] font-semibold text-fg">{s.name}</span>
               {look && (
-                <span className={`text-[11px] font-mono tabular-nums ${look.aboveMinElev ? 'text-emerald-300' : 'text-emerald-700'}`}>
+                <span className={`text-[11px] font-mono tabular-nums ${look.aboveMinElev ? 'text-hi' : 'text-mut'}`}>
                   {look.elevDeg.toFixed(1)}° {look.aboveMinElev ? '▲' : '▽'}
                 </span>
               )}
             </div>
-            <div className="flex justify-between text-[9px] font-mono text-emerald-600 mt-0.5">
+            <div className="flex justify-between text-[9px] font-mono text-mut mt-0.5">
               <span>{s.latDeg.toFixed(2)}°, {s.lonDeg.toFixed(2)}° · mask ≥{s.minElevDeg.toFixed(0)}°</span>
               {look && <span>{look.slantRangeKm.toFixed(0)} km</span>}
             </div>
@@ -146,15 +146,15 @@ export default function GroundStationLabPage() {
       </div>
 
       {selected && (
-        <div className="rounded-lg border border-emerald-400/15 bg-black/25 px-3 py-2 mb-3">
+        <div className="rounded-lg border border-hi/15 bg-black/25 px-3 py-2 mb-3">
           <div className="text-[10px] font-mono text-cyan-400 mb-1.5">
             {selected.name.toUpperCase()} · MIN ELEVATION MASK
           </div>
           <div className="flex items-center gap-2">
             <input type="range" min={0} max={90} step={1} value={selected.minElevDeg}
                    onChange={(e) => patchSelected('minElevDeg', Number(e.target.value))}
-                   className="flex-1 accent-emerald-400" aria-label="Min elevation" />
-            <span className="font-mono text-[11px] text-emerald-50 tabular-nums w-10 text-right">
+                   className="flex-1 accent-hi" aria-label="Min elevation" />
+            <span className="font-mono text-[11px] text-fg tabular-nums w-10 text-right">
               {selected.minElevDeg.toFixed(0)}°
             </span>
           </div>
@@ -167,32 +167,32 @@ export default function GroundStationLabPage() {
         </div>
       )}
 
-      <div className="rounded-lg border border-emerald-400/15 bg-black/25 px-3 py-2 mb-3">
-        <div className="text-[10px] font-mono text-emerald-500 mb-1.5">ADD STATION</div>
+      <div className="rounded-lg border border-hi/15 bg-black/25 px-3 py-2 mb-3">
+        <div className="text-[10px] font-mono text-pri mb-1.5">ADD STATION</div>
         <div className="grid grid-cols-2 gap-1.5 mb-1.5">
           <input placeholder="Name" value={form.name}
                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                 className="col-span-2 bg-black/30 border border-emerald-400/20 rounded px-2 py-1 text-[11px] text-emerald-100" />
+                 className="col-span-2 bg-black/30 border border-hi/20 rounded px-2 py-1 text-[11px] text-fg" />
           <input placeholder="Lat °" value={form.latDeg} inputMode="decimal"
                  onChange={(e) => setForm({ ...form, latDeg: e.target.value })}
-                 className="bg-black/30 border border-emerald-400/20 rounded px-2 py-1 text-[11px] text-emerald-100" />
+                 className="bg-black/30 border border-hi/20 rounded px-2 py-1 text-[11px] text-fg" />
           <input placeholder="Lon °" value={form.lonDeg} inputMode="decimal"
                  onChange={(e) => setForm({ ...form, lonDeg: e.target.value })}
-                 className="bg-black/30 border border-emerald-400/20 rounded px-2 py-1 text-[11px] text-emerald-100" />
+                 className="bg-black/30 border border-hi/20 rounded px-2 py-1 text-[11px] text-fg" />
           <input placeholder="Elev km (opt)" value={form.elevKm} inputMode="decimal"
                  onChange={(e) => setForm({ ...form, elevKm: e.target.value })}
-                 className="bg-black/30 border border-emerald-400/20 rounded px-2 py-1 text-[11px] text-emerald-100" />
+                 className="bg-black/30 border border-hi/20 rounded px-2 py-1 text-[11px] text-fg" />
           <input placeholder="Min elev °" value={form.minElevDeg} inputMode="decimal"
                  onChange={(e) => setForm({ ...form, minElevDeg: e.target.value })}
-                 className="bg-black/30 border border-emerald-400/20 rounded px-2 py-1 text-[11px] text-emerald-100" />
+                 className="bg-black/30 border border-hi/20 rounded px-2 py-1 text-[11px] text-fg" />
         </div>
         {formErr.map((er) => <div key={er} className="text-[9px] font-mono text-red-400">{er}</div>)}
         <button onClick={addStation}
-                className="mt-1.5 flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-semibold bg-emerald-500 text-emerald-950 hover:bg-emerald-400">
+                className="mt-1.5 flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-semibold bg-pri text-bg hover:bg-hi">
           <Plus size={12} /> ADD
         </button>
         <button onClick={() => { setStations(DEFAULT_STATIONS.map((s) => ({ ...s }))); setSelId(DEFAULT_STATIONS[0].id) }}
-                className="mt-1.5 ml-2 text-[9px] font-mono text-emerald-600 hover:text-emerald-400">
+                className="mt-1.5 ml-2 text-[9px] font-mono text-mut hover:text-hi">
           RESET CATALOGUE
         </button>
       </div>
@@ -200,7 +200,7 @@ export default function GroundStationLabPage() {
       {selected && satGeo && (
         <details className="mb-2">
           <summary className="text-[10px] font-mono text-cyan-500 cursor-pointer select-none">SHOW CALCULATION</summary>
-          <div className="mt-2 rounded-lg border border-cyan-400/20 bg-black/25 p-2.5 font-mono text-[10px] leading-relaxed text-emerald-200">
+          <div className="mt-2 rounded-lg border border-cyan-400/20 bg-black/25 p-2.5 font-mono text-[10px] leading-relaxed text-fg">
             <div className="text-cyan-300">spherical topocentric look angle</div>
             <div>S = (R⊕+{selected.elevKm.toFixed(3)} km)·û(lat {selected.latDeg.toFixed(2)}°, lon {selected.lonDeg.toFixed(2)}°)</div>
             <div>K = (R⊕+{satGeo.altKm.toFixed(1)} km)·û(lat {satGeo.latDeg.toFixed(2)}°, lon {satGeo.lonDeg.toFixed(2)}°)</div>
@@ -210,7 +210,7 @@ export default function GroundStationLabPage() {
               return (
                 <>
                   <div>elev = 90° − ζ = <b>{l.elevDeg.toFixed(3)}°</b> · slant = <b>{l.slantRangeKm.toFixed(1)} km</b></div>
-                  <div className="mt-1 text-emerald-700">mask ≥ {selected.minElevDeg.toFixed(0)}° → {l.aboveMinElev ? 'ABOVE (link candidate)' : 'BELOW'}.
+                  <div className="mt-1 text-mut">mask ≥ {selected.minElevDeg.toFixed(0)}° → {l.aboveMinElev ? 'ABOVE (link candidate)' : 'BELOW'}.
                     slant range feeds the M10 link budget; the mask feeds M7 passes.</div>
                 </>
               )
@@ -222,24 +222,24 @@ export default function GroundStationLabPage() {
   )
 
   return (
-    <div className="fixed inset-0 bg-[#020a06] overflow-hidden">
+    <div className="fixed inset-0 bg-[#050B17] overflow-hidden">
       <OrbitScene mission overlay={<StationLayer stations={stations} selectedId={selected?.id} />} />
       <div className="absolute inset-0 touch-none cursor-grab active:cursor-grabbing"
            onPointerDown={onPointerDown} onPointerMove={onPointerMove}
            onPointerUp={onPointerUp} onPointerCancel={onPointerUp} />
 
-      <header className="absolute top-0 inset-x-0 z-30 h-14 flex items-center gap-3 px-4 bg-[#04120b]/85 backdrop-blur-md border-b border-emerald-400/15">
-        <Link to="/tracker" className="flex items-center gap-2 text-emerald-300 hover:text-emerald-200 text-[12px] font-mono">
+      <header className="absolute top-0 inset-x-0 z-30 h-14 flex items-center gap-3 px-4 bg-[#0A1425]/85 backdrop-blur-md border-b border-hi/15">
+        <Link to="/tracker" className="flex items-center gap-2 text-hi hover:text-fg text-[12px] font-mono">
           <ArrowLeft size={14} /> TRACKER
         </Link>
-        <div className="w-px h-6 bg-emerald-400/15" />
-        <Link to="/lab" className="text-[12px] font-mono text-emerald-400 hover:text-emerald-200">LABS</Link>
-        <div className="w-px h-6 bg-emerald-400/15" />
+        <div className="w-px h-6 bg-hi/15" />
+        <Link to="/lab" className="text-[12px] font-mono text-hi hover:text-fg">LABS</Link>
+        <div className="w-px h-6 bg-hi/15" />
         <div className="flex items-center gap-2">
-          <RadioTower size={16} className="text-emerald-400" />
+          <RadioTower size={16} className="text-hi" />
           <span className="font-bold text-[15px] tracking-tight">
-            <span className="text-emerald-50">Orbital</span><span className="text-emerald-400">Pulse</span>
-            <span className="ml-2 text-[9px] font-mono tracking-[0.25em] text-emerald-300 align-middle">
+            <span className="text-fg">Orbital</span><span className="text-hi">Pulse</span>
+            <span className="ml-2 text-[9px] font-mono tracking-[0.25em] text-hi align-middle">
               DESIGN · GROUND NETWORK
             </span>
           </span>

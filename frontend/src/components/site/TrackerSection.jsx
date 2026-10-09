@@ -37,21 +37,21 @@ export default function TrackerSection() {
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
           <div className="max-w-2xl">
-            <div className="text-[11px] font-mono tracking-[0.3em] text-emerald-400 mb-2">
+            <div className="text-[11px] font-mono tracking-[0.3em] text-hi mb-2">
               MISSION CONTROL
             </div>
-            <h2 className="text-4xl md:text-5xl font-black text-emerald-50 tracking-tight">
+            <h2 className="text-4xl md:text-5xl font-black text-fg tracking-tight">
               Live Orbital Tracker
             </h2>
-            <p className="mt-3 text-sm md:text-[15px] text-emerald-100/60 leading-relaxed">
+            <p className="mt-3 text-sm md:text-[15px] text-fg/60 leading-relaxed">
               Select a spacecraft from the catalog, drag the globe to explore, and
               watch live telemetry stream into the HUD. Positions are propagated in
               your browser.
             </p>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-emerald-400/30 bg-emerald-400/5">
-            <Radio size={13} className="text-emerald-400" />
-            <span className="text-[11px] font-mono text-emerald-300">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-hi/30 bg-hi/5">
+            <Radio size={13} className="text-hi" />
+            <span className="text-[11px] font-mono text-hi">
               Demo catalog · live CelesTrak elements
             </span>
           </div>
@@ -61,7 +61,7 @@ export default function TrackerSection() {
           <CatalogPanel />
 
           {/* Transparent viewport frame — the fixed scene renders behind it */}
-          <div className="relative rounded-xl border border-emerald-400/15 bg-transparent overflow-hidden">
+          <div className="relative rounded-xl border border-hi/15 bg-transparent overflow-hidden">
             <div
               className="absolute inset-0 cursor-grab active:cursor-grabbing touch-none"
               onPointerDown={onPointerDown}
@@ -70,18 +70,18 @@ export default function TrackerSection() {
               onPointerCancel={onPointerUp}
             />
             <div className="absolute top-3 left-3 flex items-center gap-2 pointer-events-none">
-              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 border border-emerald-400/30 text-[10px] font-mono text-emerald-300">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot" />
+              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 border border-hi/30 text-[10px] font-mono text-hi">
+                <span className="w-1.5 h-1.5 rounded-full bg-hi live-dot" />
                 LIVE PROPAGATION
               </span>
-              <span className="px-2.5 py-1 rounded-full bg-black/60 border border-emerald-400/20 text-[10px] font-mono text-emerald-200 tabular-nums">
+              <span className="px-2.5 py-1 rounded-full bg-black/60 border border-hi/20 text-[10px] font-mono text-fg tabular-nums">
                 {clock} UTC
               </span>
             </div>
             {selected && (
-              <div className="absolute top-3 right-3 pointer-events-none bg-black/70 border border-emerald-400/30 rounded-lg px-3 py-2 text-right">
-                <div className="text-xs font-bold text-emerald-50">{selected.name}</div>
-                <div className="text-[10px] font-mono text-emerald-500 mt-0.5">
+              <div className="absolute top-3 right-3 pointer-events-none bg-black/70 border border-hi/30 rounded-lg px-3 py-2 text-right">
+                <div className="text-xs font-bold text-fg">{selected.name}</div>
+                <div className="text-[10px] font-mono text-pri mt-0.5">
                   NORAD {selected.norad_id} · {REGIME_LABELS[selected.regime]}
                 </div>
               </div>
@@ -91,7 +91,7 @@ export default function TrackerSection() {
             </div>
             <div className="absolute bottom-3 inset-x-0 flex flex-col items-center gap-1.5 pointer-events-none">
               <div className="pointer-events-auto"><TimeControls /></div>
-              <div className="text-[10px] font-mono text-emerald-700">
+              <div className="text-[10px] font-mono text-mut">
                 Drag to rotate · use +/− to zoom · click a target in the catalog to track
               </div>
             </div>

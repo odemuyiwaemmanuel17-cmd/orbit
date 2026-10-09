@@ -24,9 +24,9 @@ export function geodeticToScene(latDeg, lonDeg, altKm, target = new THREE.Vector
 }
 
 export const REGIME_COLORS = {
-  LEO: '#4ade80',
-  MEO: '#2dd4bf',
-  GEO: '#a3e635',
+  LEO: '#38D9FF',
+  MEO: '#3B82F6',
+  GEO: '#818CF8',
 }
 
 /**

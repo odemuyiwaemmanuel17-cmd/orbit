@@ -22,11 +22,11 @@ export default function Faq() {
     <section id="faq" className="relative py-24 px-5">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-10">
-          <div className="text-[11px] font-mono tracking-[0.3em] text-emerald-400 mb-2">FAQ</div>
-          <h2 className="text-3xl md:text-4xl font-black text-emerald-50 tracking-tight">
+          <div className="text-[11px] font-mono tracking-[0.3em] text-hi mb-2">FAQ</div>
+          <h2 className="text-3xl md:text-4xl font-black text-fg tracking-tight">
             Frequently asked questions
           </h2>
-          <p className="mt-3 text-sm text-emerald-100/60">
+          <p className="mt-3 text-sm text-fg/60">
             Quick answers about features, data sources, and technical requirements.
           </p>
         </div>
@@ -34,15 +34,15 @@ export default function Faq() {
           {FAQS.map(([q, a], i) => {
             const isOpen = open === i
             return (
-              <div key={q} className={`glass rounded-xl overflow-hidden transition-colors ${isOpen ? 'border-emerald-400/45' : ''}`}>
+              <div key={q} className={`glass rounded-xl overflow-hidden transition-colors ${isOpen ? 'border-hi/45' : ''}`}>
                 <button onClick={() => setOpen(isOpen ? -1 : i)}
                         className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left">
-                  <span className="text-sm font-semibold text-emerald-50">{q}</span>
+                  <span className="text-sm font-semibold text-fg">{q}</span>
                   <ChevronDown size={16}
-                               className={`shrink-0 text-emerald-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                               className={`shrink-0 text-hi transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {isOpen && (
-                  <p className="px-5 pb-4 text-[13px] leading-relaxed text-emerald-100/65">{a}</p>
+                  <p className="px-5 pb-4 text-[13px] leading-relaxed text-fg/65">{a}</p>
                 )}
               </div>
             )

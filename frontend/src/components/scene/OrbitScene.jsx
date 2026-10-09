@@ -8,9 +8,9 @@ import { geodeticToScene, REGIME_COLORS } from '../../lib/coords.js'
 import ConstellationField from './ConstellationField.jsx'
 import LabOrbit from './LabOrbit.jsx'
 
-const GREEN = '#22c55e'
-const CRIMSON = '#ef4444'
-const AMBER = '#f59e0b'
+const GREEN = '#38D9FF'
+const CRIMSON = '#FF647C'
+const AMBER = '#F5B942'
 const TMP = new THREE.Vector3()
 
 /* ------------------------------------------------------------------ Earth */
@@ -88,7 +88,7 @@ function Earth() {
     side: THREE.BackSide, blending: THREE.AdditiveBlending,
     uniforms: { uStorm: { value: 0 } },
     vertexShader: 'varying vec3 vN; varying vec3 vV; void main(){ vN=normalize(normalMatrix*normal); vec4 mv=modelViewMatrix*vec4(position,1.0); vV=normalize(-mv.xyz); gl_Position=projectionMatrix*mv; }',
-    fragmentShader: 'uniform float uStorm; varying vec3 vN; varying vec3 vV; void main(){ float f=1.0-abs(dot(vN,vV)); vec3 calm=vec3(0.13,0.78,0.42); vec3 hot=vec3(1.0,0.42,0.12); gl_FragColor=vec4(mix(calm,hot,uStorm), pow(f,3.0)*(0.55+0.35*uStorm)); }',
+    fragmentShader: 'uniform float uStorm; varying vec3 vN; varying vec3 vV; void main(){ float f=1.0-abs(dot(vN,vV)); vec3 calm=vec3(0.18,0.52,0.98); vec3 hot=vec3(1.0,0.45,0.25); gl_FragColor=vec4(mix(calm,hot,uStorm), pow(f,3.0)*(0.55+0.35*uStorm)); }',
   }), [])
   useFrame((_, dt) => {
     const target = engine.weather?.storm
@@ -101,12 +101,12 @@ function Earth() {
     <group>
       <mesh>
         <sphereGeometry args={[0.995, 64, 64]} />
-        <meshBasicMaterial color="#03140b" transparent opacity={0.92} />
+        <meshBasicMaterial color="#0A1830" transparent opacity={0.92} />
       </mesh>
       <Graticule />
       {landGeo && (
         <points geometry={landGeo}>
-          <pointsMaterial color="#34d399" size={0.013} transparent opacity={0.75} sizeAttenuation />
+          <pointsMaterial color="#38D9FF" size={0.013} transparent opacity={0.75} sizeAttenuation />
         </points>
       )}
       <mesh material={atmoMat}>
@@ -213,7 +213,7 @@ function GroundTrack() {
   return (
     <group>
       {segs.past.map((pts, i) => (
-        <Line key={`p${i}`} points={pts} color="#34d399" lineWidth={1.4}
+        <Line key={`p${i}`} points={pts} color="#38D9FF" lineWidth={1.4}
               transparent opacity={0.55} toneMapped={false} />
       ))}
       {segs.future.map((pts, i) => (
@@ -266,7 +266,7 @@ function Satellites({ snapshot }) {
             {sel && (
               <mesh>
                 <ringGeometry args={[0.034, 0.04, 32]} />
-                <meshBasicMaterial color="#4ade80" transparent opacity={0.9}
+                <meshBasicMaterial color="#3B82F6" transparent opacity={0.9}
                                    side={THREE.DoubleSide} toneMapped={false} />
               </mesh>
             )}
@@ -357,8 +357,8 @@ export default function OrbitScene({ mission = false, lab = null, overlay = null
       dpr={[1, 2]}
       style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}
     >
-      <color attach="background" args={['#020a06']} />
-      <fog attach="fog" args={['#020a06', 9, 22]} />
+      <color attach="background" args={['#050B17']} />
+      <fog attach="fog" args={['#050B17', 9, 22]} />
       <Stars radius={28} count={2600} factor={2.4} saturation={0} fade speed={0.3} />
       <GlobeGroup>
         <Earth />

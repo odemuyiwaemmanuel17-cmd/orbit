@@ -14,23 +14,23 @@ const STEPS = [
  */
 export default function SceneLoader({ label = 'INITIALIZING ORBITAL ENGINE' }) {
   return (
-    <div className="fixed inset-0 z-50 bg-[#020a06] flex flex-col items-center justify-center gap-5">
+    <div className="fixed inset-0 z-50 bg-[#050B17] flex flex-col items-center justify-center gap-5">
       <div className="relative w-16 h-16">
-        <div className="absolute inset-0 rounded-full border border-emerald-400/25" />
-        <div className="absolute inset-0 rounded-full border-t-2 border-emerald-400 animate-spin" style={{ animationDuration: '1.4s' }} />
-        <div className="absolute inset-[30%] rounded-full bg-emerald-400/15 border border-emerald-400/40" />
+        <div className="absolute inset-0 rounded-full border border-hi/25" />
+        <div className="absolute inset-0 rounded-full border-t-2 border-hi animate-spin" style={{ animationDuration: '1.4s' }} />
+        <div className="absolute inset-[30%] rounded-full bg-hi/15 border border-hi/40" />
       </div>
-      <div className="text-[11px] font-mono tracking-[0.3em] text-emerald-400/90">{label}</div>
+      <div className="text-[11px] font-mono tracking-[0.3em] text-hi/90">{label}</div>
       <ul className="space-y-1.5" aria-live="polite">
         {STEPS.map((s, i) => (
           <li key={s}
-              className="flex items-center gap-2 text-[11px] font-mono text-emerald-500 toast-enter"
+              className="flex items-center gap-2 text-[11px] font-mono text-pri toast-enter"
               style={{ animationDelay: `${i * 90}ms`, animationFillMode: 'backwards' }}>
-            <Check size={12} className="text-emerald-400" /> {s}… OK
+            <Check size={12} className="text-hi" /> {s}… OK
           </li>
         ))}
       </ul>
-      <div className="text-[10px] font-mono tracking-[0.25em] text-emerald-700">
+      <div className="text-[10px] font-mono tracking-[0.25em] text-mut">
         MISSION CONTROL READY
       </div>
     </div>

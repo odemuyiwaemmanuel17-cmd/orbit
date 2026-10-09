@@ -37,7 +37,7 @@ export default function TrackerPage() {
   const onPointerUp = () => { drag.current = null }
 
   return (
-    <div className="fixed inset-0 bg-[#020a06] overflow-hidden">
+    <div className="fixed inset-0 bg-[#050B17] overflow-hidden">
       <OrbitScene mission />
 
       {/* Drag layer for globe rotation (below panels, above canvas) */}
@@ -52,31 +52,31 @@ export default function TrackerPage() {
       <Diagnostics />
 
       {/* ---------------- top bar ---------------- */}
-      <header className="absolute top-0 inset-x-0 z-30 h-14 flex items-center gap-3 px-4 bg-[#04120b]/85 backdrop-blur-md border-b border-emerald-400/15">
-        <Link to="/" className="flex items-center gap-2 text-emerald-300 hover:text-emerald-200 text-[12px] font-mono">
+      <header className="absolute top-0 inset-x-0 z-30 h-14 flex items-center gap-3 px-4 bg-[#0A1425]/85 backdrop-blur-md border-b border-hi/15">
+        <Link to="/" className="flex items-center gap-2 text-hi hover:text-fg text-[12px] font-mono">
           <ArrowLeft size={14} /> SITE
         </Link>
-        <div className="w-px h-6 bg-emerald-400/15" />
+        <div className="w-px h-6 bg-hi/15" />
         <Link to="/lab" className="hidden md:flex items-center gap-1.5 text-cyan-400 hover:text-cyan-200 text-[12px] font-mono">
           <FlaskConical size={14} /> LABS
         </Link>
-        <div className="hidden md:block w-px h-6 bg-emerald-400/15" />
+        <div className="hidden md:block w-px h-6 bg-hi/15" />
         <div className="flex items-center gap-2">
-          <Orbit size={16} className="text-emerald-400" />
+          <Orbit size={16} className="text-hi" />
           <span className="font-bold text-[15px] tracking-tight">
-            <span className="text-emerald-50">Orbital</span><span className="text-emerald-400">Pulse</span>
-            <span className="ml-2 text-[9px] font-mono tracking-[0.25em] text-emerald-600 align-middle">
+            <span className="text-fg">Orbital</span><span className="text-hi">Pulse</span>
+            <span className="ml-2 text-[9px] font-mono tracking-[0.25em] text-mut align-middle">
               MISSION CONTROL
             </span>
           </span>
         </div>
         <div className="ml-auto flex items-center gap-2">
           <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono border live-dot
-            ${engine.isLive ? 'border-emerald-400/50 text-emerald-300'
+            ${engine.isLive ? 'border-hi/50 text-hi'
                             : 'border-amber-400/50 text-amber-300'}`}>
             {engine.isLive ? '● LIVE' : `⏱ WARP ${engine.warp}×`}
           </span>
-          <span className="px-2.5 py-1 rounded-md bg-black/40 border border-emerald-400/20 text-[11px] font-mono text-emerald-200 tabular-nums">
+          <span className="px-2.5 py-1 rounded-md bg-black/40 border border-hi/20 text-[11px] font-mono text-fg tabular-nums">
             {clock} UTC
           </span>
         </div>
@@ -115,14 +115,14 @@ export default function TrackerPage() {
         <div className="flex gap-2">
           <button onClick={() => setSheet(sheet === 'catalog' ? null : 'catalog')}
                   className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-[11px] font-mono border backdrop-blur
-                    ${sheet === 'catalog' ? 'bg-emerald-500 text-emerald-950 border-emerald-400'
-                                          : 'bg-black/60 border-emerald-400/30 text-emerald-300'}`}>
+                    ${sheet === 'catalog' ? 'bg-pri text-bg border-hi'
+                                          : 'bg-black/60 border-hi/30 text-hi'}`}>
             <List size={13} /> CATALOG
           </button>
           <button onClick={() => setSheet(sheet === 'hud' ? null : 'hud')}
                   className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-[11px] font-mono border backdrop-blur
-                    ${sheet === 'hud' ? 'bg-emerald-500 text-emerald-950 border-emerald-400'
-                                      : 'bg-black/60 border-emerald-400/30 text-emerald-300'}`}>
+                    ${sheet === 'hud' ? 'bg-pri text-bg border-hi'
+                                      : 'bg-black/60 border-hi/30 text-hi'}`}>
             <Gauge size={13} /> TELEMETRY
           </button>
         </div>
@@ -134,17 +134,17 @@ export default function TrackerPage() {
 /** ±12 h scrubber around real now; disabled while LIVE pins the clock. */
 function TimelineScrubber({ value, onChange, disabled }) {
   return (
-    <div className={`w-full flex items-center gap-3 bg-black/60 backdrop-blur border border-emerald-400/25 rounded-full px-4 py-2 ${disabled ? 'opacity-50' : ''}`}>
-      <span className="text-[9px] font-mono text-emerald-600 shrink-0">-12h</span>
+    <div className={`w-full flex items-center gap-3 bg-black/60 backdrop-blur border border-hi/25 rounded-full px-4 py-2 ${disabled ? 'opacity-50' : ''}`}>
+      <span className="text-[9px] font-mono text-mut shrink-0">-12h</span>
       <input
         type="range" min={-720} max={720} step={1} value={value}
         disabled={disabled}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="flex-1 accent-emerald-500"
+        className="flex-1 accent-pri"
         aria-label="Simulation timeline offset in minutes"
       />
-      <span className="text-[9px] font-mono text-emerald-600 shrink-0">+12h</span>
-      <span className="text-[10px] font-mono text-emerald-300 tabular-nums w-16 text-right shrink-0">
+      <span className="text-[9px] font-mono text-mut shrink-0">+12h</span>
+      <span className="text-[10px] font-mono text-hi tabular-nums w-16 text-right shrink-0">
         {value === 0 ? 'NOW±' : `${value > 0 ? '+' : ''}${value}m`}
       </span>
     </div>
@@ -169,7 +169,7 @@ function Diagnostics() {
   }, [])
   if (!new URLSearchParams(window.location.search).has('debug')) return null
   return (
-    <div className="absolute top-16 left-1/2 -translate-x-1/2 z-40 font-mono text-[10px] text-emerald-400 bg-black/75 border border-emerald-400/25 rounded-md px-3 py-1.5 flex gap-4 pointer-events-none">
+    <div className="absolute top-16 left-1/2 -translate-x-1/2 z-40 font-mono text-[10px] text-hi bg-black/75 border border-hi/25 rounded-md px-3 py-1.5 flex gap-4 pointer-events-none">
       <span>FPS {fps}</span>
       <span>SATS {engine.snapshot?.length ?? 0}</span>
       <span>CONST {engine.activeConstellationGroups().reduce((a, g) => a + g.n, 0)}</span>

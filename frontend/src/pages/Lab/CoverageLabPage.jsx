@@ -36,7 +36,7 @@ function CoverageOverlay({ cov, frac }) {
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[coveredPos, 3]} />
         </bufferGeometry>
-        <pointsMaterial size={0.016} color="#34d399" sizeAttenuation transparent opacity={0.9} toneMapped={false} depthWrite={false} />
+        <pointsMaterial size={0.016} color="#38D9FF" sizeAttenuation transparent opacity={0.9} toneMapped={false} depthWrite={false} />
       </points>
       <points>
         <bufferGeometry>
@@ -113,14 +113,14 @@ export default function CoverageLabPage() {
     <div className="glass rounded-xl p-4 overflow-y-auto thin-scroll h-full">
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-2">
-          <Globe2 size={15} className="text-emerald-400" />
-          <span className="font-semibold text-emerald-50 text-sm">Orbit Coverage</span>
+          <Globe2 size={15} className="text-hi" />
+          <span className="font-semibold text-fg text-sm">Orbit Coverage</span>
         </div>
         <span className="text-[9px] font-mono px-2 py-0.5 rounded-full border border-amber-400/40 text-amber-300">
           ANALYTICAL MODEL
         </span>
       </div>
-      <p className="text-[9px] text-emerald-700 mb-3">
+      <p className="text-[9px] text-mut mb-3">
         One-orbit sweep from the current state (two-body Kepler, sidereal Earth —
         no J2/SGP4 here; tracker passes remain the real-prediction path). Area
         numbers are a cos(lat)-weighted {cov ? cov.stepDeg : stepDeg}° grid —
@@ -129,15 +129,15 @@ export default function CoverageLabPage() {
 
       <div className="flex items-center gap-2 mb-2">
         <select value={stepDeg} onChange={(e) => setStepDeg(Number(e.target.value))}
-                className="bg-black/30 border border-emerald-400/20 rounded px-1.5 py-1 text-[11px] text-emerald-200">
+                className="bg-black/30 border border-hi/20 rounded px-1.5 py-1 text-[11px] text-fg">
           {[5, 10].map((v) => <option key={v} value={v}>{v}° grid</option>)}
         </select>
         <select value={maskDeg} onChange={(e) => setMaskDeg(Number(e.target.value))}
-                className="bg-black/30 border border-emerald-400/20 rounded px-1.5 py-1 text-[11px] text-emerald-200">
+                className="bg-black/30 border border-hi/20 rounded px-1.5 py-1 text-[11px] text-fg">
           {[0, 5, 10].map((v) => <option key={v} value={v}>mask {v}°</option>)}
         </select>
         <button onClick={analyze} disabled={running || !el}
-                className="ml-auto px-3 py-1 rounded-md text-[11px] font-semibold bg-emerald-500 text-emerald-950 hover:bg-emerald-400 disabled:opacity-50">
+                className="ml-auto px-3 py-1 rounded-md text-[11px] font-semibold bg-pri text-bg hover:bg-hi disabled:opacity-50">
           {running ? 'SAMPLING…' : 'ANALYZE ORBIT'}
         </button>
       </div>
@@ -146,40 +146,40 @@ export default function CoverageLabPage() {
         <>
           <div className="flex items-center gap-2 mb-1">
             <button onClick={() => { if (frac >= 1) setFrac(0); setPlaying(!playing) }}
-                    className="p-1.5 rounded-md bg-black/30 border border-emerald-400/20 text-emerald-300">
+                    className="p-1.5 rounded-md bg-black/30 border border-hi/20 text-hi">
               {playing ? <Pause size={13} /> : <Play size={13} />}
             </button>
             <button onClick={() => { setFrac(1); setPlaying(false) }}
-                    className="p-1.5 rounded-md bg-black/30 border border-emerald-400/20 text-emerald-300">
+                    className="p-1.5 rounded-md bg-black/30 border border-hi/20 text-hi">
               <RotateCcw size={13} />
             </button>
             <input type="range" min={0} max={1} step={0.002} value={frac}
                    onChange={(e) => { setFrac(Number(e.target.value)); setPlaying(false) }}
-                   className="flex-1 accent-emerald-400" aria-label="Orbit progress" />
-            <span className="font-mono text-[10px] text-emerald-200 tabular-nums w-9 text-right">
+                   className="flex-1 accent-hi" aria-label="Orbit progress" />
+            <span className="font-mono text-[10px] text-fg tabular-nums w-9 text-right">
               {(frac * 100).toFixed(0)}%
             </span>
           </div>
-          <div className="rounded-lg border border-emerald-400/25 bg-black/30 px-3 py-2 mb-2 font-mono text-[11px] text-emerald-100 flex justify-between">
+          <div className="rounded-lg border border-hi/25 bg-black/30 px-3 py-2 mb-2 font-mono text-[11px] text-fg flex justify-between">
             <span>COVERAGE NOW</span>
             <span><b className="text-cyan-300">{(shownFrac * 100).toFixed(1)}%</b>
               {' / '}full orbit {(finalFrac * 100).toFixed(1)}%</span>
           </div>
 
-          <div className="text-[10px] font-mono text-emerald-500 mb-1">
+          <div className="text-[10px] font-mono text-pri mb-1">
             STATION VISIBILITY OVER ONE {cov.satName.toUpperCase()} ORBIT
           </div>
           <div className="space-y-1.5 mb-3">
             {cov.vis.map(({ station: st, v }) => (
-              <div key={st.id} className="rounded-lg px-3 py-1.5 border border-emerald-400/10 bg-black/25">
+              <div key={st.id} className="rounded-lg px-3 py-1.5 border border-hi/10 bg-black/25">
                 <div className="flex justify-between text-[10px]">
-                  <span className="text-emerald-100 font-semibold">{st.name}</span>
-                  <span className="font-mono text-emerald-400 tabular-nums">
+                  <span className="text-fg font-semibold">{st.name}</span>
+                  <span className="font-mono text-hi tabular-nums">
                     {(v.fraction * 100).toFixed(1)}% · {v.passCount}p · max {v.maxElevDeg.toFixed(0)}°
                   </span>
                 </div>
                 <div className="h-1 mt-1 rounded bg-black/40 overflow-hidden">
-                  <div className="h-full bg-emerald-400" style={{ width: `${Math.min(100, v.fraction * 100)}%` }} />
+                  <div className="h-full bg-hi" style={{ width: `${Math.min(100, v.fraction * 100)}%` }} />
                 </div>
               </div>
             ))}
@@ -187,14 +187,14 @@ export default function CoverageLabPage() {
 
           <details>
             <summary className="text-[10px] font-mono text-cyan-500 cursor-pointer select-none">SHOW CALCULATION</summary>
-            <div className="mt-2 rounded-lg border border-cyan-400/20 bg-black/25 p-2.5 font-mono text-[10px] leading-relaxed text-emerald-200">
+            <div className="mt-2 rounded-lg border border-cyan-400/20 bg-black/25 p-2.5 font-mono text-[10px] leading-relaxed text-fg">
               <div className="text-cyan-300">cap radius for mask m at altitude h (M8 identity)</div>
               <div>γ(m {cov.maskDeg}°, h {cov.samples[Math.round(frac * (cov.samples.length - 1))].altKm.toFixed(0)} km) = <b>{gammaNow.toFixed(2)}°</b></div>
               <div className="text-cyan-300 mt-1.5">exact cap area fraction (analytic check)</div>
               <div>(1 − cos γ)/2 = {((capAreaFractionDeg(gammaNow)) * 100).toFixed(1)}% per instance</div>
               <div className="text-cyan-300 mt-1.5">orbit union over grid</div>
               <div>fraction = Σ wᵢ·coveredᵢ / Σ wᵢ, wᵢ = cos(latᵢ) · {cov.stepDeg}° cells</div>
-              <div className="mt-1.5 text-emerald-700">Two-body track with sidereal rotation; time-grid fraction uses
+              <div className="mt-1.5 text-mut">Two-body track with sidereal rotation; time-grid fraction uses
                 {cov.samples.length} uniform samples (±{((cov.samples[cov.samples.length - 1].tMs - cov.samples[0].tMs) / cov.samples.length / 1000).toFixed(0)} s resolution).</div>
             </div>
           </details>
@@ -204,7 +204,7 @@ export default function CoverageLabPage() {
   )
 
   return (
-    <div className="fixed inset-0 bg-[#020a06] overflow-hidden">
+    <div className="fixed inset-0 bg-[#050B17] overflow-hidden">
       <OrbitScene mission overlay={
         <group>
           <StationLayer stations={stations} selectedId={null} />
@@ -215,18 +215,18 @@ export default function CoverageLabPage() {
            onPointerDown={onPointerDown} onPointerMove={onPointerMove}
            onPointerUp={onPointerUp} onPointerCancel={onPointerUp} />
 
-      <header className="absolute top-0 inset-x-0 z-30 h-14 flex items-center gap-3 px-4 bg-[#04120b]/85 backdrop-blur-md border-b border-emerald-400/15">
-        <Link to="/tracker" className="flex items-center gap-2 text-emerald-300 hover:text-emerald-200 text-[12px] font-mono">
+      <header className="absolute top-0 inset-x-0 z-30 h-14 flex items-center gap-3 px-4 bg-[#0A1425]/85 backdrop-blur-md border-b border-hi/15">
+        <Link to="/tracker" className="flex items-center gap-2 text-hi hover:text-fg text-[12px] font-mono">
           <ArrowLeft size={14} /> TRACKER
         </Link>
-        <div className="w-px h-6 bg-emerald-400/15" />
-        <Link to="/lab" className="text-[12px] font-mono text-emerald-400 hover:text-emerald-200">LABS</Link>
-        <div className="w-px h-6 bg-emerald-400/15" />
+        <div className="w-px h-6 bg-hi/15" />
+        <Link to="/lab" className="text-[12px] font-mono text-hi hover:text-fg">LABS</Link>
+        <div className="w-px h-6 bg-hi/15" />
         <div className="flex items-center gap-2">
-          <Globe2 size={16} className="text-emerald-400" />
+          <Globe2 size={16} className="text-hi" />
           <span className="font-bold text-[15px] tracking-tight">
-            <span className="text-emerald-50">Orbital</span><span className="text-emerald-400">Pulse</span>
-            <span className="ml-2 text-[9px] font-mono tracking-[0.25em] text-emerald-300 align-middle">
+            <span className="text-fg">Orbital</span><span className="text-hi">Pulse</span>
+            <span className="ml-2 text-[9px] font-mono tracking-[0.25em] text-hi align-middle">
               ANALYZE · COVERAGE
             </span>
           </span>

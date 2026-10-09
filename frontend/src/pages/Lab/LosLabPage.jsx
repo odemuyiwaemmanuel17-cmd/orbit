@@ -11,11 +11,11 @@ import { loadStations } from '../../lib/stations.js'
 import { geodeticToScene } from '../../lib/coords.js'
 import { footprintRadiusDeg, footprintPolygonDeg, losState } from '../../lib/los.js'
 
-const C_LINK = '#34d399'
+const C_LINK = '#38D9FF'
 const C_LOS = '#22d3ee'
 const C_BLOCKED = '#64748b'
 const C_FOOT = '#22d3ee'
-const C_MASK = '#f59e0b'
+const C_MASK = '#F5B942'
 
 function stateColor(state) {
   return state === 'LINK' ? C_LINK : state === 'LOS' ? C_LOS : C_BLOCKED
@@ -103,14 +103,14 @@ export default function LosLabPage() {
     <div className="glass rounded-xl p-4 overflow-y-auto thin-scroll h-full">
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-2">
-          <Radar size={15} className="text-emerald-400" />
-          <span className="font-semibold text-emerald-50 text-sm">Line of Sight</span>
+          <Radar size={15} className="text-hi" />
+          <span className="font-semibold text-fg text-sm">Line of Sight</span>
         </div>
-        <span className="text-[9px] font-mono px-2 py-0.5 rounded-full border border-emerald-400/40 text-emerald-300">
+        <span className="text-[9px] font-mono px-2 py-0.5 rounded-full border border-hi/40 text-hi">
           REAL-TIME PROPAGATION
         </span>
       </div>
-      <p className="text-[9px] text-emerald-700 mb-2">
+      <p className="text-[9px] text-mut mb-2">
         Footprint ring = where the {satGeo ? satGeo.name.toUpperCase() : 'satellite'} is above the
         geometric horizon (elev ≥ 0°, spherical Earth, {gH.toFixed(1)}° ground radius right now).
         Beam states are computed from true look angles; the scene compresses radius, so trust the
@@ -121,17 +121,17 @@ export default function LosLabPage() {
         {[['FOOTPRINT', showFootprint, setShowFootprint], ['BEAMS', showBeams, setShowBeams]].map(([lbl, v, set]) => (
           <button key={lbl} onClick={() => set(!v)}
                   className={`px-2 py-0.5 rounded-full text-[9px] font-mono border
-                    ${v ? 'border-cyan-400/50 text-cyan-300 bg-cyan-400/10' : 'border-emerald-400/15 text-emerald-700'}`}>
+                    ${v ? 'border-cyan-400/50 text-cyan-300 bg-cyan-400/10' : 'border-hi/15 text-mut'}`}>
             {lbl}
           </button>
         ))}
         <div className="ml-auto flex items-center gap-2 text-[8px] font-mono">
-          <span className="text-emerald-300">■ LINK</span><span className="text-cyan-300">■ LOS</span>
+          <span className="text-hi">■ LINK</span><span className="text-cyan-300">■ LOS</span>
           <span className="text-slate-500">┄ BLOCKED</span>
         </div>
       </div>
 
-      <div className="text-[9px] font-mono text-emerald-600 mb-1.5">
+      <div className="text-[9px] font-mono text-mut mb-1.5">
         {linkN} LINK · {losN} LOS · {blockedN} BLOCKED — over {stations.length} stations
       </div>
       <div className="space-y-1.5 mb-3">
@@ -139,14 +139,14 @@ export default function LosLabPage() {
           const l = looks[st.id]
           if (!l) return null
           return (
-            <div key={st.id} className="rounded-lg px-3 py-2 border border-emerald-400/10 bg-black/25">
+            <div key={st.id} className="rounded-lg px-3 py-2 border border-hi/10 bg-black/25">
               <div className="flex justify-between items-baseline">
-                <span className="text-[11px] font-semibold text-emerald-100">{st.name}</span>
+                <span className="text-[11px] font-semibold text-fg">{st.name}</span>
                 <span className="text-[10px] font-mono font-bold" style={{ color: stateColor(l.state) }}>
                   {l.state}
                 </span>
               </div>
-              <div className="flex justify-between text-[9px] font-mono text-emerald-600 mt-0.5 tabular-nums">
+              <div className="flex justify-between text-[9px] font-mono text-mut mt-0.5 tabular-nums">
                 <span>elev {l.elevDeg.toFixed(1)}° · mask ≥{st.minElevDeg.toFixed(0)}°</span>
                 <span>{l.state === 'BLOCKED' ? 'behind Earth' : `${l.slantRangeKm.toFixed(0)} km`}</span>
               </div>
@@ -158,7 +158,7 @@ export default function LosLabPage() {
       {satGeo && (
         <details>
           <summary className="text-[10px] font-mono text-cyan-500 cursor-pointer select-none">SHOW CALCULATION</summary>
-          <div className="mt-2 rounded-lg border border-cyan-400/20 bg-black/25 p-2.5 font-mono text-[10px] leading-relaxed text-emerald-200">
+          <div className="mt-2 rounded-lg border border-cyan-400/20 bg-black/25 p-2.5 font-mono text-[10px] leading-relaxed text-fg">
             <div className="text-cyan-300">footprint cap for elevation ≥ e (spherical Earth)</div>
             <div>γ(e) = acos( (R⊕/(R⊕+h)) · cos e ) − e</div>
             <div>γ(0°) = acos(6371/{(6371 + satGeo.altKm).toFixed(1)}) = <b>{gH.toFixed(2)}°</b>
@@ -168,7 +168,7 @@ export default function LosLabPage() {
               const gM = footprintRadiusDeg(satGeo.altKm, st.minElevDeg)
               return <div>γ({st.name} mask {st.minElevDeg}°) = <b>{gM.toFixed(2)}°</b> — inner cap of stations in {st.name.toUpperCase()}</div>
             })()}
-            <div className="mt-1 text-emerald-700">
+            <div className="mt-1 text-mut">
               state = LINK if elev ≥ mask, LOS if 0 ≤ elev &lt; mask, BLOCKED if elev &lt; 0.
               All from lookAngleKm — same validated geometry as M6/M7.
             </div>
@@ -179,7 +179,7 @@ export default function LosLabPage() {
   )
 
   return (
-    <div className="fixed inset-0 bg-[#020a06] overflow-hidden">
+    <div className="fixed inset-0 bg-[#050B17] overflow-hidden">
       <OrbitScene mission overlay={
         <group>
           <StationLayer stations={stations} selectedId={null} />
@@ -193,18 +193,18 @@ export default function LosLabPage() {
            onPointerDown={onPointerDown} onPointerMove={onPointerMove}
            onPointerUp={onPointerUp} onPointerCancel={onPointerUp} />
 
-      <header className="absolute top-0 inset-x-0 z-30 h-14 flex items-center gap-3 px-4 bg-[#04120b]/85 backdrop-blur-md border-b border-emerald-400/15">
-        <Link to="/tracker" className="flex items-center gap-2 text-emerald-300 hover:text-emerald-200 text-[12px] font-mono">
+      <header className="absolute top-0 inset-x-0 z-30 h-14 flex items-center gap-3 px-4 bg-[#0A1425]/85 backdrop-blur-md border-b border-hi/15">
+        <Link to="/tracker" className="flex items-center gap-2 text-hi hover:text-fg text-[12px] font-mono">
           <ArrowLeft size={14} /> TRACKER
         </Link>
-        <div className="w-px h-6 bg-emerald-400/15" />
-        <Link to="/lab" className="text-[12px] font-mono text-emerald-400 hover:text-emerald-200">LABS</Link>
-        <div className="w-px h-6 bg-emerald-400/15" />
+        <div className="w-px h-6 bg-hi/15" />
+        <Link to="/lab" className="text-[12px] font-mono text-hi hover:text-fg">LABS</Link>
+        <div className="w-px h-6 bg-hi/15" />
         <div className="flex items-center gap-2">
-          <Radar size={16} className="text-emerald-400" />
+          <Radar size={16} className="text-hi" />
           <span className="font-bold text-[15px] tracking-tight">
-            <span className="text-emerald-50">Orbital</span><span className="text-emerald-400">Pulse</span>
-            <span className="ml-2 text-[9px] font-mono tracking-[0.25em] text-emerald-300 align-middle">
+            <span className="text-fg">Orbital</span><span className="text-hi">Pulse</span>
+            <span className="ml-2 text-[9px] font-mono tracking-[0.25em] text-hi align-middle">
               ANALYZE · LINE OF SIGHT
             </span>
           </span>

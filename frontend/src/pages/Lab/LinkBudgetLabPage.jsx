@@ -15,20 +15,20 @@ import { slantFromElevationKm, linkBudgetKm, LINK_PRESETS, MODULATION_REFERENCE_
 function Num({ label, unit, value, onChange, step = 1, min = -999, max = 999 }) {
   return (
     <label className="flex items-center justify-between gap-2 text-[10px] font-mono py-0.5">
-      <span className="text-emerald-300 flex-1">{label}</span>
+      <span className="text-hi flex-1">{label}</span>
       <input type="number" value={value} step={step} min={min} max={max}
              onChange={(e) => onChange(Number(e.target.value))}
-             className="w-20 bg-black/30 border border-emerald-400/20 rounded px-1.5 py-0.5 text-emerald-50 tabular-nums text-right" />
-      <span className="text-emerald-600 w-10">{unit}</span>
+             className="w-20 bg-black/30 border border-hi/20 rounded px-1.5 py-0.5 text-fg tabular-nums text-right" />
+      <span className="text-mut w-10">{unit}</span>
     </label>
   )
 }
 
 function ChainRow({ k, v, hot }) {
   return (
-    <div className="flex justify-between text-[11px] font-mono py-1 border-b border-emerald-400/10 last:border-0">
-      <span className="text-emerald-500">{k}</span>
-      <span className={`tabular-nums ${hot ? 'font-bold text-cyan-300' : 'text-emerald-100'}`}>{v}</span>
+    <div className="flex justify-between text-[11px] font-mono py-1 border-b border-hi/10 last:border-0">
+      <span className="text-pri">{k}</span>
+      <span className={`tabular-nums ${hot ? 'font-bold text-cyan-300' : 'text-fg'}`}>{v}</span>
     </div>
   )
 }
@@ -76,7 +76,7 @@ export default function LinkBudgetLabPage() {
     const good = budget.verdict === 'GO'
     return (
       <group>
-        <Line points={[a.toArray(), b.toArray()]} color={good ? '#34d399' : '#f87171'}
+        <Line points={[a.toArray(), b.toArray()]} color={good ? '#38D9FF' : '#FF647C'}
               lineWidth={2} transparent opacity={0.9} toneMapped={false} />
         <mesh position={b.toArray()}>
           <sphereGeometry args={[0.016, 10, 10]} />
@@ -90,14 +90,14 @@ export default function LinkBudgetLabPage() {
     <div className="glass rounded-xl p-4 overflow-y-auto thin-scroll h-full">
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-2">
-          <Signal size={15} className="text-emerald-400" />
-          <span className="font-semibold text-emerald-50 text-sm">Link Budget</span>
+          <Signal size={15} className="text-hi" />
+          <span className="font-semibold text-fg text-sm">Link Budget</span>
         </div>
-        <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full border ${budget.verdict === 'GO' ? 'border-emerald-400/50 text-emerald-300' : 'border-red-400/50 text-red-300'}`}>
+        <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full border ${budget.verdict === 'GO' ? 'border-hi/50 text-hi' : 'border-red-400/50 text-red-300'}`}>
           {budget.verdict} · MARGIN {budget.marginDb.toFixed(1)} dB
         </span>
       </div>
-      <p className="text-[9px] text-emerald-700 mb-2">
+      <p className="text-[9px] text-mut mb-2">
         Losses are lumped SIMPLIFIED MODEL inputs; modulation Eb/N0 targets are EDUCATIONAL
         textbook values (uncoded/coded typicals). Slant geometry is exact spherical —
         worst case uses the LIVE satellite altitude at the station mask angle.
@@ -106,20 +106,20 @@ export default function LinkBudgetLabPage() {
       <div className="flex gap-1.5 mb-2 flex-wrap">
         {Object.entries(LINK_PRESETS).map(([k, v]) => (
           <button key={k} onClick={() => setP({ ...v, rxGainDbi: p.rxGainDbi })}
-                  className="px-2 py-0.5 rounded-full text-[9px] font-mono border border-emerald-400/20 text-emerald-300 hover:bg-emerald-400/10">
+                  className="px-2 py-0.5 rounded-full text-[9px] font-mono border border-hi/20 text-hi hover:bg-hi/10">
             {k.toUpperCase()}
           </button>
         ))}
       </div>
 
-      <div className="rounded-lg border border-emerald-400/15 bg-black/25 px-3 py-2 mb-2">
+      <div className="rounded-lg border border-hi/15 bg-black/25 px-3 py-2 mb-2">
         <div className="flex items-center gap-2 mb-1.5">
           <select value={stationId} onChange={(e) => setStationId(e.target.value)}
-                  className="flex-1 bg-black/30 border border-emerald-400/20 rounded px-1.5 py-1 text-[11px] text-emerald-200">
+                  className="flex-1 bg-black/30 border border-hi/20 rounded px-1.5 py-1 text-[11px] text-fg">
             {stations.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
           <button onClick={() => setWorstCase(!worstCase)}
-                  className={`px-2 py-1 rounded-md text-[9px] font-mono border ${worstCase ? 'border-emerald-400/50 text-emerald-300' : 'border-emerald-400/20 text-emerald-600'}`}>
+                  className={`px-2 py-1 rounded-md text-[9px] font-mono border ${worstCase ? 'border-hi/50 text-hi' : 'border-hi/20 text-mut'}`}>
             {worstCase ? '● LIVE WORST CASE' : 'MANUAL GEOMETRY'}
           </button>
         </div>
@@ -129,13 +129,13 @@ export default function LinkBudgetLabPage() {
             <Num label="Elevation" unit="°" value={elevDeg} onChange={setElev} step={1} min={0} max={90} />
           </div>
         )}
-        <div className="flex justify-between font-mono text-[11px] text-emerald-100">
-          <span className="text-emerald-500">slant @ elev {useElev.toFixed(0)}° · {useAlt.toFixed(0)} km alt</span>
+        <div className="flex justify-between font-mono text-[11px] text-fg">
+          <span className="text-pri">slant @ elev {useElev.toFixed(0)}° · {useAlt.toFixed(0)} km alt</span>
           <span className="text-cyan-300 tabular-nums">{slantKm.toFixed(0)} km</span>
         </div>
       </div>
 
-      <div className="rounded-lg border border-emerald-400/15 bg-black/25 px-3 py-2 mb-2">
+      <div className="rounded-lg border border-hi/15 bg-black/25 px-3 py-2 mb-2">
         <Num label="Tx power" unit="dBm" value={p.ptxDbm} onChange={set('ptxDbm')} />
         <Num label="Tx antenna gain" unit="dBi" value={p.txGainDbi} onChange={set('txGainDbi')} />
         <Num label="Frequency" unit="MHz" value={p.freqMhz} onChange={set('freqMhz')} step={10} min={100} />
@@ -172,13 +172,13 @@ export default function LinkBudgetLabPage() {
 
       <details>
         <summary className="text-[10px] font-mono text-cyan-500 cursor-pointer select-none">SHOW CALCULATION</summary>
-        <div className="mt-2 rounded-lg border border-cyan-400/20 bg-black/25 p-2.5 font-mono text-[10px] leading-relaxed text-emerald-200">
+        <div className="mt-2 rounded-lg border border-cyan-400/20 bg-black/25 p-2.5 font-mono text-[10px] leading-relaxed text-fg">
           <div>slant: ρ = −R⊕·sin e + √(R⊕²sin²e + (R⊕+h)² − R⊕²) = {slantKm.toFixed(1)} km</div>
           <div className="mt-1">FSPL = 32.44 + 20·log₁₀({slantKm.toFixed(0)} km) + 20·log₁₀({p.freqMhz} MHz) = {budget.fsplDb.toFixed(2)} dB</div>
           <div className="mt-1">Prx = {budget.eirpDbm} − {budget.pathLossDb.toFixed(1)} + {p.rxGainDbi} = {budget.prxDbm.toFixed(1)} dBm</div>
           <div className="mt-1">C/N₀ = Prx − k(290 K) − NF = {budget.prxDbm.toFixed(1)} − ({K_DBM_HZ_290K.toFixed(3)}) − {p.nfDb} = {budget.cN0DbHz.toFixed(2)} dB-Hz</div>
           <div className="mt-1">Eb/N₀ = C/N₀ − 10·log₁₀({(p.bitRateKbps * 1000).toExponential(2)} bps) − {p.implementationLossDb} = {budget.ebN0DbDb.toFixed(2)} dB</div>
-          <div className="mt-1 text-emerald-700">k exact (2019 SI) → kT(290 K) = −173.976 dBm/Hz (ITU-R ref). Noise figure path;
+          <div className="mt-1 text-mut">k exact (2019 SI) → kT(290 K) = −173.976 dBm/Hz (ITU-R ref). Noise figure path;
             the service also models an equivalent G/T path — the tests pin their identity.</div>
         </div>
       </details>
@@ -186,7 +186,7 @@ export default function LinkBudgetLabPage() {
   )
 
   return (
-    <div className="fixed inset-0 bg-[#020a06] overflow-hidden">
+    <div className="fixed inset-0 bg-[#050B17] overflow-hidden">
       <OrbitScene mission overlay={
         <group>
           <StationLayer stations={stations} selectedId={stationId} />
@@ -197,24 +197,24 @@ export default function LinkBudgetLabPage() {
            onPointerDown={onPointerDown} onPointerMove={onPointerMove}
            onPointerUp={onPointerUp} onPointerCancel={onPointerUp} />
 
-      <header className="absolute top-0 inset-x-0 z-30 h-14 flex items-center gap-3 px-4 bg-[#04120b]/85 backdrop-blur-md border-b border-emerald-400/15">
-        <Link to="/tracker" className="flex items-center gap-2 text-emerald-300 hover:text-emerald-200 text-[12px] font-mono">
+      <header className="absolute top-0 inset-x-0 z-30 h-14 flex items-center gap-3 px-4 bg-[#0A1425]/85 backdrop-blur-md border-b border-hi/15">
+        <Link to="/tracker" className="flex items-center gap-2 text-hi hover:text-fg text-[12px] font-mono">
           <ArrowLeft size={14} /> TRACKER
         </Link>
-        <div className="w-px h-6 bg-emerald-400/15" />
-        <Link to="/lab" className="text-[12px] font-mono text-emerald-400 hover:text-emerald-200">LABS</Link>
-        <div className="w-px h-6 bg-emerald-400/15" />
+        <div className="w-px h-6 bg-hi/15" />
+        <Link to="/lab" className="text-[12px] font-mono text-hi hover:text-fg">LABS</Link>
+        <div className="w-px h-6 bg-hi/15" />
         <div className="flex items-center gap-2">
-          <Signal size={16} className="text-emerald-400" />
+          <Signal size={16} className="text-hi" />
           <span className="font-bold text-[15px] tracking-tight">
-            <span className="text-emerald-50">Orbital</span><span className="text-emerald-400">Pulse</span>
-            <span className="ml-2 text-[9px] font-mono tracking-[0.25em] text-emerald-300 align-middle">
+            <span className="text-fg">Orbital</span><span className="text-hi">Pulse</span>
+            <span className="ml-2 text-[9px] font-mono tracking-[0.25em] text-hi align-middle">
               DESIGN · LINK BUDGET
             </span>
           </span>
         </div>
         {satGeo && (
-          <span className="ml-auto hidden md:inline text-[9px] font-mono text-emerald-600">
+          <span className="ml-auto hidden md:inline text-[9px] font-mono text-mut">
             SLANT USES LIVE {satGeo.name.toUpperCase()} ALTITUDE
           </span>
         )}

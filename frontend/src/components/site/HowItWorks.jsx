@@ -12,29 +12,29 @@ export default function HowItWorks() {
     <section id="how" className="relative py-24 px-5">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
-          <div className="text-[11px] font-mono tracking-[0.3em] text-emerald-400 mb-2">HOW IT WORKS</div>
-          <h2 className="text-3xl md:text-4xl font-black text-emerald-50 tracking-tight">
+          <div className="text-[11px] font-mono tracking-[0.3em] text-hi mb-2">HOW IT WORKS</div>
+          <h2 className="text-3xl md:text-4xl font-black text-fg tracking-tight">
             From raw element sets to a living 3D sky
           </h2>
-          <p className="mt-3 text-sm text-emerald-100/60">
+          <p className="mt-3 text-sm text-fg/60">
             OrbitalPulse bridges aerospace-grade math and modern web rendering in six stages.
           </p>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {STEPS.map(([title, body], i) => (
             <div key={title} className="glass rounded-xl p-5 relative overflow-hidden">
-              <span className="absolute -top-3 right-2 text-[72px] font-black text-emerald-400/10 select-none">
+              <span className="absolute -top-3 right-2 text-[72px] font-black text-hi/10 select-none">
                 {i + 1}
               </span>
-              <div className="w-9 h-9 rounded-lg bg-emerald-400/15 border border-emerald-400/30 mb-4" />
-              <h3 className="font-bold text-emerald-50 text-sm mb-2">{title}</h3>
-              <p className="text-[12px] leading-relaxed text-emerald-100/60">{body}</p>
+              <div className="w-9 h-9 rounded-lg bg-hi/15 border border-hi/30 mb-4" />
+              <h3 className="font-bold text-fg text-sm mb-2">{title}</h3>
+              <p className="text-[12px] leading-relaxed text-fg/60">{body}</p>
             </div>
           ))}
         </div>
         <div className="glass rounded-xl p-5 mt-6 max-w-3xl mx-auto text-center">
-          <p className="text-[13px] leading-relaxed text-emerald-100/70">
-            <span className="font-bold text-emerald-200">Frontend + backend, seamlessly:</span>{' '}
+          <p className="text-[13px] leading-relaxed text-fg/70">
+            <span className="font-bold text-fg">Frontend + backend, seamlessly:</span>{' '}
             a lightweight FastAPI service keeps the orbital catalog current and runs the
             analytics that belong server-side — pass scheduling, coverage, conjunction
             screening — while projection, rendering, and telemetry sampling run locally in

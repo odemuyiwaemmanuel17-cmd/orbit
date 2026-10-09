@@ -20,10 +20,10 @@ const CITIES = [
 
 function Tile({ label, value, unit }) {
   return (
-    <div className="bg-black/25 border border-emerald-400/10 rounded-lg px-3 py-2.5">
-      <div className="text-[9px] uppercase tracking-[0.15em] text-emerald-600">{label}</div>
-      <div className="font-mono text-emerald-200 text-sm tabular-nums mt-0.5">
-        {value}<span className="text-[10px] text-emerald-600 ml-1">{unit}</span>
+    <div className="bg-black/25 border border-hi/10 rounded-lg px-3 py-2.5">
+      <div className="text-[9px] uppercase tracking-[0.15em] text-mut">{label}</div>
+      <div className="font-mono text-fg text-sm tabular-nums mt-0.5">
+        {value}<span className="text-[10px] text-mut ml-1">{unit}</span>
       </div>
     </div>
   )
@@ -45,15 +45,15 @@ function TelemetryTab({ meta, live }) {
   const det = useMemo(() => tleDetails(meta.line1, meta.line2), [meta])
   return (
     <>
-      <div className="bg-emerald-400/[0.06] border border-emerald-400/25 rounded-lg p-3 mb-3">
-        <div className="font-bold text-emerald-50 text-sm">{meta.name}</div>
-        <div className="text-[11px] text-emerald-400/90 mt-0.5">{meta.description}</div>
+      <div className="bg-hi/[0.06] border border-hi/25 rounded-lg p-3 mb-3">
+        <div className="font-bold text-fg text-sm">{meta.name}</div>
+        <div className="text-[11px] text-hi/90 mt-0.5">{meta.description}</div>
         <div className="flex items-center gap-2 mt-2">
           <span className="text-[9px] font-mono px-1.5 py-px rounded border"
                 style={{ color: REGIME_COLORS[meta.regime], borderColor: `${REGIME_COLORS[meta.regime]}66` }}>
             {meta.regime}
           </span>
-          <span className="text-[10px] font-mono text-emerald-600">
+          <span className="text-[10px] font-mono text-mut">
             {live ? 'Signal lock · nominal' : 'acquiring…'}
           </span>
         </div>
@@ -71,17 +71,17 @@ function TelemetryTab({ meta, live }) {
         </div>
       )}
       <div className="grid grid-cols-2 gap-2 mb-3">
-        <div className="bg-black/25 border border-emerald-400/10 rounded-lg px-3 py-2.5"
+        <div className="bg-black/25 border border-hi/10 rounded-lg px-3 py-2.5"
              title="Cylindrical Earth-shadow model: LIT when the spacecraft is outside the umbra cone.">
-          <div className="text-[9px] uppercase tracking-[0.15em] text-emerald-600">Sunlight</div>
+          <div className="text-[9px] uppercase tracking-[0.15em] text-mut">Sunlight</div>
           <div className={`font-mono text-sm mt-0.5 ${live?.sunlit ? 'text-amber-300' : 'text-cyan-300'}`}>
             {live ? (live.sunlit ? '☀ LIT' : '☾ ECLIPSE') : '——'}
           </div>
         </div>
         <Tile label="NORAD ID" value={String(meta.norad_id)} />
       </div>
-      <div className="text-[9px] uppercase tracking-[0.18em] text-emerald-600 mb-1.5">Orbital Elements</div>
-      <div className="bg-black/20 border border-emerald-400/10 rounded-lg px-3 py-1.5">
+      <div className="text-[9px] uppercase tracking-[0.18em] text-mut mb-1.5">Orbital Elements</div>
+      <div className="bg-black/20 border border-hi/10 rounded-lg px-3 py-1.5">
         {[
           ['Period', `${meta.period_min.toFixed(1)} min`, 'Time for one full revolution (from mean motion).'],
           ['Inclination', `${meta.inclination_deg.toFixed(2)}°`, 'Tilt of the orbital plane vs the equator.'],
@@ -95,9 +95,9 @@ function TelemetryTab({ meta, live }) {
           ['TLE epoch', `${det.epochMs ? new Date(det.epochMs).toISOString().slice(0, 16).replace('T', ' ') : 'unavailable'} UTC`, 'Reference time of the element set; accuracy degrades with age.'],
           ['Launched', String(meta.launched), 'Year the spacecraft reached orbit.'],
         ].map(([k, v, tip]) => (
-          <div key={k} title={tip} className="flex justify-between text-[11px] py-[3px] border-b border-emerald-400/[0.07] last:border-0 cursor-help">
-            <span className="text-emerald-500">{k}</span>
-            <span className="font-mono text-emerald-100 tabular-nums">{v}</span>
+          <div key={k} title={tip} className="flex justify-between text-[11px] py-[3px] border-b border-hi/[0.07] last:border-0 cursor-help">
+            <span className="text-pri">{k}</span>
+            <span className="font-mono text-fg tabular-nums">{v}</span>
           </div>
         ))}
       </div>
@@ -128,48 +128,48 @@ function PassesTab({ meta }) {
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      <div className="text-[11px] text-emerald-300 mb-2">
+      <div className="text-[11px] text-hi mb-2">
         Sky-watcher passes for <span className="font-bold">{meta.name}</span> · next 24 h
       </div>
       <div className="flex gap-1.5 flex-wrap mb-2">
         {CITIES.map(([n]) => (
           <button key={n} onClick={() => { setCity(n); setCustom(null) }}
                   className={`px-2 py-0.5 rounded-full text-[10px] border transition
-                    ${!custom && city === n ? 'bg-emerald-500 text-emerald-950 border-emerald-400 font-bold'
-                                             : 'border-emerald-400/20 text-emerald-400'}`}>
+                    ${!custom && city === n ? 'bg-pri text-bg border-hi font-bold'
+                                             : 'border-hi/20 text-hi'}`}>
             {n}
           </button>
         ))}
       </div>
-      <div className="flex items-center gap-2 mb-3 text-[10px] font-mono text-emerald-500">
+      <div className="flex items-center gap-2 mb-3 text-[10px] font-mono text-pri">
         <span>observer {obs[0].toFixed(2)}°, {obs[1].toFixed(2)}°</span>
-        <span className="text-emerald-700">|</span>
+        <span className="text-mut">|</span>
         <label className="flex items-center gap-1">min elev
           <select value={minElev} onChange={(e) => setMinElev(Number(e.target.value))}
-                  className="bg-black/30 border border-emerald-400/20 rounded px-1 py-0.5 text-emerald-200">
+                  className="bg-black/30 border border-hi/20 rounded px-1 py-0.5 text-fg">
             {[0, 10, 20, 30].map((v) => <option key={v} value={v}>{v}°</option>)}
           </select>
         </label>
         <button onClick={() => navigator.geolocation?.getCurrentPosition(
               (p) => setCustom([p.coords.latitude, p.coords.longitude]))}
-              className="ml-auto px-2 py-0.5 rounded border border-emerald-400/30 text-emerald-300 hover:bg-emerald-400/10">
+              className="ml-auto px-2 py-0.5 rounded border border-hi/30 text-hi hover:bg-hi/10">
           📍 my location
         </button>
       </div>
       <div className="flex-1 overflow-y-auto thin-scroll space-y-1.5">
-        {busy && <div className="text-center py-6"><Loader size={16} className="animate-spin inline text-emerald-400" /></div>}
+        {busy && <div className="text-center py-6"><Loader size={16} className="animate-spin inline text-hi" /></div>}
         {!busy && list.length === 0 && (
-          <div className="text-[11px] font-mono text-emerald-700 text-center py-6">
+          <div className="text-[11px] font-mono text-mut text-center py-6">
             no passes above {minElev}° in the next 24 h — try another site or lower the mask angle
           </div>
         )}
         {!busy && list.map((p) => (
-          <div key={p.rise} className="bg-black/25 border border-emerald-400/10 rounded-lg px-3 py-2">
+          <div key={p.rise} className="bg-black/25 border border-hi/10 rounded-lg px-3 py-2">
             <div className="flex justify-between text-[11px] font-mono">
-              <span className="text-emerald-200">{fmtTime(p.rise)} → {fmtTime(p.set)}</span>
-              <span className="text-emerald-500">{fmtDay(p.rise)}</span>
+              <span className="text-fg">{fmtTime(p.rise)} → {fmtTime(p.set)}</span>
+              <span className="text-pri">{fmtDay(p.rise)}</span>
             </div>
-            <div className="flex justify-between text-[10px] font-mono text-emerald-600 mt-1">
+            <div className="flex justify-between text-[10px] font-mono text-mut mt-1">
               <span>max el {p.maxElev.toFixed(1)}°</span>
               <span>az {p.azMax.toFixed(0)}°</span>
               <span>{p.durationS.toFixed(0)} s</span>
@@ -177,7 +177,7 @@ function PassesTab({ meta }) {
           </div>
         ))}
       </div>
-      <p className="text-[9px] text-emerald-800 mt-2">
+      <p className="text-[9px] text-mut mt-2">
         Computed in-browser (SGP4 + local horizon). Identical math on GET /api/satellites/:id/passes.
       </p>
     </div>
@@ -193,32 +193,32 @@ function AlertsTab() {
   return (
     <div className="flex flex-col h-full min-h-0">
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-[11px] text-emerald-300">Space traffic · screening next</span>
+        <span className="text-[11px] text-hi">Space traffic · screening next</span>
         <select value={hours} onChange={(e) => setHours(Number(e.target.value))}
-                className="bg-black/30 border border-emerald-400/20 rounded px-1 py-0.5 text-[11px] text-emerald-200">
+                className="bg-black/30 border border-hi/20 rounded px-1 py-0.5 text-[11px] text-fg">
           {[2, 6, 12, 24].map((h) => <option key={h} value={h}>{h} h</option>)}
         </select>
         <button onClick={() => engine.runConjunctionScan(hours)}
                 disabled={engine.scanning}
-                className="ml-auto px-3 py-1 rounded-md text-[11px] font-semibold bg-emerald-500 text-emerald-950 hover:bg-emerald-400 disabled:opacity-50">
+                className="ml-auto px-3 py-1 rounded-md text-[11px] font-semibold bg-pri text-bg hover:bg-hi disabled:opacity-50">
           {engine.scanning ? 'scanning…' : 'SCAN'}
         </button>
       </div>
       <div className="text-[10px] font-mono mb-2">
         {res
-          ? <>threshold {res.thresholdKm} km · {res.events.length} approaches · <span className={riskCount ? 'text-red-400' : 'text-emerald-500'}>{riskCount} RISK</span> · screened {res.scanned}{res.capped ? ' (cap)' : ''} objects</>
-          : <span className="text-emerald-700">no scan yet — press SCAN</span>}
+          ? <>threshold {res.thresholdKm} km · {res.events.length} approaches · <span className={riskCount ? 'text-red-400' : 'text-pri'}>{riskCount} RISK</span> · screened {res.scanned}{res.capped ? ' (cap)' : ''} objects</>
+          : <span className="text-mut">no scan yet — press SCAN</span>}
       </div>
       <div className="flex-1 overflow-y-auto thin-scroll space-y-1.5">
         {(res?.events ?? []).map((e, i) => {
           const dt = e.tCa - engine.simMs
           return (
             <div key={i}
-                 className={`rounded-lg px-3 py-2 border ${e.risk ? 'border-red-500/60 bg-red-500/10' : 'border-emerald-400/10 bg-black/25'}`}>
-              <div className={`text-[11px] font-bold ${e.risk ? 'text-red-300' : 'text-emerald-100'}`}>
+                 className={`rounded-lg px-3 py-2 border ${e.risk ? 'border-red-500/60 bg-red-500/10' : 'border-hi/10 bg-black/25'}`}>
+              <div className={`text-[11px] font-bold ${e.risk ? 'text-red-300' : 'text-fg'}`}>
                 {e.aName} ⟷ {e.bName}
               </div>
-              <div className="flex justify-between text-[10px] font-mono mt-1 text-emerald-500">
+              <div className="flex justify-between text-[10px] font-mono mt-1 text-pri">
                 <span className={e.risk ? 'text-red-400' : ''}>{e.distanceKm.toFixed(1)} km</span>
                 <span>T-{countdown(dt)}</span>
               </div>
@@ -231,7 +231,7 @@ function AlertsTab() {
           )
         })}
       </div>
-      <p className="text-[9px] text-emerald-800 mt-2">
+      <p className="text-[9px] text-mut mt-2">
         Coarse 5-min scan + ternary refinement, mirrored server-side at GET /api/conjunctions.
       </p>
     </div>
@@ -245,15 +245,15 @@ function WeatherTab() {
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <span className="text-[11px] text-emerald-300">Space weather &amp; drag</span>
-        <span className="text-[9px] font-mono px-1.5 py-0.5 rounded border border-emerald-400/25 text-emerald-500">
+        <span className="text-[11px] text-hi">Space weather &amp; drag</span>
+        <span className="text-[9px] font-mono px-1.5 py-0.5 rounded border border-hi/25 text-pri">
           {w.source}
         </span>
       </div>
-      <div className="bg-black/25 border border-emerald-400/10 rounded-lg p-3 mb-3">
+      <div className="bg-black/25 border border-hi/10 rounded-lg p-3 mb-3">
         <div className="flex justify-between text-[11px] font-mono mb-1">
-          <span className="text-emerald-500">Kp INDEX</span>
-          <span className={w.storm ? 'text-red-400 font-bold' : 'text-emerald-100'}>
+          <span className="text-pri">Kp INDEX</span>
+          <span className={w.storm ? 'text-red-400 font-bold' : 'text-fg'}>
             {w.kp_index.toFixed(1)} / 9
           </span>
         </div>
@@ -261,10 +261,10 @@ function WeatherTab() {
           <div className="h-full rounded-full transition-all"
                style={{ width: `${kpPct}%`,
                         background: w.kp_index >= 5
-                          ? 'linear-gradient(90deg,#f59e0b,#ef4444)'
-                          : 'linear-gradient(90deg,#34d399,#a3e635)' }} />
+                          ? 'linear-gradient(90deg,#F5B942,#FF647C)'
+                          : 'linear-gradient(90deg,#38D9FF,#818CF8)' }} />
         </div>
-        <div className={`text-[10px] font-mono mt-1.5 ${w.storm ? 'text-red-400' : 'text-emerald-500'}`}>
+        <div className={`text-[10px] font-mono mt-1.5 ${w.storm ? 'text-red-400' : 'text-pri'}`}>
           {w.condition}
         </div>
       </div>
@@ -279,10 +279,10 @@ function WeatherTab() {
         </div>
       )}
       <button onClick={() => engine.refreshWeather()}
-              className="w-full py-1.5 rounded-md text-[11px] font-mono border border-emerald-400/25 text-emerald-300 hover:bg-emerald-400/10">
+              className="w-full py-1.5 rounded-md text-[11px] font-mono border border-hi/25 text-hi hover:bg-hi/10">
         ↻ refresh feed
       </button>
-      <p className="text-[9px] text-emerald-800 mt-3">
+      <p className="text-[9px] text-mut mt-3">
         NOAA SWPC via GET /api/space-weather when linked; deterministic synthetic model offline.
       </p>
     </div>
@@ -302,14 +302,14 @@ export default function TelemetryPanel() {
   return (
     <div className="glass rounded-xl p-4 flex flex-col h-full min-h-0">
       <div className="flex items-center gap-2 mb-2">
-        <Satellite size={15} className="text-emerald-400" />
-        <span className="font-semibold text-emerald-50 text-sm">Mission HUD</span>
+        <Satellite size={15} className="text-hi" />
+        <span className="font-semibold text-fg text-sm">Mission HUD</span>
       </div>
-      <div className="grid grid-cols-4 gap-1 mb-3 p-1 rounded-lg bg-black/30 border border-emerald-400/10">
+      <div className="grid grid-cols-4 gap-1 mb-3 p-1 rounded-lg bg-black/30 border border-hi/10">
         {TABS.map(([key, label, Icon]) => (
           <button key={key} onClick={() => setTab(key)}
                   className={`relative flex items-center justify-center gap-1 py-1.5 rounded-md text-[9px] font-mono tracking-wide transition
-                    ${tab === key ? 'bg-emerald-400/15 text-emerald-200' : 'text-emerald-600 hover:text-emerald-300'}`}>
+                    ${tab === key ? 'bg-hi/15 text-fg' : 'text-mut hover:text-hi'}`}>
             <Icon size={11} /> {label}
             {key === 'alerts' && risks > 0 && (
               <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-red-500 text-white text-[8px] grid place-items-center live-dot">
@@ -326,7 +326,7 @@ export default function TelemetryPanel() {
         {tab === 'wx' && <WeatherTab />}
       </div>
       {tab === 'telemetry' && (
-        <p className="text-[9px] leading-relaxed text-emerald-800 mt-3 pt-2 border-t border-emerald-400/10">
+        <p className="text-[9px] leading-relaxed text-mut mt-3 pt-2 border-t border-hi/10">
           {REGIME_LABELS[meta.regime]} · propagated in-browser from CelesTrak elements;
           backend mirrors every computation.
         </p>

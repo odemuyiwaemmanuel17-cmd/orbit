@@ -6,11 +6,11 @@ import { elementsToStateKm, orbitPolylineKm, orbitMarkersKm, meanToTrueAnomalyRa
 import { geodeticToScene, EARTH_RADIUS_KM } from '../../lib/coords.js'
 import { RAD_PER_DEG } from '../../lib/constants.js'
 
-const PERIGEE = '#f59e0b'
+const PERIGEE = '#F5B942'
 const APOGEE = '#38bdf8'
 const NODE_ASC = '#22d3ee'
 const NODE_DESC = '#f472b6'
-const ORBIT = '#4ade80'
+const ORBIT = '#3B82F6'
 
 /** ECI km -> scene units through the SAME projection contract as real sats:
  *  geodetic lat/lon at the current GMST + the documented radial compression. */

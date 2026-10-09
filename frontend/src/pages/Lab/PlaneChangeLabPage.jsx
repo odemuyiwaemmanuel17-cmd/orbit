@@ -14,7 +14,7 @@ import { R_EARTH_MEAN_KM } from '../../lib/constants.js'
 
 const CUR = '#94a3b8'
 const TGT = '#22d3ee'
-const NODE = '#f59e0b'
+const NODE = '#F5B942'
 
 function PlaneOverlay({ altKm, i1, i2, simMs }) {
   const r = R_EARTH_MEAN_KM + altKm
@@ -67,12 +67,12 @@ export default function PlaneChangeLabPage() {
   const Slider = ({ label, value, onChange, max, unit }) => (
     <div className="mb-2.5">
       <div className="flex items-baseline justify-between text-[11px] mb-1">
-        <span className="text-emerald-200 font-semibold">{label}</span>
-        <span className="font-mono text-emerald-50 tabular-nums">{value.toFixed(1)} {unit}</span>
+        <span className="text-fg font-semibold">{label}</span>
+        <span className="font-mono text-fg tabular-nums">{value.toFixed(1)} {unit}</span>
       </div>
       <input type="range" min={0} max={max} step={0.1} value={value}
              onChange={(e) => onChange(Number(e.target.value))}
-             className="w-full accent-emerald-400 h-6" aria-label={label} />
+             className="w-full accent-hi h-6" aria-label={label} />
     </div>
   )
 
@@ -80,14 +80,14 @@ export default function PlaneChangeLabPage() {
     <div className="glass rounded-xl p-4 overflow-y-auto thin-scroll h-full">
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-2">
-          <GitCompareArrows size={15} className="text-emerald-400" />
-          <span className="font-semibold text-emerald-50 text-sm">Plane Change</span>
+          <GitCompareArrows size={15} className="text-hi" />
+          <span className="font-semibold text-fg text-sm">Plane Change</span>
         </div>
         <span className="text-[9px] font-mono px-2 py-0.5 rounded-full border border-cyan-400/40 text-cyan-300">
           ANALYTICAL — IMPULSIVE
         </span>
       </div>
-      <p className="text-[9px] text-emerald-700 mb-3">
+      <p className="text-[9px] text-mut mb-3">
         Burn on the node line (amber), rotating the velocity vector by Δi.
         Assumptions: impulsive, same speed before/after, two-body — exact
         only at the ascending/descending node.
@@ -97,16 +97,16 @@ export default function PlaneChangeLabPage() {
       <Slider label="Current inclination i₁" value={i1} onChange={setI1} max={180} unit="°" />
       <Slider label="Target inclination i₂" value={i2} onChange={setI2} max={180} unit="°" />
 
-      <div className="rounded-lg border border-emerald-400/25 bg-black/30 px-3 py-2 mb-3 font-mono text-[12px] text-emerald-100">
+      <div className="rounded-lg border border-hi/25 bg-black/30 px-3 py-2 mb-3 font-mono text-[12px] text-fg">
         Δi = {di.toFixed(1)}° · v = {v.toFixed(4)} km/s · <b>ΔV = {dv.toFixed(0)} m/s</b>
       </div>
 
-      <div className="text-[10px] font-mono text-emerald-500 mb-1">WHY HIGH ORBITS ARE CHEAPER (same Δi)</div>
+      <div className="text-[10px] font-mono text-pri mb-1">WHY HIGH ORBITS ARE CHEAPER (same Δi)</div>
       <table className="w-full text-[10px] font-mono tabular-nums mb-3">
-        <thead className="text-emerald-600">
+        <thead className="text-mut">
           <tr><th className="text-left">alt</th><th className="text-right">v km/s</th><th className="text-right">ΔV m/s</th></tr>
         </thead>
-        <tbody className="text-emerald-200">
+        <tbody className="text-fg">
           {ladder.map((l) => (
             <tr key={l.altKm}>
               <td>{l.altKm.toLocaleString('en-US')} km</td>
@@ -117,48 +117,48 @@ export default function PlaneChangeLabPage() {
         </tbody>
       </table>
 
-      <div className="text-[10px] font-mono text-emerald-500 mb-1">COMBINED BONUS — LEO 6378 km → GEO + Δi AT APOGEE</div>
-      <div className="rounded-lg border border-cyan-400/25 bg-black/25 px-3 py-2 mb-3 font-mono text-[10px] text-emerald-200 leading-relaxed">
+      <div className="text-[10px] font-mono text-pri mb-1">COMBINED BONUS — LEO 6378 km → GEO + Δi AT APOGEE</div>
+      <div className="rounded-lg border border-cyan-400/25 bg-black/25 px-3 py-2 mb-3 font-mono text-[10px] text-fg leading-relaxed">
         separate (plane at apogee + circularize): <b>{combined.dvSeparateMps.toFixed(0)} m/s</b><br />
         one combined vector burn: <b className="text-cyan-300">{combined.dvCombinedMps.toFixed(0)} m/s</b><br />
-        <span className="text-emerald-400">saving: {combined.savingMps.toFixed(0)} m/s — rotate & slow in one triangle</span>
+        <span className="text-hi">saving: {combined.savingMps.toFixed(0)} m/s — rotate & slow in one triangle</span>
       </div>
 
       <details className="mb-2">
         <summary className="text-[10px] font-mono text-cyan-500 cursor-pointer select-none">
           SHOW CALCULATION
         </summary>
-        <div className="mt-2 rounded-lg border border-cyan-400/20 bg-black/25 p-2.5 font-mono text-[10px] leading-relaxed text-emerald-200">
+        <div className="mt-2 rounded-lg border border-cyan-400/20 bg-black/25 p-2.5 font-mono text-[10px] leading-relaxed text-fg">
           <div className="text-cyan-300">ΔV = 2 v sin(Δi/2)</div>
           <div>= 2 × {v.toFixed(4)} × sin({(di / 2).toFixed(2)}°) = {(dv / 1000).toFixed(4)} km/s</div>
           <div className="text-cyan-300 mt-2">combined at apogee (law of cosines):</div>
           <div>ΔV = √(v_a² + v_c² − 2 v_a v_c cos Δi)</div>
           <div>= √({combined.vApogeeKmS.toFixed(4)}² + {combined.vTargetKmS.toFixed(4)}² − 2·{combined.vApogeeKmS.toFixed(3)}·{combined.vTargetKmS.toFixed(3)}·cos {di.toFixed(1)}°) = {(combined.dvCombinedMps / 1000).toFixed(4)} km/s</div>
-          <div className="mt-2 text-emerald-700">v = √(μ/r) at r = {altKm} + {R_EARTH_MEAN_KM} km. 180° flip costs 2v — the plane formula's own bound.</div>
+          <div className="mt-2 text-mut">v = √(μ/r) at r = {altKm} + {R_EARTH_MEAN_KM} km. 180° flip costs 2v — the plane formula's own bound.</div>
         </div>
       </details>
     </div>
   )
 
   return (
-    <div className="fixed inset-0 bg-[#020a06] overflow-hidden">
+    <div className="fixed inset-0 bg-[#050B17] overflow-hidden">
       <OrbitScene mission overlay={<PlaneOverlay altKm={altKm} i1={i1} i2={i2} simMs={engine.simMs} />} />
       <div className="absolute inset-0 touch-none cursor-grab active:cursor-grabbing"
            onPointerDown={onPointerDown} onPointerMove={onPointerMove}
            onPointerUp={onPointerUp} onPointerCancel={onPointerUp} />
 
-      <header className="absolute top-0 inset-x-0 z-30 h-14 flex items-center gap-3 px-4 bg-[#04120b]/85 backdrop-blur-md border-b border-emerald-400/15">
-        <Link to="/tracker" className="flex items-center gap-2 text-emerald-300 hover:text-emerald-200 text-[12px] font-mono">
+      <header className="absolute top-0 inset-x-0 z-30 h-14 flex items-center gap-3 px-4 bg-[#0A1425]/85 backdrop-blur-md border-b border-hi/15">
+        <Link to="/tracker" className="flex items-center gap-2 text-hi hover:text-fg text-[12px] font-mono">
           <ArrowLeft size={14} /> TRACKER
         </Link>
-        <div className="w-px h-6 bg-emerald-400/15" />
-        <Link to="/lab" className="text-[12px] font-mono text-emerald-400 hover:text-emerald-200">LABS</Link>
-        <div className="w-px h-6 bg-emerald-400/15" />
+        <div className="w-px h-6 bg-hi/15" />
+        <Link to="/lab" className="text-[12px] font-mono text-hi hover:text-fg">LABS</Link>
+        <div className="w-px h-6 bg-hi/15" />
         <div className="flex items-center gap-2">
-          <GitCompareArrows size={16} className="text-emerald-400" />
+          <GitCompareArrows size={16} className="text-hi" />
           <span className="font-bold text-[15px] tracking-tight">
-            <span className="text-emerald-50">Orbital</span><span className="text-emerald-400">Pulse</span>
-            <span className="ml-2 text-[9px] font-mono tracking-[0.25em] text-emerald-300 align-middle">
+            <span className="text-fg">Orbital</span><span className="text-hi">Pulse</span>
+            <span className="ml-2 text-[9px] font-mono tracking-[0.25em] text-hi align-middle">
               DESIGN · PLANE CHANGE
             </span>
           </span>

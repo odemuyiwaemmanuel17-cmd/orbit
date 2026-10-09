@@ -65,22 +65,22 @@ export default function CatalogPanel() {
     <div className="glass rounded-xl p-4 flex flex-col h-full min-h-0">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Satellite size={15} className="text-emerald-400" />
-          <span className="font-semibold text-emerald-50 text-sm">Satellite Catalog</span>
+          <Satellite size={15} className="text-hi" />
+          <span className="font-semibold text-fg text-sm">Satellite Catalog</span>
         </div>
-        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border border-emerald-400/30 text-emerald-300">
+        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border border-hi/30 text-hi">
           {merged.length} tracked
         </span>
       </div>
       <div className="relative mb-2">
-        <Search size={13} className="absolute left-2.5 top-2 text-emerald-700" />
+        <Search size={13} className="absolute left-2.5 top-2 text-mut" />
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search name, NORAD, operator…"
-          className="w-full bg-black/30 border border-emerald-400/15 rounded-md pl-8 pr-2 py-1.5
-                     text-xs text-emerald-100 placeholder:text-emerald-800 focus:outline-none
-                     focus:border-emerald-400/40"
+          className="w-full bg-black/30 border border-hi/15 rounded-md pl-8 pr-2 py-1.5
+                     text-xs text-fg placeholder:text-mut focus:outline-none
+                     focus:border-hi/40"
         />
       </div>
       <div className="flex gap-1.5 mb-1.5">
@@ -88,8 +88,8 @@ export default function CatalogPanel() {
           <button key={f} onClick={() => setFilter(f)} aria-pressed={filter === f}
                   className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono border transition
                     ${filter === f
-                      ? 'bg-emerald-500 text-emerald-950 border-emerald-400 font-bold'
-                      : 'border-emerald-400/20 text-emerald-400 hover:border-emerald-400/50'}`}>
+                      ? 'bg-pri text-bg border-hi font-bold'
+                      : 'border-hi/20 text-hi hover:border-hi/50'}`}>
             {f}
           </button>
         ))}
@@ -100,7 +100,7 @@ export default function CatalogPanel() {
                   className={`px-2 py-0.5 rounded text-[9px] font-mono border transition
                     ${category === c
                       ? 'border-cyan-400/70 bg-cyan-400/15 text-cyan-200'
-                      : 'border-emerald-400/15 text-emerald-600 hover:text-emerald-300'}`}>
+                      : 'border-hi/15 text-mut hover:text-hi'}`}>
             {c.toUpperCase()}
           </button>
         ))}
@@ -112,8 +112,8 @@ export default function CatalogPanel() {
                   title={`Toggle ${c.label} constellation layer`}
                   className={`px-2 py-0.5 rounded text-[9px] font-mono border transition
                     ${c.active
-                      ? 'border-emerald-400/70 bg-emerald-400/15 text-emerald-200'
-                      : 'border-emerald-400/15 text-emerald-600 hover:text-emerald-300'}`}>
+                      ? 'border-hi/70 bg-hi/15 text-fg'
+                      : 'border-hi/15 text-mut hover:text-hi'}`}>
             {c.label.toUpperCase()}
             {c.loading ? ' …' : c.active && c.count ? ` ${c.count}` : ''}
           </button>
@@ -127,16 +127,16 @@ export default function CatalogPanel() {
             <li key={s.id}>
               <button onClick={() => { engine.select(s.id); engine.focusOn(s.id) }}
                       className={`w-full text-left px-2.5 py-2 rounded-lg mb-1 border transition
-                        ${sel ? 'bg-emerald-400/10 border-emerald-400/50'
+                        ${sel ? 'bg-hi/10 border-hi/50'
                               : 'border-transparent hover:bg-white/[0.04]'}`}>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-semibold text-emerald-50 truncate">{s.name}</span>
+                  <span className="text-xs font-semibold text-fg truncate">{s.name}</span>
                   <span className="text-[9px] font-mono px-1.5 py-px rounded border shrink-0"
                         style={{ color: REGIME_COLORS[s.regime], borderColor: `${REGIME_COLORS[s.regime]}55` }}>
                     {s.regime}
                   </span>
                 </div>
-                <div className="text-[10px] font-mono text-emerald-600 mt-0.5">
+                <div className="text-[10px] font-mono text-mut mt-0.5">
                   NORAD {s.norad_id} · {live ? `${Math.round(live.alt)} km` : `${s.altitude_km} km`} · {s.inclination_deg}°
                   {!live && tleStale(s.line1, s.line2, engine.date()) && (
                     <span className="text-amber-400" title="TLE epoch beyond half the check period — propagated position is unreliable">
@@ -149,12 +149,12 @@ export default function CatalogPanel() {
           )
         })}
         {rows.length > MAX_ROWS && (
-          <li className="p-2 text-center text-[10px] font-mono text-emerald-700">
+          <li className="p-2 text-center text-[10px] font-mono text-mut">
             showing {MAX_ROWS} of {rows.length} — narrow the search
           </li>
         )}
         {rows.length === 0 && (
-          <li className="p-3 text-center text-[11px] font-mono text-emerald-800">no matches</li>
+          <li className="p-3 text-center text-[11px] font-mono text-mut">no matches</li>
         )}
       </ul>
     </div>

@@ -35,16 +35,16 @@ function Row({ spec, value, onChange, help }) {
   return (
     <div className="mb-2.5">
       <div className="flex items-baseline justify-between text-[11px]">
-        <span className="text-emerald-200 font-semibold">{spec.label}</span>
-        <span className="font-mono text-emerald-50 tabular-nums">
+        <span className="text-fg font-semibold">{spec.label}</span>
+        <span className="font-mono text-fg tabular-nums">
           {spec.fmt(value)} {spec.unit}
         </span>
       </div>
       <input type="range" min={spec.min} max={spec.max} step={spec.step} value={value}
              onChange={(e) => onChange(spec.key, Number(e.target.value))}
              aria-label={spec.label}
-             className="w-full accent-emerald-400 h-6" />
-      {help && <p className="text-[9px] text-emerald-700 leading-snug">{spec.help}</p>}
+             className="w-full accent-hi h-6" />
+      {help && <p className="text-[9px] text-mut leading-snug">{spec.help}</p>}
     </div>
   )
 }
@@ -84,14 +84,14 @@ export default function ElementsLabPage() {
     <div className="glass rounded-xl p-4 overflow-y-auto thin-scroll h-full">
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-2">
-          <Sigma size={15} className="text-emerald-400" />
-          <span className="font-semibold text-emerald-50 text-sm">Classical Elements</span>
+          <Sigma size={15} className="text-hi" />
+          <span className="font-semibold text-fg text-sm">Classical Elements</span>
         </div>
         <span className="text-[9px] font-mono px-2 py-0.5 rounded-full border border-cyan-400/40 text-cyan-300">
           ANALYTICAL MODEL — TWO-BODY
         </span>
       </div>
-      <p className="text-[9px] text-emerald-700 mb-3">
+      <p className="text-[9px] text-mut mb-3">
         Orbit regenerated from Keplerian geometry every frame — not a scaled
         decorative ellipse. Distances use the tracker’s documented radial compression.
       </p>
@@ -99,7 +99,7 @@ export default function ElementsLabPage() {
       <div className="flex gap-1 flex-wrap mb-3">
         {Object.entries(PRESETS).map(([k, v]) => (
           <button key={k} onClick={() => setEl(v)}
-                  className="px-2 py-0.5 rounded text-[9px] font-mono border border-emerald-400/15 text-emerald-500 hover:text-emerald-200 hover:border-emerald-400/40">
+                  className="px-2 py-0.5 rounded text-[9px] font-mono border border-hi/15 text-pri hover:text-fg hover:border-hi/40">
             {k.toUpperCase()}
           </button>
         ))}
@@ -120,17 +120,17 @@ export default function ElementsLabPage() {
         <button onClick={() => setOpts((o) => ({ ...o, animating: !o.animating }))}
                 aria-pressed={opts.animating}
                 className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-semibold border
-                  ${opts.animating ? 'bg-emerald-500 text-emerald-950 border-emerald-400'
-                                    : 'border-emerald-400/30 text-emerald-300'}`}>
+                  ${opts.animating ? 'bg-pri text-bg border-hi'
+                                    : 'border-hi/30 text-hi'}`}>
           {opts.animating ? <Pause size={11} /> : <Play size={11} />} ν(t) KEPLER II
         </button>
         <select value={opts.speed} onChange={(e) => setOpts((o) => ({ ...o, speed: Number(e.target.value) }))}
-                className="bg-black/30 border border-emerald-400/20 rounded px-1 py-0.5 text-[10px] text-emerald-200"
+                className="bg-black/30 border border-hi/20 rounded px-1 py-0.5 text-[10px] text-fg"
                 aria-label="Animation speed">
           {[1, 10, 60, 300, 1200].map((s) => <option key={s} value={s}>{s}×</option>)}
         </select>
         <button onClick={() => { setEl(PRESETS.ISS); setOpts((o) => ({ ...o, animating: false })) }}
-                className="p-1.5 rounded-md border border-emerald-400/20 text-emerald-400" aria-label="Reset lab">
+                className="p-1.5 rounded-md border border-hi/20 text-hi" aria-label="Reset lab">
           <RotateCcw size={12} />
         </button>
       </div>
@@ -139,8 +139,8 @@ export default function ElementsLabPage() {
         {[['showMarkers', 'MARKERS'], ['showConstruction', 'CONSTRUCTION'], ['showEquatorial', 'EQUATOR']].map(([k, l]) => (
           <button key={k} onClick={() => setOpts((o) => ({ ...o, [k]: !o[k] }))} aria-pressed={opts[k]}
                   className={`px-2 py-0.5 rounded text-[9px] font-mono border
-                    ${opts[k] ? 'border-emerald-400/70 bg-emerald-400/15 text-emerald-200'
-                              : 'border-emerald-400/15 text-emerald-600'}`}>
+                    ${opts[k] ? 'border-hi/70 bg-hi/15 text-fg'
+                              : 'border-hi/15 text-mut'}`}>
             {l}
           </button>
         ))}
@@ -153,7 +153,7 @@ export default function ElementsLabPage() {
           ENGINEERING
         </button>
       </div>
-      <div className="text-[9px] font-mono text-emerald-700 mb-3 flex flex-wrap gap-x-3">
+      <div className="text-[9px] font-mono text-mut mb-3 flex flex-wrap gap-x-3">
         <span><i className="text-amber-400">●</i> perigee</span>
         <span><i className="text-sky-400">●</i> apogee</span>
         <span><i className="text-cyan-300">●</i> asc node</span>
@@ -162,7 +162,7 @@ export default function ElementsLabPage() {
       </div>
 
       {eng && (
-        <div className="mb-3 rounded-lg border border-amber-400/20 bg-black/25 p-2.5 font-mono text-[10px] text-emerald-300 space-y-0.5">
+        <div className="mb-3 rounded-lg border border-amber-400/20 bg-black/25 p-2.5 font-mono text-[10px] text-hi space-y-0.5">
           <div>radiusNowKm        {rKmNow.toFixed(1)} km</div>
           <div>velocityKmS        {state.vKmS.toFixed(4)} km/s</div>
           <div>posECI_km          [{state.posKm.x.toFixed(1)}, {state.posKm.y.toFixed(1)}, {state.posKm.z.toFixed(1)}]</div>
@@ -178,44 +178,44 @@ export default function ElementsLabPage() {
         <summary className="text-[10px] font-mono text-cyan-500 cursor-pointer select-none">
           SHOW CALCULATION — conic, period, vis-viva
         </summary>
-        <div className="mt-2 rounded-lg border border-cyan-400/20 bg-black/25 p-2.5 font-mono text-[10px] leading-relaxed text-emerald-200">
+        <div className="mt-2 rounded-lg border border-cyan-400/20 bg-black/25 p-2.5 font-mono text-[10px] leading-relaxed text-fg">
           <div className="text-cyan-300">r(ν) = a(1−e²) / (1 + e·cos ν)</div>
           <div>= {el.aKm}·(1−{el.e}²) / (1 + {el.e}·cos({el.trueAnomalyDeg}°)) = {rKmNow.toFixed(1)} km</div>
           <div className="text-cyan-300 mt-2">T = 2π·√(a³/μ)</div>
           <div>= 2π·√({el.aKm}³ / {MU_EARTH_KM3S2} km³/s²) = {T.toFixed(1)} s = {(T / 60).toFixed(2)} min</div>
           <div className="text-cyan-300 mt-2">v = √( μ·(2/r − 1/a) )   (vis-viva)</div>
           <div>= √({MU_EARTH_KM3S2}·(2/{rKmNow.toFixed(1)} − 1/{el.aKm})) = {state.vKmS.toFixed(4)} km/s</div>
-          <div className="text-emerald-700 mt-2">μ = {MU_EARTH_KM3S2} km³/s² (EGM-96) — see lib/constants.js</div>
+          <div className="text-mut mt-2">μ = {MU_EARTH_KM3S2} km³/s² (EGM-96) — see lib/constants.js</div>
         </div>
       </details>
     </div>
   )
 
   return (
-    <div className="fixed inset-0 bg-[#020a06] overflow-hidden">
+    <div className="fixed inset-0 bg-[#050B17] overflow-hidden">
       <OrbitScene mission lab={{ elements: el, options: opts, simMs: engine.simMs }} />
       <div className="absolute inset-0 touch-none cursor-grab active:cursor-grabbing"
            onPointerDown={onPointerDown} onPointerMove={onPointerMove}
            onPointerUp={onPointerUp} onPointerCancel={onPointerUp} />
 
-      <header className="absolute top-0 inset-x-0 z-30 h-14 flex items-center gap-3 px-4 bg-[#04120b]/85 backdrop-blur-md border-b border-emerald-400/15">
-        <Link to="/tracker" className="flex items-center gap-2 text-emerald-300 hover:text-emerald-200 text-[12px] font-mono">
+      <header className="absolute top-0 inset-x-0 z-30 h-14 flex items-center gap-3 px-4 bg-[#0A1425]/85 backdrop-blur-md border-b border-hi/15">
+        <Link to="/tracker" className="flex items-center gap-2 text-hi hover:text-fg text-[12px] font-mono">
           <ArrowLeft size={14} /> TRACKER
         </Link>
-        <div className="w-px h-6 bg-emerald-400/15" />
-        <Link to="/lab" className="text-[12px] font-mono text-emerald-400 hover:text-emerald-200">LABS</Link>
-        <div className="w-px h-6 bg-emerald-400/15" />
+        <div className="w-px h-6 bg-hi/15" />
+        <Link to="/lab" className="text-[12px] font-mono text-hi hover:text-fg">LABS</Link>
+        <div className="w-px h-6 bg-hi/15" />
         <div className="flex items-center gap-2">
-          <Orbit size={16} className="text-emerald-400" />
+          <Orbit size={16} className="text-hi" />
           <span className="font-bold text-[15px] tracking-tight">
-            <span className="text-emerald-50">Orbital</span><span className="text-emerald-400">Pulse</span>
+            <span className="text-fg">Orbital</span><span className="text-hi">Pulse</span>
             <span className="ml-2 text-[9px] font-mono tracking-[0.25em] text-cyan-500 align-middle">
               ANALYZE · ORBITAL ELEMENTS LAB
             </span>
           </span>
         </div>
         <button onClick={() => setMobilePanel((v) => !v)}
-                className="lg:hidden ml-auto px-3 py-1 rounded-md text-[11px] font-mono border border-emerald-400/30 text-emerald-200 bg-black/40">
+                className="lg:hidden ml-auto px-3 py-1 rounded-md text-[11px] font-mono border border-hi/30 text-fg bg-black/40">
           ELEMENTS
         </button>
       </header>
@@ -224,7 +224,7 @@ export default function ElementsLabPage() {
         {panel}
       </div>
 
-      <div className="absolute bottom-3 right-3 lg:bottom-4 z-30 text-[9px] font-mono text-emerald-700">
+      <div className="absolute bottom-3 right-3 lg:bottom-4 z-30 text-[9px] font-mono text-mut">
         sim {engine.date().toISOString().slice(11, 19)} UTC {engine.isLive ? '· LIVE' : `· WARP ${engine.warp}×`}
       </div>
     </div>

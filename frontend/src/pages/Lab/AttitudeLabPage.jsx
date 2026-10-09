@@ -10,9 +10,9 @@ import { useEngine } from '../../hooks/useEngine.js'
 import { stateToElementsKm, periodSec } from '../../lib/kepler.js'
 import { lvlhBasisEciKm, bodyAxesEciKm, angleBetweenDeg } from '../../lib/attitude.js'
 
-const C_X = '#34d399' // along-track (roll axis, flight)
+const C_X = '#38D9FF' // along-track (roll axis, flight)
 const C_Y = '#22d3ee' // wheel axis (-orbit normal)
-const C_Z = '#f59e0b' // nadir (yaw/boresight)
+const C_Z = '#F5B942' // nadir (yaw/boresight)
 const C_BODY = '#f8fafc'
 
 function FrameOverlay({ posKm, velKmS, gmst, ypr, inertialHold }) {
@@ -89,11 +89,11 @@ export default function AttitudeLabPage() {
     <div className="mb-2">
       <div className="flex items-baseline justify-between text-[10px] mb-0.5">
         <span className="font-semibold" style={{ color }}>{label}</span>
-        <span className="font-mono text-emerald-50 tabular-nums">{value.toFixed(1)}°</span>
+        <span className="font-mono text-fg tabular-nums">{value.toFixed(1)}°</span>
       </div>
       <input type="range" min={min} max={max} step={0.5} value={value}
              onChange={(e) => onChange(Number(e.target.value))}
-             className="w-full accent-emerald-400 h-5" aria-label={label} />
+             className="w-full accent-hi h-5" aria-label={label} />
     </div>
   )
 
@@ -101,14 +101,14 @@ export default function AttitudeLabPage() {
     <div className="glass rounded-xl p-4 overflow-y-auto thin-scroll h-full">
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-2">
-          <Axis3d size={15} className="text-emerald-400" />
-          <span className="font-semibold text-emerald-50 text-sm">Attitude Frames</span>
+          <Axis3d size={15} className="text-hi" />
+          <span className="font-semibold text-fg text-sm">Attitude Frames</span>
         </div>
-        <span className="text-[9px] font-mono px-2 py-0.5 rounded-full border border-emerald-400/40 text-emerald-300">
+        <span className="text-[9px] font-mono px-2 py-0.5 rounded-full border border-hi/40 text-hi">
           REAL-TIME PROPAGATION
         </span>
       </div>
-      <p className="text-[9px] text-emerald-700 mb-3">
+      <p className="text-[9px] text-mut mb-3">
         LVLH (solid): x along-track, y = z×x (−orbit normal), z nadir — RWFS axes.
         Body (dashed white) = yaw about nadir, pitch about y, roll about x (intrinsic
         Z-Y-X). Geometry only: wheel dynamics are M12, sun-pointing arrives with M13.
@@ -118,12 +118,12 @@ export default function AttitudeLabPage() {
         {[['NADIR POINT', [0, 0, 0]], ['YAW 180 (RETRO)', [180, 0, 0]],
           ['PITCH OVER 30', [0, 30, 0]], ['ROLL 90', [0, 0, 90]]].map(([lbl, v]) => (
           <button key={lbl} onClick={() => setAxisAll(v)}
-                  className="px-2 py-0.5 rounded-full text-[9px] font-mono border border-emerald-400/20 text-emerald-300 hover:bg-emerald-400/10">
+                  className="px-2 py-0.5 rounded-full text-[9px] font-mono border border-hi/20 text-hi hover:bg-hi/10">
             {lbl}
           </button>
         ))}
         <button onClick={toggleHold}
-                className={`px-2 py-0.5 rounded-full text-[9px] font-mono border ${hold ? 'border-cyan-400/60 text-cyan-300' : 'border-emerald-400/20 text-emerald-300'}`}>
+                className={`px-2 py-0.5 rounded-full text-[9px] font-mono border ${hold ? 'border-cyan-400/60 text-cyan-300' : 'border-hi/20 text-hi'}`}>
           {hold ? '● INERTIAL HOLD' : 'INERTIAL HOLD'}
         </button>
       </div>
@@ -137,7 +137,7 @@ export default function AttitudeLabPage() {
           <Slider label="Roll φ (about flight x)" value={ypr[2]} min={-180} max={180}
                   color={C_X} onChange={setAxis(2)} />
 
-          <div className="rounded-lg border border-emerald-400/25 bg-black/30 px-3 py-2 mb-3 font-mono text-[11px] text-emerald-100 flex justify-between">
+          <div className="rounded-lg border border-hi/25 bg-black/30 px-3 py-2 mb-3 font-mono text-[11px] text-fg flex justify-between">
             <span>NADIR ANGLE</span>
             <span className="text-cyan-300 tabular-nums">{info.nadirErrDeg.toFixed(2)}°</span>
           </div>
@@ -149,7 +149,7 @@ export default function AttitudeLabPage() {
 
           <details>
             <summary className="text-[10px] font-mono text-cyan-500 cursor-pointer select-none">SHOW CALCULATION</summary>
-            <div className="mt-2 rounded-lg border border-cyan-400/20 bg-black/25 p-2.5 font-mono text-[10px] leading-relaxed text-emerald-200">
+            <div className="mt-2 rounded-lg border border-cyan-400/20 bg-black/25 p-2.5 font-mono text-[10px] leading-relaxed text-fg">
               <div className="text-cyan-300">LVLH Gram-Schmidt from ECI state (SGP4)</div>
               <div>ẑ = −r̂ · x̂ = normalize(v − (v·r̂)r̂) · ŷ = ẑ×x̂</div>
               <div>r = ({state.posKm.x.toFixed(1)}, {state.posKm.y.toFixed(1)}, {state.posKm.z.toFixed(1)}) km</div>
@@ -157,7 +157,7 @@ export default function AttitudeLabPage() {
               <div className="text-cyan-300 mt-1.5">body→LVLH R = Rz(ψ)Ry(θ)Rx(φ)</div>
               <div>ψ {ypr[0].toFixed(1)}° θ {ypr[1].toFixed(1)}° φ {ypr[2].toFixed(1)}°</div>
               <div>nadir angle = acos(ẑ_body·ẑ_LVLH) = {info.nadirErrDeg.toFixed(3)}°</div>
-              <div className="mt-1.5 text-emerald-700">a = {info.el.aKm.toFixed(0)} km · e = {info.el.e.toFixed(4)} —
+              <div className="mt-1.5 text-mut">a = {info.el.aKm.toFixed(0)} km · e = {info.el.e.toFixed(4)} —
                 orbit rate n = √(μ/a³) expressed in °/min.</div>
             </div>
           </details>
@@ -174,10 +174,10 @@ export default function AttitudeLabPage() {
   }
 
   return (
-    <div className="fixed inset-0 bg-[#020a06] overflow-hidden">
+    <div className="fixed inset-0 bg-[#050B17] overflow-hidden">
       <OrbitScene mission
         lab={info ? { elements: stateToElementsKm(state), options: {
-          lineColor: '#10b981', opacity: 0.35, hideSat: true,
+          lineColor: '#2DD4BF', opacity: 0.35, hideSat: true,
           showMarkers: false, showConstruction: false, showEquatorial: false },
           simMs } : null}
         overlay={state && info ? <FrameOverlay posKm={state.posKm} velKmS={state.velKmS} gmst={gmst}
@@ -186,18 +186,18 @@ export default function AttitudeLabPage() {
            onPointerDown={onPointerDown} onPointerMove={onPointerMove}
            onPointerUp={onPointerUp} onPointerCancel={onPointerUp} />
 
-      <header className="absolute top-0 inset-x-0 z-30 h-14 flex items-center gap-3 px-4 bg-[#04120b]/85 backdrop-blur-md border-b border-emerald-400/15">
-        <Link to="/tracker" className="flex items-center gap-2 text-emerald-300 hover:text-emerald-200 text-[12px] font-mono">
+      <header className="absolute top-0 inset-x-0 z-30 h-14 flex items-center gap-3 px-4 bg-[#0A1425]/85 backdrop-blur-md border-b border-hi/15">
+        <Link to="/tracker" className="flex items-center gap-2 text-hi hover:text-fg text-[12px] font-mono">
           <ArrowLeft size={14} /> TRACKER
         </Link>
-        <div className="w-px h-6 bg-emerald-400/15" />
-        <Link to="/lab" className="text-[12px] font-mono text-emerald-400 hover:text-emerald-200">LABS</Link>
-        <div className="w-px h-6 bg-emerald-400/15" />
+        <div className="w-px h-6 bg-hi/15" />
+        <Link to="/lab" className="text-[12px] font-mono text-hi hover:text-fg">LABS</Link>
+        <div className="w-px h-6 bg-hi/15" />
         <div className="flex items-center gap-2">
-          <Axis3d size={16} className="text-emerald-400" />
+          <Axis3d size={16} className="text-hi" />
           <span className="font-bold text-[15px] tracking-tight">
-            <span className="text-emerald-50">Orbital</span><span className="text-emerald-400">Pulse</span>
-            <span className="ml-2 text-[9px] font-mono tracking-[0.25em] text-emerald-300 align-middle">
+            <span className="text-fg">Orbital</span><span className="text-hi">Pulse</span>
+            <span className="ml-2 text-[9px] font-mono tracking-[0.25em] text-hi align-middle">
               ANALYZE · ATTITUDE
             </span>
           </span>

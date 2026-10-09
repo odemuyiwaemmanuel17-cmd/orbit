@@ -14,23 +14,23 @@ export default function Services() {
     <section id="services" className="relative py-24 px-5">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
-          <div className="text-[11px] font-mono tracking-[0.3em] text-emerald-400 mb-2">SERVICES</div>
-          <h2 className="text-3xl md:text-4xl font-black text-emerald-50 tracking-tight">
+          <div className="text-[11px] font-mono tracking-[0.3em] text-hi mb-2">SERVICES</div>
+          <h2 className="text-3xl md:text-4xl font-black text-fg tracking-tight">
             Everything you need to understand<br className="hidden md:block" /> what&apos;s overhead
           </h2>
-          <p className="mt-3 text-sm text-emerald-100/60 max-w-2xl mx-auto">
+          <p className="mt-3 text-sm text-fg/60 max-w-2xl mx-auto">
             From casual stargazing to professional ground segment planning, OrbitalPulse gives
             you the tools to see, predict, and analyze satellite motion.
           </p>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {CARDS.map(([Icon, title, body]) => (
-            <div key={title} className="glass rounded-xl p-5 hover:border-emerald-400/40 transition-colors">
-              <div className="w-9 h-9 rounded-lg bg-emerald-400/15 border border-emerald-400/30 grid place-items-center mb-4">
-                <Icon size={16} className="text-emerald-300" />
+            <div key={title} className="glass rounded-xl p-5 hover:border-hi/40 transition-colors">
+              <div className="w-9 h-9 rounded-lg bg-hi/15 border border-hi/30 grid place-items-center mb-4">
+                <Icon size={16} className="text-hi" />
               </div>
-              <h3 className="font-bold text-emerald-50 text-sm mb-2">{title}</h3>
-              <p className="text-[12px] leading-relaxed text-emerald-100/60">{body}</p>
+              <h3 className="font-bold text-fg text-sm mb-2">{title}</h3>
+              <p className="text-[12px] leading-relaxed text-fg/60">{body}</p>
             </div>
           ))}
         </div>

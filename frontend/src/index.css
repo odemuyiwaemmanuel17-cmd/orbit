@@ -12,21 +12,21 @@ html {
 
 body {
   margin: 0;
-  background: #020a06;
-  color: #ecfdf5;
+  background: #050B17;
+  color: #F2F7FF;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
 ::selection {
-  background: rgba(52, 211, 153, 0.35);
+  background: rgba(56, 217, 255, 0.35);
 }
 
-/* Glassmorphic panel chrome used across the landing sections */
+/* Glassmorphic panel chrome used across landing + mission panels */
 .glass {
-  background: rgba(4, 18, 11, 0.55);
+  background: rgba(14, 27, 46, 0.62); /* mission panel #0E1B2E @ 62% */
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(52, 211, 153, 0.16);
+  border: 1px solid rgba(59, 130, 246, 0.18);
 }
 
 /* Slim scrollbars inside side panels */
@@ -34,7 +34,7 @@ body {
   width: 4px;
 }
 .thin-scroll::-webkit-scrollbar-thumb {
-  background: rgba(52, 211, 153, 0.35);
+  background: rgba(56, 217, 255, 0.35);
   border-radius: 2px;
 }
 .thin-scroll::-webkit-scrollbar-track {
@@ -51,8 +51,8 @@ body {
 
 /* Dark dropdown options for the contact form select */
 select option {
-  background: #04120b;
-  color: #d1fae5;
+  background: #0A1425;
+  color: #F2F7FF;
 }
 
 @keyframes toast-in {

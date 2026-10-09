@@ -21,19 +21,19 @@ function ElevCurve({ rec, pass, stepS }) {
   const mask = pass.maskDeg
   return (
     <div className="rounded-lg border border-cyan-400/20 bg-black/25 p-2.5">
-      <div className="flex justify-between text-[9px] font-mono text-emerald-600 mb-1">
+      <div className="flex justify-between text-[9px] font-mono text-mut mb-1">
         <span>ELEVATION vs TIME · AOS−10m → LOS+10m</span>
         <span>peak {curve.peak.elevDeg.toFixed(1)}°</span>
       </div>
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full">
-        <line x1={0} x2={W} y1={y(mask)} y2={y(mask)} stroke="#f59e0b" strokeDasharray="3 3" strokeWidth="0.8" />
+        <line x1={0} x2={W} y1={y(mask)} y2={y(mask)} stroke="#F5B942" strokeDasharray="3 3" strokeWidth="0.8" />
         <line x1={x(pass.rise)} x2={x(pass.rise)} y1={0} y2={H} stroke="#22d3ee" strokeWidth="0.5" opacity="0.5" />
         <line x1={x(pass.set)} x2={x(pass.set)} y1={0} y2={H} stroke="#22d3ee" strokeWidth="0.5" opacity="0.5" />
-        <polyline points={pts} fill="none" stroke="#34d399" strokeWidth="1.4" />
-        <circle cx={x(curve.peak.tMs)} cy={y(curve.peak.elevDeg)} r="2.5" fill="#a3e635" />
-        <text x={x(pass.rise) + 2} y={y(mask) - 3} fontSize="7" fill="#f59e0b">mask {mask}°</text>
+        <polyline points={pts} fill="none" stroke="#38D9FF" strokeWidth="1.4" />
+        <circle cx={x(curve.peak.tMs)} cy={y(curve.peak.elevDeg)} r="2.5" fill="#818CF8" />
+        <text x={x(pass.rise) + 2} y={y(mask) - 3} fontSize="7" fill="#F5B942">mask {mask}°</text>
       </svg>
-      <div className="flex justify-between text-[8px] font-mono text-emerald-700 mt-0.5">
+      <div className="flex justify-between text-[8px] font-mono text-mut mt-0.5">
         <span>{utcHm(pass.rise - 10 * 60000)}</span><span>UTC · curve step {stepS} s</span>
         <span>{utcHm(pass.set + 10 * 60000)}</span>
       </div>
@@ -88,14 +88,14 @@ export default function PassPredictionLabPage() {
     <div className="glass rounded-xl p-4 overflow-y-auto thin-scroll h-full">
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-2">
-          <CalendarClock size={15} className="text-emerald-400" />
-          <span className="font-semibold text-emerald-50 text-sm">Pass Schedule</span>
+          <CalendarClock size={15} className="text-hi" />
+          <span className="font-semibold text-fg text-sm">Pass Schedule</span>
         </div>
-        <span className="text-[9px] font-mono px-2 py-0.5 rounded-full border border-emerald-400/40 text-emerald-300">
+        <span className="text-[9px] font-mono px-2 py-0.5 rounded-full border border-hi/40 text-hi">
           SGP4 REAL-TIME PROPAGATION
         </span>
       </div>
-      <p className="text-[9px] text-emerald-700 mb-3">
+      <p className="text-[9px] text-mut mb-3">
         Same validated pipeline as Mission Control (TLE → SGP4 → look angles),
         run per station against its min-elevation mask. Times resolve on the
         ±{stepS}s search grid; the schedule was computed at {res ? utcHm(res.t0Ms) : '—'} UTC
@@ -107,28 +107,28 @@ export default function PassPredictionLabPage() {
           <button key={s.id} onClick={() => toggle(s.id)}
                   className={`px-2 py-0.5 rounded-full text-[9px] font-mono border
                     ${enabled.has(s.id) ? 'border-cyan-400/50 text-cyan-300 bg-cyan-400/10'
-                                         : 'border-emerald-400/15 text-emerald-700'}`}>
+                                         : 'border-hi/15 text-mut'}`}>
             {s.name.toUpperCase()} ≥{s.minElevDeg}°
           </button>
         ))}
       </div>
       <div className="flex items-center gap-2 mb-3">
         <select value={hours} onChange={(e) => setHours(Number(e.target.value))}
-                className="bg-black/30 border border-emerald-400/20 rounded px-1.5 py-1 text-[11px] text-emerald-200">
+                className="bg-black/30 border border-hi/20 rounded px-1.5 py-1 text-[11px] text-fg">
           {[6, 12, 24].map((h) => <option key={h} value={h}>{h} h window</option>)}
         </select>
         <select value={stepS} onChange={(e) => setStepS(Number(e.target.value))}
-                className="bg-black/30 border border-emerald-400/20 rounded px-1.5 py-1 text-[11px] text-emerald-200">
+                className="bg-black/30 border border-hi/20 rounded px-1.5 py-1 text-[11px] text-fg">
           {[30, 60].map((v) => <option key={v} value={v}>{v} s grid</option>)}
         </select>
         <button onClick={run} disabled={running || !rec}
-                className="ml-auto px-3 py-1 rounded-md text-[11px] font-semibold bg-emerald-500 text-emerald-950 hover:bg-emerald-400 disabled:opacity-50">
+                className="ml-auto px-3 py-1 rounded-md text-[11px] font-semibold bg-pri text-bg hover:bg-hi disabled:opacity-50">
           {running ? 'PREDICTING…' : 'PREDICT'}
         </button>
       </div>
 
       {res && (
-        <div className="text-[9px] font-mono text-emerald-600 mb-2">
+        <div className="text-[9px] font-mono text-mut mb-2">
           {res.schedule.length} passes over {res.perStation.length} stations
           {res.capped ? ` · a station hit the ${PASS_CAP}-pass/window cap` : ''} · grid ±{res.stepS}s
         </div>
@@ -143,18 +143,18 @@ export default function PassPredictionLabPage() {
           return (
             <button key={key} onClick={() => setOpenPass(open ? null : key)}
                     className={`w-full text-left rounded-lg px-3 py-2 border transition
-                      ${open ? 'border-cyan-400/50 bg-cyan-400/[0.06]' : 'border-emerald-400/10 bg-black/25'}`}>
+                      ${open ? 'border-cyan-400/50 bg-cyan-400/[0.06]' : 'border-hi/10 bg-black/25'}`}>
               <div className="flex justify-between text-[11px]">
-                <span className="font-semibold text-emerald-100">{p.stationName}</span>
-                <span className={`font-mono tabular-nums ${p.rise > engine.simMs ? 'text-emerald-300' : 'text-emerald-700'}`}>
+                <span className="font-semibold text-fg">{p.stationName}</span>
+                <span className={`font-mono tabular-nums ${p.rise > engine.simMs ? 'text-hi' : 'text-mut'}`}>
                   {passAgeLabel(p.rise, engine.simMs)}
                 </span>
               </div>
-              <div className="flex justify-between text-[10px] font-mono text-emerald-500 mt-0.5 tabular-nums">
+              <div className="flex justify-between text-[10px] font-mono text-pri mt-0.5 tabular-nums">
                 <span>AOS {utcHm(p.rise)} → TCA {utcHm(p.max)} → LOS {utcHm(p.set)}</span>
                 <span className="text-cyan-300">{p.maxElev.toFixed(1)}°</span>
               </div>
-              <div className="flex justify-between text-[9px] font-mono text-emerald-700 mt-0.5">
+              <div className="flex justify-between text-[9px] font-mono text-mut mt-0.5">
                 <span>az {p.azMax.toFixed(0)}° at TCA · {Math.round(p.durationS / 60)} min arc</span>
                 <span>{open ? 'HIDE CURVE' : 'ELEVATION CURVE'}</span>
               </div>
@@ -163,7 +163,7 @@ export default function PassPredictionLabPage() {
           )
         })}
         {res && !res.schedule.length && (
-          <div className="text-[10px] font-mono text-emerald-700 py-2">
+          <div className="text-[10px] font-mono text-mut py-2">
             NO PASS ABOVE MASKS in this window — widen hours, lower a mask, or pick another satellite.
           </div>
         )}
@@ -171,12 +171,12 @@ export default function PassPredictionLabPage() {
 
       <details className="mt-3">
         <summary className="text-[10px] font-mono text-cyan-500 cursor-pointer select-none">SHOW METHOD</summary>
-        <div className="mt-2 rounded-lg border border-cyan-400/20 bg-black/25 p-2.5 font-mono text-[10px] leading-relaxed text-emerald-200">
+        <div className="mt-2 rounded-lg border border-cyan-400/20 bg-black/25 p-2.5 font-mono text-[10px] leading-relaxed text-fg">
           <div>1. propagate(rec, t) → ECI → geodetic (sub-sat point + altitude)</div>
           <div>2. elev(t) = atan2(up·d, |horiz d|) from station ENU basis (spherical R⊕)</div>
           <div>3. walk t on {stepS}s grid, bracket elev ≥ mask intervals</div>
           <div>4. report AOS / TCA(argmax elev) / LOS · cap {PASS_CAP} per station</div>
-          <div className="mt-1 text-emerald-700">Mirror of backend /api/satellites/{'{id}'}/passes; identical
+          <div className="mt-1 text-mut">Mirror of backend /api/satellites/{'{id}'}/passes; identical
             bracketing semantics including window-edge closing.</div>
         </div>
       </details>
@@ -184,24 +184,24 @@ export default function PassPredictionLabPage() {
   )
 
   return (
-    <div className="fixed inset-0 bg-[#020a06] overflow-hidden">
+    <div className="fixed inset-0 bg-[#050B17] overflow-hidden">
       <OrbitScene mission overlay={<StationLayer stations={stations} selectedId={openRow?.stationId} />} />
       <div className="absolute inset-0 touch-none cursor-grab active:cursor-grabbing"
            onPointerDown={onPointerDown} onPointerMove={onPointerMove}
            onPointerUp={onPointerUp} onPointerCancel={onPointerUp} />
 
-      <header className="absolute top-0 inset-x-0 z-30 h-14 flex items-center gap-3 px-4 bg-[#04120b]/85 backdrop-blur-md border-b border-emerald-400/15">
-        <Link to="/tracker" className="flex items-center gap-2 text-emerald-300 hover:text-emerald-200 text-[12px] font-mono">
+      <header className="absolute top-0 inset-x-0 z-30 h-14 flex items-center gap-3 px-4 bg-[#0A1425]/85 backdrop-blur-md border-b border-hi/15">
+        <Link to="/tracker" className="flex items-center gap-2 text-hi hover:text-fg text-[12px] font-mono">
           <ArrowLeft size={14} /> TRACKER
         </Link>
-        <div className="w-px h-6 bg-emerald-400/15" />
-        <Link to="/lab" className="text-[12px] font-mono text-emerald-400 hover:text-emerald-200">LABS</Link>
-        <div className="w-px h-6 bg-emerald-400/15" />
+        <div className="w-px h-6 bg-hi/15" />
+        <Link to="/lab" className="text-[12px] font-mono text-hi hover:text-fg">LABS</Link>
+        <div className="w-px h-6 bg-hi/15" />
         <div className="flex items-center gap-2">
-          <CalendarClock size={16} className="text-emerald-400" />
+          <CalendarClock size={16} className="text-hi" />
           <span className="font-bold text-[15px] tracking-tight">
-            <span className="text-emerald-50">Orbital</span><span className="text-emerald-400">Pulse</span>
-            <span className="ml-2 text-[9px] font-mono tracking-[0.25em] text-emerald-300 align-middle">
+            <span className="text-fg">Orbital</span><span className="text-hi">Pulse</span>
+            <span className="ml-2 text-[9px] font-mono tracking-[0.25em] text-hi align-middle">
               ANALYZE · PASS PREDICTION
             </span>
           </span>

@@ -41,7 +41,7 @@ export default function ConstellationField({ group }) {
     const mesh = ref.current
     if (!mesh) return
     for (let i = 0; i < n; i += 1) {
-      COLOR.set(REGIME_COLORS[group.meta[i].regime] ?? '#22c55e')
+      COLOR.set(REGIME_COLORS[group.meta[i].regime] ?? '#38D9FF')
       mesh.setColorAt(i, COLOR)
     }
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true
