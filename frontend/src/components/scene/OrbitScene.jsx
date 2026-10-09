@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Stars, Line } from '@react-three/drei'
+import { Stars, Line, Detailed } from '@react-three/drei'
 import { engine } from '../../lib/engine.js'
 import { footprintOf } from '../../lib/analysis.js'
 import { geodeticToScene, sunDirection, REGIME_COLORS } from '../../lib/coords.js'
@@ -297,12 +297,12 @@ function GroundTrack() {
   return (
     <group>
       {segs.past.map((pts, i) => (
-        <Line key={`p${i}`} points={pts} color="#38D9FF" lineWidth={1.4}
-              transparent opacity={0.55} toneMapped={false} />
+        <Line key={`p${i}`} points={pts} color="#3B82F6" lineWidth={1.2}
+              transparent opacity={0.5} toneMapped={false} />
       ))}
       {segs.future.map((pts, i) => (
-        <Line key={`f${i}`} points={pts} color="#22d3ee" lineWidth={1.4} dashed
-              dashSize={0.035} gapSize={0.02} transparent opacity={0.8}
+        <Line key={`f${i}`} points={pts} color="#38D9FF" lineWidth={1.4} dashed
+              dashSize={0.035} gapSize={0.02} transparent opacity={0.85}
               toneMapped={false} />
       ))}
     </group>
@@ -326,11 +326,126 @@ function OrbitRings({ snapshot }) {
         return (
           <Line key={s.id} points={pts}
                 color={isRisk ? CRIMSON : (REGIME_COLORS[s.meta.regime] ?? GREEN)}
-                lineWidth={isSel || isRisk ? 1.6 : 0.7}
-                transparent opacity={isRisk ? 0.95 : isSel ? 0.95 : 0.2}
+                lineWidth={isSel || isRisk ? 1.5 : 0.55}
+                transparent opacity={isRisk ? 0.9 : isSel ? 0.85 : 0.13}
                 toneMapped={false} />
         )
       })}
+    </group>
+  )
+}
+
+/* ------------------------------------------------------- Lighting rig */
+
+const SUN_TMP = new THREE.Vector3()
+const UP_SCALE = new THREE.Vector3(1.35, 1.35, 1.35)
+const ONE = new THREE.Vector3(1, 1, 1)
+const NADIR0 = new THREE.Vector3(0, 0, -1)
+
+/** Sun-synced key light: direction comes from the SAME validated ephemeris
+ *  as the Earth terminator, in the globe group's local (Earth-fixed) frame. */
+function SunLight() {
+  const ref = useRef()
+  useFrame(() => {
+    sunDirection(new Date(engine.simMs), SUN_TMP)
+    ref.current.position.copy(SUN_TMP).multiplyScalar(14)
+  })
+  return (
+    <>
+      <directionalLight ref={ref} intensity={2.3} color="#fdf1dd" />
+      <ambientLight intensity={0.3} color="#8fb3ff" />
+    </>
+  )
+}
+
+/* --------------------------------------------------- Spacecraft markers */
+
+/**
+ * Generic 3-axis bus with solar wings — a category model (Earth-observation
+ * imager vs comms/nav craft with dish), NOT a replica of any specific
+ * spacecraft. Orientation is illustrative: boresight nadir-locked, which is
+ * typical payload-pointing behavior but is not real attitude data.
+ */
+function CraftModel({ regime }) {
+  const accent = REGIME_COLORS[regime] ?? '#38D9FF'
+  const span = regime === 'GEO' ? 0.085 : 0.062
+  const wing = (sign) => (
+    <mesh position={[sign * span * 0.58, 0, 0]}>
+      <boxGeometry args={[span, 0.0016, 0.026]} />
+      <meshStandardMaterial color="#16296b" emissive={accent} emissiveIntensity={0.16}
+                            metalness={0.35} roughness={0.55} />
+    </mesh>
+  )
+  return (
+    <group>
+      <mesh>
+        <boxGeometry args={[0.02, 0.024, 0.036]} />
+        <meshStandardMaterial color="#c8d6ea" metalness={0.55} roughness={0.4} />
+      </mesh>
+      {wing(1)}
+      {wing(-1)}
+      {regime === 'LEO' ? (
+        <mesh position={[0, 0, -0.022]}>
+          <boxGeometry args={[0.013, 0.013, 0.008]} />
+          <meshStandardMaterial color="#0b1220" metalness={0.25} roughness={0.15} />
+        </mesh>
+      ) : (
+        <mesh position={[0, 0, -0.026]} rotation={[Math.PI / 2, 0, 0]}>
+          <coneGeometry args={[0.016, 0.009, 16, 1, true]} />
+          <meshStandardMaterial color="#dbe7f7" metalness={0.4} roughness={0.5}
+                                side={THREE.DoubleSide} />
+        </mesh>
+      )}
+    </group>
+  )
+}
+
+/** Distance-aware hybrid: instanced-style dot when far, full model when
+ *  near or selected (drei Detailed = one THREE LOD, zero React churn on
+ *  level switches). Selection grows with a smooth scale transition. */
+function SatMarker({ s, sel }) {
+  const inner = useRef()
+  const pos = geodeticToScene(s.lat, s.lon, s.alt, new THREE.Vector3())
+  const quat = useMemo(() => {
+    const q = new THREE.Quaternion()
+    const len = pos.length()
+    if (len > 1e-6) q.setFromUnitVectors(NADIR0, pos.clone().multiplyScalar(-1 / len))
+    return q
+  }, [pos.x, pos.y, pos.z])
+  useFrame((_, dt) => {
+    if (inner.current) inner.current.scale.lerp(sel ? UP_SCALE : ONE, Math.min(1, dt * 8))
+  })
+  const dot = (size, opacity) => (
+    <mesh>
+      <sphereGeometry args={[size, 8, 8]} />
+      <meshBasicMaterial color={REGIME_COLORS[s.meta.regime] ?? GREEN}
+                         transparent opacity={opacity} toneMapped={false} />
+    </mesh>
+  )
+  return (
+    <group position={pos.toArray()} quaternion={quat}>
+      <group ref={inner}>
+        {sel ? (
+          <>
+            <CraftModel regime={s.meta.regime} />
+            <mesh>
+              <ringGeometry args={[0.045, 0.052, 32]} />
+              <meshBasicMaterial color="#38D9FF" transparent opacity={0.9}
+                                 side={THREE.DoubleSide} toneMapped={false} />
+            </mesh>
+            <mesh>
+              <sphereGeometry args={[0.006, 8, 8]} />
+              <meshBasicMaterial color="#F2F7FF" toneMapped={false} />
+            </mesh>
+          </>
+        ) : (
+          <Detailed distances={[1.6, 4.5]}>
+            <CraftModel regime={s.meta.regime} />
+            {dot(0.013, 0.95)}
+            {dot(0.0085, 0.8)}
+          </Detailed>
+        )}
+      </group>
     </group>
   )
 }
@@ -339,24 +454,9 @@ function Satellites({ snapshot }) {
   const selected = engine.selectedId
   return (
     <group>
-      {snapshot.map((s) => {
-        const sel = s.id === selected
-        return (
-          <group key={s.id} position={geodeticToScene(s.lat, s.lon, s.alt, new THREE.Vector3())}>
-            <mesh>
-              <sphereGeometry args={[sel ? 0.024 : 0.013, 12, 12]} />
-              <meshBasicMaterial color={sel ? '#ffffff' : REGIME_COLORS[s.meta.regime]} toneMapped={false} />
-            </mesh>
-            {sel && (
-              <mesh>
-                <ringGeometry args={[0.034, 0.04, 32]} />
-                <meshBasicMaterial color="#3B82F6" transparent opacity={0.9}
-                                   side={THREE.DoubleSide} toneMapped={false} />
-              </mesh>
-            )}
-          </group>
-        )
-      })}
+      {snapshot.map((s) => (
+        <SatMarker key={s.id} s={s} sel={s.id === selected} />
+      ))}
     </group>
   )
 }
@@ -445,6 +545,7 @@ export default function OrbitScene({ mission = false, lab = null, overlay = null
       <fog attach="fog" args={['#050B17', 9, 22]} />
       <Stars radius={28} count={2600} factor={2.4} saturation={0} fade speed={0.3} />
       <GlobeGroup>
+        <SunLight />
         <Earth />
         {lab && <LabOrbit elements={lab.elements} options={lab.options} simMs={lab.simMs} />}
         {overlay}
