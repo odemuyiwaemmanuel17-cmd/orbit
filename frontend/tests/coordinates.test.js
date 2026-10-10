@@ -54,6 +54,17 @@ describe('render-path agreement: geodeticToScene == eciToSceneKm', () => {
     const scene = eciToSceneKm(eci.x, eci.y, eci.z, g)
     expect(Math.atan2(scene.z, scene.x)).toBeCloseTo(0, 9)
   })
+  it('sub-Earth-radius inputs stay finite (axis overlay draws directions)', () => {
+    // The ECI axis overlay maps unit*1 km vectors through eciToSceneKm;
+    // height clamps to the surface instead of producing NaN geometry.
+    for (const u of [[1, 0, 0], [0, 1, 0], [0, 0, 1], [-0.4, 0.2, 0.9]]) {
+      const p = eciToSceneKm(u[0], u[1], u[2], GMST)
+      for (const c of p.toArray()) expect(Number.isFinite(c)).toBe(true)
+      expect(p.length()).toBeGreaterThan(0.99)
+    }
+    const z = eciToSceneKm(0, 0, 1, GMST)
+    expect(z.y).toBeGreaterThan(0.999) // celestial north stays scene-up
+  })
 })
 
 describe('sun geometry synced to the simulation epoch', () => {

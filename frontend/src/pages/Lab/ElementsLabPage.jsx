@@ -53,7 +53,8 @@ export default function ElementsLabPage() {
   const engine = useEngine() // 10 Hz heartbeat re-renders the analytic orbit
   const [el, setEl] = useState(PRESETS.ISS)
   const [opts, setOpts] = useState({ showMarkers: true, showConstruction: true,
-                                     showEquatorial: false, animating: false, speed: 60 })
+                                     showEquatorial: false, showAxes: false,
+                                     animating: false, speed: 60 })
   const [help, setHelp] = useState(false)
   const [eng, setEng] = useState(false)
   const [mobilePanel, setMobilePanel] = useState(true)
@@ -136,7 +137,7 @@ export default function ElementsLabPage() {
       </div>
 
       <div className="flex flex-wrap gap-1 mb-3">
-        {[['showMarkers', 'MARKERS'], ['showConstruction', 'CONSTRUCTION'], ['showEquatorial', 'EQUATOR']].map(([k, l]) => (
+        {[['showMarkers', 'MARKERS'], ['showConstruction', 'CONSTRUCTION'], ['showEquatorial', 'EQUATOR'], ['showAxes', 'ECI AXES']].map(([k, l]) => (
           <button key={k} onClick={() => setOpts((o) => ({ ...o, [k]: !o[k] }))} aria-pressed={opts[k]}
                   className={`px-2 py-0.5 rounded text-[9px] font-mono border
                     ${opts[k] ? 'border-hi/70 bg-hi/15 text-fg'
@@ -159,7 +160,21 @@ export default function ElementsLabPage() {
         <span><i className="text-cyan-300">●</i> asc node</span>
         <span><i className="text-pink-400">●</i> desc node</span>
         <span><i className="text-white">●</i> spacecraft</span>
+        {opts.showAxes && <>
+          <span><i style={{ color: '#FF647C' }}>—</i> X̂ vernal equinox</span>
+          <span><i style={{ color: '#F5B942' }}>—</i> Ŷ</span>
+          <span><i style={{ color: '#38D9FF' }}>—</i> Ẑ celestial north</span>
+        </>}
       </div>
+
+      {el.iDeg < 0.05 && (
+        <div className="text-[10px] font-mono text-cau bg-cau/10 border border-cau/40 rounded-md px-2 py-1.5 mb-3">
+          ⚠ EQUATORIAL LIMIT — with i ≈ 0 the node line vanishes: RAAN Ω and arg. of
+          perigee ω become UNDEFINED (we keep drawing the plane at the chosen Ω, but the
+          angles themselves carry no physical meaning here). Same reason SGP4 element
+          readers flag this case.
+        </div>
+      )}
 
       {eng && (
         <div className="mb-3 rounded-lg border border-amber-400/20 bg-black/25 p-2.5 font-mono text-[10px] text-hi space-y-0.5">

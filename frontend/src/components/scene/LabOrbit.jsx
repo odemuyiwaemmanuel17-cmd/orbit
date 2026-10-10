@@ -11,6 +11,8 @@ const APOGEE = '#38bdf8'
 const NODE_ASC = '#22d3ee'
 const NODE_DESC = '#f472b6'
 const ORBIT = '#3B82F6'
+// TEME-consistent ECI triad: X -> vernal equinox, Z -> celestial north.
+const AXIS_COLORS = ['#FF647C', '#F5B942', '#38D9FF']
 
 /** ECI km -> scene units through the SAME projection contract as real sats.
  *  Canonical implementation moved to lib/coords.js so the frame contract is
@@ -33,7 +35,7 @@ export default function LabOrbit({ elements, options, simMs }) {
     return [TMP.x, TMP.y, TMP.z]
   }
 
-  const { linePts, markers, apsidalLine, nodeLine, eqRing } = useMemo(() => {
+  const { linePts, markers, apsidalLine, nodeLine, eqRing, axes } = useMemo(() => {
     const flat = orbitPolylineKm(elements, 160)
     const pts = []
     for (let k = 0; k <= 160; k += 1) {
@@ -41,8 +43,14 @@ export default function LabOrbit({ elements, options, simMs }) {
       pts.push([TMP.x, TMP.y, TMP.z])
     }
     const mk = orbitMarkersKm(elements)
+    const rAxisKm = EARTH_RADIUS_KM + elements.aKm * (1 + elements.e)
+    const axisLines = [0, 1, 2].map((i) => {
+      const tip = [0, 0, 0]; tip[i] = rAxisKm
+      return [[0, 0, 0], toScene({ x: tip[0], y: tip[1], z: tip[2] })]
+    })
     return {
       linePts: pts,
+      axes: axisLines,
       markers: {
         perigee: mk.perigeeKm ? toScene(mk.perigeeKm) : null,
         apogee: mk.apogeeKm ? toScene(mk.apogeeKm) : null,
@@ -98,6 +106,10 @@ export default function LabOrbit({ elements, options, simMs }) {
       {options.showEquatorial && (
         <Line points={eqRing} color="#2dd4bf" lineWidth={0.7} transparent opacity={0.25} toneMapped={false} />
       )}
+      {options.showAxes && axes.map((a, i) => (
+        <Line key={`ax${i}`} points={a} color={AXIS_COLORS[i]} lineWidth={0.9}
+              transparent opacity={0.6} toneMapped={false} />
+      ))}
       {options.showMarkers && Object.entries(markers).map(([k, p]) => p && (
         <mesh key={k} position={p}>
           <sphereGeometry args={[k === 'perigee' || k === 'apogee' ? 0.016 : 0.013, 10, 10]} />

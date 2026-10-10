@@ -227,3 +227,4 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 | SGP4 speed envelope | sqrt(mu/r) circular | within 0.02 km/s (osculating short-period terms) | match | <0.011 km/s |
 | mean motion vs sma | 2pi sqrt(a^3/mu) vs TLE period_min | <0.15 min | match | - |
 | texture orientation (existing) | earthTexture.test.js pins lambda(u), flip, north | unchanged | 14/14 pass | - |
+| sub-Earth vectors (axes overlay) | eciToSceneKm(unit*1km) | finite, unit-ish length, Z-up preserved | match | NaN-free |

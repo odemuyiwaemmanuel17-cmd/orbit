@@ -520,3 +520,18 @@ without touching its visual identity.
   already solid: apsides/nodes/axes, degenerate-element tests), measured
   FPS/perf report + visual regression screenshots require a real browser
   (documented environment limitation, not marked complete).
+
+## 2026-10-10 - V3 steps 8 + 12 (lab audit/enhance, release validation)
+
+- Elements-lab audit vs step 8: controls/markers/construction/conic
+  inspector/sub-surface warning/singularities ALREADY covered (kepler
+  tests); real gaps closed: ECI axes overlay (true TEME-consistent unit
+  vectors through eciToSceneKm, X vernal-equinox / Z celestial-north)
+  and equatorial-limit disclosure (i~0 => Omega/omega undefined - we
+  disclose, never invent).
+- New test: sub-Earth-radius inputs stay finite (protects overlay from
+  NaN geometry); vitest 157/157, build green.
+- docs/V3_RELEASE.md: 12-step traceability with evidence, tolerances in
+  units, explicit trade-offs, and honest BLOCKED list (browser visual QC,
+  FPS capture, licensed GLB sourcing) — untested items are NOT marked
+  complete per program rules.
