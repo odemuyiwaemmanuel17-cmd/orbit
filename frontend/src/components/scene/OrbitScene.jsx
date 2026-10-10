@@ -32,9 +32,11 @@ const TEX = {
   clouds: '/textures/earth_clouds_1024.png',
 }
 
+let TEX_CACHE = null
 function loadEarthTextures() {
+  if (TEX_CACHE) return TEX_CACHE
   const loader = new THREE.TextureLoader()
-  return Promise.all([
+  TEX_CACHE = Promise.all([
     loader.loadAsync(TEX.day), loader.loadAsync(TEX.night),
     loader.loadAsync(TEX.ocean), loader.loadAsync(TEX.clouds),
   ]).then(([day, night, ocean, clouds]) => {
@@ -49,8 +51,13 @@ function loadEarthTextures() {
     ocean.repeat.x = -1
     ocean.offset.x = 1
     return { day, night, ocean, clouds }
-  }).catch(() => null)
+  }).catch(() => { TEX_CACHE = null; return null }) // allow retry on failure
+  return TEX_CACHE
 }
+
+// Narkowicz ACES filmic approximation + sRGB output, applied manually in
+// the custom planet shaders so they match three's tone-mapped built-ins.
+const ACES = 'vec3 acesTonemap(vec3 x){ return clamp((x*(2.51*x+0.03))/(x*(2.43*x+0.59)+0.14), 0.0, 1.0); }'
 
 const EARTH_VERT = `
 varying vec2 vUv; varying vec3 vPos;
@@ -62,7 +69,7 @@ void main() {
 const EARTH_FRAG = `
 uniform sampler2D uDay; uniform sampler2D uNight; uniform sampler2D uOcean;
 uniform sampler2D uClouds;
-uniform vec3 uSun; uniform vec3 uCam;
+uniform vec3 uSun; uniform vec3 uCam; uniform float uExposure;
 varying vec2 vUv; varying vec3 vPos;
 void main() {
   vec3 n = normalize(vPos);
@@ -86,11 +93,12 @@ void main() {
   float spec = pow(max(dot(n, h), 0.0), 120.0) * ocean * t;
   col += vec3(0.30, 0.45, 0.65) * spec * (0.55 + 0.9 * fres); // sun glint on water only
   col += vec3(0.05, 0.12, 0.25) * fres * (0.22 + 0.78 * t);   // limb airglow, subtle
-  gl_FragColor = vec4(col, 1.0);
+  gl_FragColor = vec4(pow(acesTonemap(col * uExposure), vec3(1.0 / 2.2)), 1.0);
 }`
 
 const CLOUD_FRAG = `
 uniform sampler2D uClouds; uniform vec3 uSun; uniform float uOpacity;
+uniform float uExposure;
 varying vec2 vUv; varying vec3 vPos;
 void main() {
   vec4 c = texture2D(uClouds, vUv);
@@ -98,10 +106,11 @@ void main() {
   float t = smoothstep(-0.15, 0.28, ndl);
   float edge = exp(-pow(ndl * 5.5, 2.0));              // translucency glow at the terminator
   vec3 base = c.rgb * mix(0.08, 1.02, t) + vec3(0.9, 0.5, 0.25) * edge * 0.18;
-  gl_FragColor = vec4(base, c.a * uOpacity * mix(0.7, 1.0, t));
+  gl_FragColor = vec4(pow(acesTonemap(base * uExposure), vec3(1.0 / 2.2)),
+                      c.a * uOpacity * mix(0.7, 1.0, t));
 }`
 
-function Earth() {
+function Earth({ q }) {
   const [tex, setTex] = useState(null)
   const earthRef = useRef()
   const scratch = useMemo(() => ({
@@ -116,10 +125,11 @@ function Earth() {
   const uniforms = useMemo(() => ({
     uSun: { value: new THREE.Vector3(1, 0, 0) },
     uCam: { value: new THREE.Vector3(0, 0, 5) },
-  }), [])
+    uExposure: { value: q.exposure },
+  }), [q.exposure])
 
   const earthMat = useMemo(() => new THREE.ShaderMaterial({
-    vertexShader: EARTH_VERT, fragmentShader: EARTH_FRAG,
+    vertexShader: EARTH_VERT, fragmentShader: ACES + EARTH_FRAG,
     uniforms: {
       uDay: { value: null }, uNight: { value: null }, uOcean: { value: null },
       uClouds: { value: null },
@@ -127,7 +137,7 @@ function Earth() {
     },
   }), [uniforms])
   const cloudMat = useMemo(() => new THREE.ShaderMaterial({
-    vertexShader: EARTH_VERT, fragmentShader: CLOUD_FRAG, transparent: true,
+    vertexShader: EARTH_VERT, fragmentShader: ACES + CLOUD_FRAG, transparent: true,
     depthWrite: false,
     uniforms: { uClouds: { value: null }, uOpacity: { value: 0.85 }, ...uniforms },
   }), [uniforms])
@@ -145,9 +155,9 @@ function Earth() {
   const atmoMat = useMemo(() => new THREE.ShaderMaterial({
     transparent: true, depthWrite: false,
     side: THREE.BackSide, blending: THREE.AdditiveBlending,
-    uniforms: { uStorm: { value: 0 }, uSun: uniforms.uSun },
+    uniforms: { uStorm: { value: 0 }, uSun: uniforms.uSun, uExposure: uniforms.uExposure },
     vertexShader: 'varying vec3 vN; varying vec3 vV; varying vec3 vP; void main(){ vN=normalize(normalMatrix*normal); vec4 mv=modelViewMatrix*vec4(position,1.0); vV=normalize(-mv.xyz); vP=normalize(position); gl_Position=projectionMatrix*mv; }',
-    fragmentShader: 'uniform float uStorm; uniform vec3 uSun; varying vec3 vN; varying vec3 vV; varying vec3 vP; void main(){ float d=dot(vP,normalize(uSun)); float f=1.0-abs(dot(vN,vV)); float dayGlow=smoothstep(-0.3,0.55,d); float tw=exp(-pow((d+0.04)*5.5,2.0)); vec3 calm=vec3(0.18,0.52,0.98); vec3 hot=vec3(1.0,0.45,0.25); vec3 c=mix(calm,hot,uStorm); c=c*mix(0.22,1.0,dayGlow)+vec3(1.0,0.52,0.22)*tw*0.55; gl_FragColor=vec4(c, pow(f,3.0)*(0.30+0.55*dayGlow+0.45*tw)*(0.55+0.35*uStorm)); }',
+    fragmentShader: ACES + 'uniform float uStorm; uniform vec3 uSun; uniform float uExposure; varying vec3 vN; varying vec3 vV; varying vec3 vP; void main(){ float d=dot(vP,normalize(uSun)); float f=1.0-abs(dot(vN,vV)); float dayGlow=smoothstep(-0.3,0.55,d); float tw=exp(-pow((d+0.04)*5.5,2.0)); vec3 calm=vec3(0.18,0.52,0.98); vec3 hot=vec3(1.0,0.45,0.25); vec3 c=mix(calm,hot,uStorm); c=c*mix(0.22,1.0,dayGlow)+vec3(1.0,0.52,0.22)*tw*0.55; gl_FragColor=vec4(pow(acesTonemap(c*uExposure),vec3(1.0/2.2)), pow(f,3.0)*(0.30+0.55*dayGlow+0.45*tw)*(0.55+0.35*uStorm)); }',
   }), [uniforms])
 
   useFrame(({ camera }, dt) => {
@@ -170,7 +180,7 @@ function Earth() {
       <group ref={earthRef}>
         {tex ? (
           <mesh material={earthMat}>
-            <sphereGeometry args={[0.998, 96, 96]} />
+            <sphereGeometry args={[0.998, q.earthSeg, q.earthSeg]} />
           </mesh>
         ) : (
           // graceful degradation until (or if) textures resolve
@@ -179,9 +189,9 @@ function Earth() {
             <meshBasicMaterial color="#0A1830" transparent opacity={0.95} />
           </mesh>
         )}
-        {tex && (
+        {tex && q.clouds && (
           <mesh material={cloudMat}>
-            <sphereGeometry args={[1.006, 72, 72]} />
+            <sphereGeometry args={[1.006, Math.round(q.earthSeg * 0.75), Math.round(q.earthSeg * 0.75)]} />
           </mesh>
         )}
       </group>
@@ -303,7 +313,7 @@ function GroundTrack() {
 
 /* ------------------------------------------------------- Orbits & markers */
 
-function OrbitRings({ snapshot }) {
+function OrbitRings({ snapshot, glowPass }) {
   const selected = engine.selectedId
   const riskIds = engine.layers.alerts
     ? new Set((engine.conjunctions?.events ?? []).filter((e) => e.risk).flatMap((e) => [e.a, e.b]))
@@ -315,17 +325,28 @@ function OrbitRings({ snapshot }) {
         if (pts.length < 4) return null
         const isSel = s.id === selected
         const isRisk = riskIds.has(s.id)
+        const color = isRisk ? CRIMSON : (REGIME_COLORS[s.meta.regime] ?? GREEN)
+        if (!isSel && !isRisk) {
+          return (
+            <Line key={s.id} points={pts} color={color} lineWidth={0.45}
+                  transparent opacity={0.07} toneMapped={false} />
+          )
+        }
+        // Sample window is -45 min .. +1 period: split at NOW for an
+        // honest past(faint)/future(bright) distinction on real samples.
+        const spanMin = s.meta.period_min + 45
+        const cut = Math.max(2, Math.min(pts.length - 2,
+          Math.round((45 / spanMin) * (pts.length - 1))))
         return (
           <group key={s.id}>
-            {(isSel || isRisk) && (
-              <Line points={pts} color={isRisk ? CRIMSON : (REGIME_COLORS[s.meta.regime] ?? GREEN)}
-                    lineWidth={4} transparent opacity={0.14} toneMapped={false} />
+            {glowPass && (
+              <Line points={pts.slice(cut)} color={color} lineWidth={4}
+                    transparent opacity={0.12} toneMapped={false} />
             )}
-            <Line points={pts}
-                  color={isRisk ? CRIMSON : (REGIME_COLORS[s.meta.regime] ?? GREEN)}
-                  lineWidth={isSel || isRisk ? 1.5 : 0.45}
-                  transparent opacity={isRisk ? 0.9 : isSel ? 0.95 : 0.07}
-                  toneMapped={false} />
+            <Line points={pts.slice(0, cut + 1)} color={color} lineWidth={1.1}
+                  transparent opacity={0.35} toneMapped={false} />
+            <Line points={pts.slice(cut)} color={color} lineWidth={1.5}
+                  transparent opacity={0.95} toneMapped={false} />
           </group>
         )
       })}
@@ -336,8 +357,6 @@ function OrbitRings({ snapshot }) {
 /* ------------------------------------------------------- Lighting rig */
 
 const SUN_TMP = new THREE.Vector3()
-const UP_SCALE = new THREE.Vector3(1.35, 1.35, 1.35)
-const ONE = new THREE.Vector3(1, 1, 1)
 const NADIR0 = new THREE.Vector3(0, 0, -1)
 
 /** Sun-synced key light: direction comes from the SAME validated ephemeris
@@ -367,6 +386,18 @@ function SunLight() {
  * Selection grows with a smooth scale transition. Orientation is
  * ILLUSTRATIVE nadir-pointing — no real attitude data is claimed.
  */
+/** V3 true-scale mode: spacecraft POSITION is always true-scale; this
+ *  switch only changes how much the model SIZE is exaggerated (default
+ *  ~10x for visibility). Factor = real wingspan km / (Earth radius units). */
+const TS_TMP = new THREE.Vector3()
+function trueScaleFactor(meta) {
+  const realKm = meta.slot === 'iss' ? 109 : meta.slot === 'hubble' ? 13.2
+    : meta.regime === 'GEO' ? 12 : meta.regime === 'MEO' ? 5.3 : 6.5
+  const modelWingspan = meta.slot === 'iss' ? 0.176 : meta.slot === 'hubble' ? 0.14
+    : meta.regime === 'GEO' ? 0.26 : meta.regime === 'MEO' ? 0.124 : 0.085
+  return realKm / (EARTH_RADIUS_KM * modelWingspan)
+}
+
 function SatMarker({ s, sel }) {
   const inner = useRef()
   const pos = geodeticToScene(s.lat, s.lon, s.alt, new THREE.Vector3())
@@ -379,7 +410,9 @@ function SatMarker({ s, sel }) {
   const glb = useGlbCraft(s.meta.modelGlb)
   const Model = selectCraftModel(s.meta)
   useFrame((_, dt) => {
-    if (inner.current) inner.current.scale.lerp(sel ? UP_SCALE : ONE, Math.min(1, dt * 8))
+    if (!inner.current) return
+    const k = (engine.trueScale ? trueScaleFactor(s.meta) : 1) * (sel ? 1.35 : 1)
+    inner.current.scale.lerp(TS_TMP.setScalar(k), Math.min(1, dt * 8))
   })
   const craft = glb ? <primitive object={glb} /> : <Model />
   const dot = (size, opacity) => (
@@ -512,7 +545,8 @@ function GlobeGroup({ children }) {
 
 /* ------------------------------------------------------------------ Scene */
 
-export default function OrbitScene({ mission = false, lab = null, overlay = null }) {
+export default function OrbitScene({ mission = false, lab = null, overlay = null, preset: presetProp = null }) {
+  const preset = PRESETS[presetProp ?? loadPreset()] ?? PRESETS.BALANCED
   const [snapshot, setSnapshot] = useState(() => engine.propagateAll())
   useEffect(() => {
     engine.syncFollowViewpoint(snapshot)
@@ -528,7 +562,13 @@ export default function OrbitScene({ mission = false, lab = null, overlay = null
     <Canvas
       camera={{ fov: 45, near: 0.03, far: 60, position: [4, 2, 6] }}
       gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
-      dpr={[1, 1.75]}
+      dpr={[1, preset.dpr]}
+      onCreated={({ gl }) => {
+        // V3: survive GPU context loss instead of showing a dead canvas.
+        const el = gl.domElement
+        el.addEventListener('webglcontextlost', (e) => { e.preventDefault(); engine.setGlLost(true) })
+        el.addEventListener('webglcontextrestored', () => engine.setGlLost(false))
+      }}
       style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}
     >
       <color attach="background" args={['#050B17']} />
@@ -536,13 +576,13 @@ export default function OrbitScene({ mission = false, lab = null, overlay = null
       <Stars radius={28} count={2600} factor={2.4} saturation={0} fade speed={0.3} />
       <GlobeGroup>
         <SunLight />
-        <Earth />
+        <Earth q={preset} />
         {lab && <LabOrbit elements={lab.elements} options={lab.options} simMs={lab.simMs} />}
         {overlay}
         {engine.activeConstellationGroups().map((g) => (
           <ConstellationField key={g.key} group={g} />
         ))}
-        <OrbitRings snapshot={snapshot} />
+        <OrbitRings snapshot={snapshot} glowPass={preset.glowPass} />
         <Satellites snapshot={snapshot} />
         {engine.layers.footprint && <FootprintCone snapshot={snapshot} />}
         {engine.layers.groundtrack && <GroundTrack />}

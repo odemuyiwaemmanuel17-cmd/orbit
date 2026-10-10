@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import * as sm from 'satellite.js'
 import { Line } from '@react-three/drei'
 import { elementsToStateKm, orbitPolylineKm, orbitMarkersKm, meanToTrueAnomalyRad, periodSec } from '../../lib/kepler.js'
-import { geodeticToScene, EARTH_RADIUS_KM } from '../../lib/coords.js'
+import { geodeticToScene, eciToSceneKm, EARTH_RADIUS_KM } from '../../lib/coords.js'
 import { RAD_PER_DEG } from '../../lib/constants.js'
 
 const PERIGEE = '#F5B942'
@@ -12,16 +12,10 @@ const NODE_ASC = '#22d3ee'
 const NODE_DESC = '#f472b6'
 const ORBIT = '#3B82F6'
 
-/** ECI km -> scene units through the SAME projection contract as real sats:
- *  geodetic lat/lon at the current GMST + the documented radial compression. */
-export function eciToSceneKm(x, y, z, gmstRad, target) {
-  const v = target ?? new THREE.Vector3()
-  const r = Math.hypot(x, y, z)
-  const latDeg = Math.asin(THREE.MathUtils.clamp(z / r, -1, 1)) / RAD_PER_DEG
-  let lonDeg = (Math.atan2(y, x) - gmstRad) / RAD_PER_DEG
-  lonDeg = ((lonDeg + 180) % 360 + 360) % 360 - 180
-  return geodeticToScene(latDeg, lonDeg, Math.max(r - EARTH_RADIUS_KM, 0), v)
-}
+/** ECI km -> scene units through the SAME projection contract as real sats.
+ *  Canonical implementation moved to lib/coords.js so the frame contract is
+ *  testable headless (tests/coordinates.test.js); re-exported for consumers. */
+export { eciToSceneKm }
 
 /**
  * Orbital Elements Lab orbit — regenerated on every render (10 Hz engine

@@ -1,4 +1,4 @@
-import { Pause, Play, SkipBack, SkipForward, Radio, History, Camera } from 'lucide-react'
+import { Pause, Play, SkipBack, SkipForward, Radio, History, Camera, Ruler } from 'lucide-react'
 import { useEngine } from '../../hooks/useEngine.js'
 
 const SPEEDS = [0.25, 1, 10, 50, 100]
@@ -49,6 +49,16 @@ export default function SimulationControls() {
                   ${engine.follow ? 'bg-hi/20 text-fg border border-hi/60 font-bold'
                                   : 'text-hi hover:bg-hi/10 border border-transparent'}`}>
           <Camera size={11} /> FOLLOW
+        </button>
+        <button onClick={() => engine.setTrueScale(!engine.trueScale)}
+                title={engine.trueScale
+                  ? 'True scale: models render at real physical size (ISS ~109 m wingspan) — tiny by design. Positions are always true-scale.'
+                  : 'Size-exaggerated mode (~10×): positions exact, model SIZE exaggerated for visibility. Click for true scale.'}
+                aria-pressed={engine.trueScale}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono transition
+                  ${engine.trueScale ? 'bg-ok/20 text-ok border border-ok/60 font-bold'
+                                     : 'text-hi hover:bg-hi/10 border border-transparent'}`}>
+          <Ruler size={11} /> TRUE SCALE
         </button>
         <div className="w-px h-5 bg-hi/20 mx-0.5" />
         {SPEEDS.map((s) => (

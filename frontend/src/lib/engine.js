@@ -1,11 +1,10 @@
 import * as sm from 'satellite.js'
 import * as THREE from 'three'
 import catalog from '../data/satellites.json'
-import { geodeticToScene, sunDirection } from './coords.js'
+import { geodeticToScene } from './coords.js'
+import { shadowFromGeodetic } from './eclipse.js'
 import { fetchWeather, scanConjunctionsClient, predictPassesClient, syntheticWeather } from './analysis.js'
 import { ConstellationGroup } from './constellation.js'
-
-const SUN_TMP = new THREE.Vector3()
 const PROJ_V = new THREE.Vector3()
 
 /** Constellation seed files are code-split; Vite gives us lazy loaders. */
@@ -62,6 +61,10 @@ class TrackerEngine {
     this.follow = false
     this.followSat = null       // {lat, lon, alt} refreshed each snapshot
     this._globeObj = null       // GlobeGroup ref, for its authoritative quaternion
+    // V3: true-scale spacecraft display (positions are ALWAYS true-scale;
+    // this only changes model SIZE exaggeration) and GPU context health.
+    this.trueScale = false
+    this.glLost = false
     // Toggleable 3D layers (footprint cone, conjunction alerts, decay vectors).
     this.layers = { footprint: true, groundtrack: true, alerts: true, drag: false }
     this.weather = syntheticWeather()
@@ -249,17 +252,13 @@ class TrackerEngine {
   }
 
   /**
-   * Cylindrical Earth-shadow model in scene units (Earth radius = 1):
-   * a satellite on the anti-sun side whose perpendicular distance from the
-   * sun axis is under one Earth radius is in eclipse.
+   * Shadow state for the binary HUD display: delegates to the M13 umbra/
+   * penumbra CONE model on the validated sun ephemeris (was a cylindrical
+   * approximation). SUNLIT means outside BOTH cones; PENUMBRA (partial
+   * obscuration) counts as not-sunlit for the LIT/ECLIPSE badge.
    */
   sunlitAt(lat, lon, altKm, date) {
-    const p = geodeticToScene(lat, lon, altKm, new THREE.Vector3())
-    const s = sunDirection(date, SUN_TMP)
-    const along = p.dot(s)
-    if (along >= 0) return true
-    const perp2 = p.lengthSq() - along * along
-    return perp2 > 1.0
+    return shadowFromGeodetic(lat, lon, altKm, date).region === 'SUNLIT'
   }
 
   /** Antimeridian-safe ground track: { past, future } scene-unit segments. */
@@ -378,6 +377,24 @@ class TrackerEngine {
     this.follow = !!v
     if (this.follow) this.focusTarget = null // follow supersedes one-shot ease
     this.emit()
+  }
+  setTrueScale(v) { this.trueScale = !!v; this.emit() }
+  setGlLost(v) { this.glLost = !!v; this.emit() }
+  /** Camera framing presets (V3 phase 7): overview / sat focus / ground
+   *  track inspection / reset. Pure view changes — orbital state untouched. */
+  viewMode(mode) {
+    if (mode === 'overview') {
+      this.follow = false; this.focusTarget = null
+      this.yaw = 0.8; this.pitch = 0.5; this.zoom = 2.3; this.emit()
+    } else if (mode === 'reset') {
+      this.follow = false; this.resetView()
+    } else if (mode === 'sat') {
+      this.zoom = 1; this.focusOn()
+    } else if (mode === 'groundtrack') {
+      this.zoom = 1.35
+      if (this.followSat) { this.follow = true; this.focusTarget = null; this.emit() }
+      else this.focusOn()
+    }
   }
   /** OrbitScene calls this whenever the snapshot updates so the follow
    *  camera always targets the freshly propagated state (real positions). */

@@ -414,3 +414,38 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
 - Verified: vitest 142/142, pytest 48/48, build green, preview routes +
   texture assets 200. GPU shader execution not verifiable headless —
   recorded as a residual risk for user visual QC.
+
+## Addendum 2026-10-09 — V3 NASA-Style Scientific Realism (phases 1-5, 7)
+
+- Phase 1: protected tag `orbitalpulse-v3-baseline` (27c663b). Regression
+  inventory = routes {/, /tracker, /lab, /lab/*x13, catch-all}, panels
+  {catalog search/filter/chips, HUD tabs telemetry/passes/alerts/wx,
+  timeline, layer toggles}, libs {sgp4 pipeline, kepler, coords, stations,
+  passes, los, coverage, linkbudget, attitude, wheels, eclipse, sun},
+  tests 142 FE + 48 BE baseline, textures vendored + attribution.
+- COORDINATE BUG FOUND AND FIXED by the new integrity suite: eciToSceneKm
+  used GEocentric latitude (asin(z/r)) while the tracker places everything
+  with GEodetic latitude (sm.eciToGeodetic) — a real up-to-~20 km ground
+  disagreement between lab orbits and tracker dots at mid latitudes.
+  eciToSceneKm now delegates to the same satellite.js inverse (contract
+  pinned at 1e-9). docs/COORDINATES.md records every frame + units.
+- Physics upgrades, not cosmetics: HUD LIT/ECLIPSE now uses the M13
+  umbra/penumbra CONE (shadowFromGeodetic on satellite.js's own WGS84
+  geodeticToEcf->ecfToEci chain) instead of the old cylindrical shortcut;
+  geodeticToEciKm round-trip tested.
+- Earth shading: manual ACES + exposure + sRGB in the planet/cloud/air
+  shaders to match tone-mapped built-ins; quality presets
+  (HIGH/BALANCED/LOW in lib/quality.js, localStorage-persisted, AQ chip)
+  vary dpr/clouds/glow/segments ONLY — physics identical across presets.
+- Orbits: selected/risk paths split at NOW into faint past / bright future
+  from the same real SGP4 samples; texture cache now module-singleton
+  (no refetch on route changes); WebGL context-loss handled with visible
+  banner (clock keeps running).
+- Inspection: TRUE SCALE toggle (real physical model size vs the honest
+  ~10x default exaggeration; positions always exact), camera OVERVIEW /
+  FOCUS / RESET modes + existing FOLLOW — all view-only, engine state
+  never touched by camera code.
+- Provenance HUD: element source (CelesTrak) + NORAD id + catalog bundle
+  date + TLE age vs sim + propagation status (NOMINAL/AGED/NO SOLUTION)
+  + per-field frame definitions; fallbacks are never silent.
+- Tests: vitest 156/156 (14 new coordinate-integrity), pytest 48/48.

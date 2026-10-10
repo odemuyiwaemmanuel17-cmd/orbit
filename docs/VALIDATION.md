@@ -212,3 +212,18 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 | polar-at-equinox | plane normal along sun | 0 eclipse over all 360 samples | match | exact |
 | GEO < LEO | umbra fraction 6771 vs 42165 km | shorter GEO band, > 0.3 h sanity | match | - |
 | degenerate inputs | a <= R, zero-length normal | throw RangeError | throws | - |
+
+## Coordinate-system integrity — V3 (frontend/tests/coordinates.test.js)
+
+| Check | Reference | Expected | OrbitalPulse | Delta |
+|---|---|---|---|---|
+| geodetic->ECI->eciToGeodetic round-trip | satellite.js WGS84 chain, 6 incl. GEO + polar | identical lat/lon/height | match | <1e-6 deg / <1e-3 km |
+| render-path agreement | geodeticToScene(tracker) vs eciToSceneKm(labs) same point+GMST | same scene unit | match after GEocentric->GEodetic fix | <5e-10 units |
+| (stale) hand asin(z/r) | would deviate at mid latitudes | up to 0.003 units (~20 km ground) | BUG FOUND + FIXED | - |
+| GMST sign convention | ECEF lon0 at gmst=g -> ECI azimuth +g -> scene lon 0 | exact | match | 1e-9 |
+| subsolar SUNLIT | shadowFromGeodetic(dec, subsolarLon, 420, D) | SUNLIT | match | - |
+| antipode UMBRA | exact anti-subsolar point | UMBRA (perp~0 < rho_u) | match | - |
+| sunDirection vs subsolar geodetic | dot product | > 1 - 1e-9 | match | 1e-9 |
+| SGP4 speed envelope | sqrt(mu/r) circular | within 0.02 km/s (osculating short-period terms) | match | <0.011 km/s |
+| mean motion vs sma | 2pi sqrt(a^3/mu) vs TLE period_min | <0.15 min | match | - |
+| texture orientation (existing) | earthTexture.test.js pins lambda(u), flip, north | unchanged | 14/14 pass | - |

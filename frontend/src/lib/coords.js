@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import * as sm from 'satellite.js'
 import { sunEquatorialRad, subsolarLonDeg } from './sun.js'
 
 export const EARTH_RADIUS_KM = 6371.0
@@ -21,6 +22,21 @@ export function geodeticToScene(latDeg, lonDeg, altKm, target = new THREE.Vector
     r * Math.sin(lat),
     r * Math.cos(lat) * Math.sin(lon),
   )
+}
+
+/**
+ * ECI km (TEME, as returned by satellite.js sgp4) -> scene units through
+ * the EXACT inverse the tracker uses every tick — sm.eciToGeodetic (WGS84
+ * geodetic latitude + height above ellipsoid), then geodeticToScene.
+ * V3 found and fixed a real bug here: the previous hand-rolled asin(z/r)
+ * was GEocentric latitude, which disagreed with the tracker's GEodetic
+ * placement by up to ~0.2° (~0.003 scene units) at mid latitudes. Both
+ * render paths now agree to <1e-9 (tests/coordinates.test.js).
+ */
+export function eciToSceneKm(x, y, z, gmstRad, target = new THREE.Vector3()) {
+  const geo = sm.eciToGeodetic({ x, y, z }, gmstRad)
+  return geodeticToScene(sm.degreesLat(geo.latitude), sm.degreesLong(geo.longitude),
+    geo.height, target)
 }
 
 export const REGIME_COLORS = {

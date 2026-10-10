@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Activity, Satellite, Telescope, TriangleAlert, CloudSun, Loader } from 'lucide-react'
 import { useEngine } from '../../hooks/useEngine.js'
-import { catalogSatellites } from '../../lib/engine.js'
+import { catalogSatellites, catalogGeneratedAt } from '../../lib/engine.js'
 import { footprintOf, tleDetails } from '../../lib/analysis.js'
+import { tleStale } from '../../lib/constellation.js'
 import { REGIME_COLORS, REGIME_LABELS } from '../../lib/coords.js'
 
 const TABS = [
@@ -18,9 +19,9 @@ const CITIES = [
   ['São Paulo', -23.55, -46.63], ['Sydney', -33.87, 151.21],
 ]
 
-function Tile({ label, value, unit }) {
+function Tile({ label, value, unit, title }) {
   return (
-    <div className="bg-black/25 border border-hi/10 rounded-lg px-3 py-2.5">
+    <div title={title} className="bg-black/25 border border-hi/10 rounded-lg px-3 py-2.5">
       <div className="text-[8px] uppercase tracking-[0.18em] text-mut">{label}</div>
       <div className="font-mono text-fg text-[15px] font-semibold tabular-nums mt-1 leading-tight">
         {value}<span className="text-[10px] font-normal text-mut ml-1">{unit}</span>
@@ -45,6 +46,8 @@ function TelemetryTab({ meta, live }) {
   const engine = useEngine()
   const fp = live ? footprintOf(live.alt) : null
   const det = useMemo(() => tleDetails(meta.line1, meta.line2), [meta])
+  const ageDays = det.epochMs ? (engine.simMs - det.epochMs) / 86400000 : null
+  const aged = tleStale(meta.line1, meta.line2, engine.date())
   return (
     <>
       <div className="flex items-center justify-between mb-2 px-0.5">
@@ -71,10 +74,32 @@ function TelemetryTab({ meta, live }) {
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2 mb-3">
-        <Tile label="Altitude" value={live ? live.alt.toFixed(1) : '——'} unit="km" />
-        <Tile label="Velocity" value={live ? live.speed.toFixed(2) : '——'} unit="km/s" />
-        <Tile label="Latitude" value={live ? `${Math.abs(live.lat).toFixed(2)}° ${live.lat >= 0 ? 'N' : 'S'}` : '——'} />
-        <Tile label="Longitude" value={live ? `${Math.abs(live.lon).toFixed(2)}° ${live.lon >= 0 ? 'E' : 'W'}` : '——'} />
+        <div className="bg-black/25 border border-hi/10 rounded-lg px-3 py-2">
+          <div className="text-[8px] uppercase tracking-[0.18em] text-mut">Element source</div>
+          <div className="font-mono text-[11px] text-fg mt-0.5">CelesTrak · {String(meta.norad_id)}</div>
+          <div className="font-mono text-[9px] text-mut mt-0.5">
+            bundle {fmtDayLong(Date.parse(catalogGeneratedAt))} UTC
+          </div>
+        </div>
+        <div className="bg-black/25 border border-hi/10 rounded-lg px-3 py-2">
+          <div className="text-[8px] uppercase tracking-[0.18em] text-mut">Propagation</div>
+          <div className={`font-mono text-[11px] mt-0.5 ${!live ? 'text-crit' : aged ? 'text-cau' : 'text-ok'}`}>
+            {!live ? 'NO SOLUTION' : aged ? 'SGP4 · TLE AGED' : 'SGP4 · NOMINAL'}
+          </div>
+          <div className="font-mono text-[9px] text-mut mt-0.5">
+            TLE age {ageDays != null ? `${ageDays.toFixed(1)} d` : '—'} vs sim
+          </div>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-2 mb-3">
+        <Tile label="Altitude" value={live ? live.alt.toFixed(1) : '——'} unit="km"
+              title="Height above the spherical mean-Earth radius (6371 km) — satellite.js eciToGeodetic convention" />
+        <Tile label="Velocity · TEME" value={live ? live.speed.toFixed(2) : '——'} unit="km/s"
+              title="TEME ECI velocity magnitude from SGP4 (inertial, not ground-relative)" />
+        <Tile label="Latitude · geod" value={live ? `${Math.abs(live.lat).toFixed(2)}° ${live.lat >= 0 ? 'N' : 'S'}` : '——'}
+              title="Geodetic latitude, spherical-Earth approximation (satellite.js), at the SIM epoch" />
+        <Tile label="Longitude · geod" value={live ? `${Math.abs(live.lon).toFixed(2)}° ${live.lon >= 0 ? 'E' : 'W'}` : '——'}
+              title="Geodetic longitude via GMST at the SIM epoch — Earth-fixed, tracks the simulation clock" />
       </div>
       {fp && (
         <div className="grid grid-cols-2 gap-2 mb-2">
@@ -84,7 +109,7 @@ function TelemetryTab({ meta, live }) {
       )}
       <div className="grid grid-cols-2 gap-2 mb-3">
         <div className="bg-black/25 border border-hi/10 rounded-lg px-3 py-2.5"
-             title="Cylindrical Earth-shadow model: LIT when the spacecraft is outside the umbra cone.">
+             title="Umbra/penumbra CONE model (M13) on the Meeus sun ephemeris at the SIM epoch; LIT = outside both cones (penumbra counts as not fully lit).">
           <div className="text-[9px] uppercase tracking-[0.15em] text-mut">Sunlight</div>
           <div className={`font-mono text-sm mt-0.5 ${live?.sunlit ? 'text-cau' : 'text-hi'}`}>
             {live ? (live.sunlit ? '☀ LIT' : '☾ ECLIPSE') : '——'}
@@ -340,7 +365,9 @@ export default function TelemetryPanel() {
       {tab === 'telemetry' && (
         <p className="text-[9px] leading-relaxed text-mut mt-3 pt-2 border-t border-hi/10">
           {REGIME_LABELS[meta.regime]} · propagated in-browser from CelesTrak elements;
-          backend mirrors every computation.
+          backend mirrors every computation. Spacecraft models are representative
+          vehicles at ~10× size exaggeration (TRUE SCALE toggle) with illustrative
+          nadir-pointing orientation — positions and timing are exact, attitude is not.
         </p>
       )}
     </div>

@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, List, Gauge, Orbit, FlaskConical } from 'lucide-react'
+import { ArrowLeft, List, Gauge, Orbit, FlaskConical, Globe2, Crosshair, Maximize, MonitorX } from 'lucide-react'
 import OrbitScene from '../../components/scene/OrbitScene.jsx'
 import CatalogPanel from '../../components/tracker/CatalogPanel.jsx'
 import TelemetryPanel from '../../components/tracker/TelemetryPanel.jsx'
 import SimulationControls from '../../components/tracker/SimulationControls.jsx'
 import LayerToggles from '../../components/tracker/LayerToggles.jsx'
 import { useEngine } from '../../hooks/useEngine.js'
+import { PRESETS, loadPreset, savePreset } from '../../lib/quality.js'
+
+const PRESET_CYCLE = ['HIGH', 'BALANCED', 'LOW']
 
 /**
  * Mission Control — the engineering surface behind the approved landing UI.
@@ -16,6 +19,7 @@ import { useEngine } from '../../hooks/useEngine.js'
 export default function TrackerPage() {
   const engine = useEngine()
   const [sheet, setSheet] = useState(null) // mobile: 'catalog' | 'hud'
+  const [preset, setPreset] = useState(loadPreset)
   const drag = useRef(null)
 
   const clock = engine.date().toISOString().slice(11, 19)
@@ -38,7 +42,7 @@ export default function TrackerPage() {
 
   return (
     <div className="fixed inset-0 bg-[#050B17] overflow-hidden">
-      <OrbitScene mission />
+      <OrbitScene mission preset={preset} />
 
       {/* Drag layer for globe rotation (below panels, above canvas) */}
       <div
@@ -50,6 +54,15 @@ export default function TrackerPage() {
       />
 
       <Diagnostics />
+
+      {engine.glLost && (
+        <div className="absolute inset-x-0 top-16 z-50 flex justify-center pointer-events-none">
+          <div className="flex items-center gap-2 bg-crit/15 border border-crit/50 text-crit rounded-lg px-4 py-2 text-[11px] font-mono">
+            <MonitorX size={14} /> GPU CONTEXT LOST — rendering paused until the browser restores it;
+            the simulation clock keeps running.
+          </div>
+        </div>
+      )}
 
       {/* ---------------- top bar ---------------- */}
       <header className="absolute top-0 inset-x-0 z-30 h-14 flex items-center gap-3 px-4 bg-[#0A1425]/85 backdrop-blur-md border-b border-hi/15">
@@ -71,6 +84,23 @@ export default function TrackerPage() {
           </span>
         </div>
         <div className="ml-auto flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-1 mr-1">
+            {[['OVERVIEW', 'overview', Globe2], ['FOCUS', 'sat', Crosshair], ['RESET', 'reset', Maximize]].map(([lbl, mode, Icon]) => (
+              <button key={lbl} title={`Camera view: ${lbl.toLowerCase()}`}
+                      onClick={() => engine.viewMode(mode)}
+                      className="flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-mono text-mut hover:text-hi hover:bg-hi/10 border border-hi/15">
+                <Icon size={11} /> {lbl}
+              </button>
+            ))}
+          </div>
+          <button onClick={() => {
+                    const next = PRESET_CYCLE[(PRESET_CYCLE.indexOf(preset) + 1) % PRESET_CYCLE.length]
+                    setPreset(next); savePreset(next)
+                  }}
+                  title={`Rendering quality preset: ${PRESETS[preset].label} (dpr ${PRESETS[preset].dpr}, clouds ${PRESETS[preset].clouds ? 'on' : 'off'}). Physics is identical in all presets.`}
+                  className="px-2 py-1 rounded-md text-[9px] font-mono border border-hi/25 text-hi hover:bg-hi/10">
+            AQ·{preset.slice(0, 4)}
+          </button>
           <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono border live-dot
             ${engine.isLive ? 'border-hi/50 text-hi'
                             : 'border-amber-400/50 text-amber-300'}`}>

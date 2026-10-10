@@ -12,7 +12,8 @@
  * (r < 220,000 km) sits well inside the cone length — no apex edge cases.
  */
 import { R_EARTH_MEAN_KM, SUN_RADIUS_KM, AU_KM, RAD_PER_DEG, DEG_PER_RAD } from './constants.js'
-import { sunEciUnit } from './sun.js'
+import * as sm from 'satellite.js'
+import { sunEciUnit, sunEquatorialRad } from './sun.js'
 
 const dot3 = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 
@@ -92,4 +93,34 @@ export function cylindricalEclipseFraction(aKm) {
   return Math.asin(R_EARTH_MEAN_KM / aKm) / Math.PI
 }
 
+/**
+ * Geodetic (lat/lon deg, alt km) + GMST -> ECI km via satellite.js's own
+ * WGS84 chain (geodeticToEcf -> ecfToEci) — the exact inverse of the
+ * eciToGeodetic the tracker uses every tick. Round-trip is pinned in
+ * tests/coordinates.test.js; no hand-rolled rotation is trusted for frames.
+ */
+export function geodeticEciKm(latDeg, lonDeg, altKm, gmstRad, out = {}) {
+  const ecf = sm.geodeticToEcf({
+    latitude: latDeg * RAD_PER_DEG,
+    longitude: lonDeg * RAD_PER_DEG,
+    height: Math.max(altKm, 0),
+  })
+  const eci = sm.ecfToEci(ecf, gmstRad)
+  out.x = eci.x; out.y = eci.y; out.z = eci.z
+  return out
+}
+
+/**
+ * Shadow state at a geodetic point for a UTC date — composes the validated
+ * sun ephemeris, the GMST convention and the umbra/penumbra cone. Returns
+ * region SUNLIT / PENUMBRA / UMBRA (binary callers: SUNLIT only when truly
+ * outside both cones; PENUMBRA is a partial obscuration).
+ */
+export function shadowFromGeodetic(latDeg, lonDeg, altKm, date = new Date()) {
+  const { gmstRad } = sunEquatorialRad(date)
+  const pos = geodeticEciKm(latDeg, lonDeg, altKm, gmstRad)
+  return shadowStateKm(pos, sunEciUnit(date))
+}
+
+export { sunEquatorialRad }
 export { sunEciUnit }

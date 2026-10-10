@@ -494,3 +494,29 @@ without touching its visual identity.
 - Verified: vitest 142/142, pytest 48/48, build green, preview smoke all
   200 incl. texture assets. Screenshots still impossible headless - visual
   QC vs reference is the open follow-up (needs user's browser).
+
+## 2026-10-09 - V3 NASA-Style Scientific Realism (phases 1-5 + partial 7)
+
+- Baseline protected: tag orbitalpulse-v3-baseline (27c663b).
+- NEW docs/COORDINATES.md: TEME -> geodetic -> scene contracts, units,
+  tolerances, render/physics separation, HUD frame definitions.
+- REAL BUG FOUND by the integrity suite: eciToSceneKm used geocentric
+  latitude; tracker uses geodetic (satellite.js) — lab-vs-tracker
+  disagreement up to ~20 km ground equivalent at mid latitudes. Fixed by
+  delegating to sm.eciToGeodetic; agreement pinned <1e-9 scene units.
+- Shadow HUD upgraded from cylindrical to the M13 CONE model via
+  shadowFromGeodetic on satellite.js's own WGS84 chain (no hand-rolled
+  rotations for frames).
+- Earth: ACES tone mapping + exposure + sRGB output in custom shaders;
+  HIGH/BALANCED/LOW presets (dpr/clouds/glow/segments only, physics
+  identical); module-level texture cache; WebGL context-loss banner.
+- Orbits past/future split on real samples; camera modes OVERVIEW/FOCUS/
+  RESET/FOLLOW; TRUE SCALE toggle separating model size from position.
+- HUD provenance: source, bundle date, TLE age, NOMINAL/AGED/NO SOLUTION,
+  frame tooltips; model size/orientation disclaimer in footer.
+- Tests: vitest 156/156 (14 new), pytest 48/48, build green, all routes
+  + /lab/elements smoke 200.
+- Remaining: deeper lab micro-polish (step 8 audit found existing coverage
+  already solid: apsides/nodes/axes, degenerate-element tests), measured
+  FPS/perf report + visual regression screenshots require a real browser
+  (documented environment limitation, not marked complete).
