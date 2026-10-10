@@ -473,3 +473,24 @@ without touching its visual identity.
   all app routes + texture assets 200.
 - Next: F tracker interface redesign, G labs polish, H homepage hero,
   I camera/responsive/perf, J visual QC vs reference + regression sweep.
+
+## 2026-10-09 - Visual Refinement Phase 2
+
+- Earth: cloud shadows (labeled zero-offset approx), copper twilight band,
+  sun-aware atmosphere (day-limb blue / terminator glow / storm tint kept),
+  graded city lights, fresnel-weighted ocean glint, limb airglow.
+- Spacecraft: representative ISS / HST / GEO-comsat / EO / MEO-nav models +
+  GLTFLoader drop-in hook for licensed GLBs (none ship yet - no verified
+  permissive direct source found; stated limitation, never claimed replicas,
+  orientation labeled illustrative).
+- Declutter: graticule removed; orbits 7% unless selected (glow on
+  selection); LOD markers unchanged 1.6/4.5.
+- Camera: FOLLOW toggle eases the mission camera to the selected craft's
+  TRUE world position (geodeticToScene x live globe quaternion),
+  reduced-motion aware; mission framing 2.72, near plane 0.03.
+- HUD: SIM EPOCH + REAL-TIME/SIM badge from engine state, larger tabular
+  tiles; hero gradient + stat hierarchy; last green gradient residue swept
+  (green-* classes: 0).
+- Verified: vitest 142/142, pytest 48/48, build green, preview smoke all
+  200 incl. texture assets. Screenshots still impossible headless - visual
+  QC vs reference is the open follow-up (needs user's browser).

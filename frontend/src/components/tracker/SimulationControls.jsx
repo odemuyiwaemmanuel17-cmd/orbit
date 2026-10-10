@@ -1,4 +1,4 @@
-import { Pause, Play, SkipBack, SkipForward, Radio, History } from 'lucide-react'
+import { Pause, Play, SkipBack, SkipForward, Radio, History, Camera } from 'lucide-react'
 import { useEngine } from '../../hooks/useEngine.js'
 
 const SPEEDS = [0.25, 1, 10, 50, 100]
@@ -41,6 +41,14 @@ export default function SimulationControls() {
         <button onClick={() => { engine.setLive() }} title="Reset to now"
                 className="w-7 h-7 grid place-items-center rounded-full text-hi hover:bg-hi/10">
           <History size={13} />
+        </button>
+        <button onClick={() => engine.setFollow(!engine.follow)}
+                title="Camera follow: ease the view onto the selected spacecraft's true propagated position"
+                aria-pressed={engine.follow}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono transition
+                  ${engine.follow ? 'bg-hi/20 text-fg border border-hi/60 font-bold'
+                                  : 'text-hi hover:bg-hi/10 border border-transparent'}`}>
+          <Camera size={11} /> FOLLOW
         </button>
         <div className="w-px h-5 bg-hi/20 mx-0.5" />
         {SPEEDS.map((s) => (

@@ -20,7 +20,7 @@ export default function Hero() {
       <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-[1.05]">
         <span className="text-fg drop-shadow-[0_2px_18px_rgba(0,0,0,0.8)]">Track every orbit.</span>
         <br />
-        <span className="bg-gradient-to-r from-hi via-green-400 to-hi bg-clip-text text-transparent">
+        <span className="bg-gradient-to-r from-pri via-hi to-pri bg-clip-text text-transparent">
           Feel the pulse of space.
         </span>
       </h1>
@@ -33,7 +33,7 @@ export default function Hero() {
 
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
         <Link to="/tracker"
-           className="px-6 py-3 rounded-xl font-semibold text-sm bg-pri text-bg hover:bg-hi shadow-[0_0_28px_rgba(16,185,129,0.45)] transition">
+           className="px-6 py-3 rounded-xl font-semibold text-sm bg-pri text-bg hover:bg-hi shadow-[0_0_28px_rgba(59,130,246,0.45)] transition">
           Launch the Tracker
         </Link>
         <a href="#how"
@@ -45,8 +45,8 @@ export default function Hero() {
       <div className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-3xl">
         {STATS.map(([v, l]) => (
           <div key={l} className="glass rounded-xl px-4 py-4">
-            <div className="text-2xl font-black text-hi">{v}</div>
-            <div className="text-[11px] text-fg/60 mt-1">{l}</div>
+            <div className="text-[28px] font-black text-hi tracking-tight tabular-nums">{v}</div>
+            <div className="text-[10px] uppercase tracking-[0.12em] text-mut mt-1">{l}</div>
           </div>
         ))}
       </div>

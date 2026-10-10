@@ -56,6 +56,12 @@ class TrackerEngine {
     this._gtCaches = {}
     // Gentle focus easing target (set by focusOn, cleared by user drag).
     this.focusTarget = null
+    // Satellite-follow camera (phase 2). When on, the mission camera eases
+    // toward the ACTUAL world position of the selected satellite using the
+    // live globe-group quaternion — never a decorative tween.
+    this.follow = false
+    this.followSat = null       // {lat, lon, alt} refreshed each snapshot
+    this._globeObj = null       // GlobeGroup ref, for its authoritative quaternion
     // Toggleable 3D layers (footprint cone, conjunction alerts, decay vectors).
     this.layers = { footprint: true, groundtrack: true, alerts: true, drag: false }
     this.weather = syntheticWeather()
@@ -364,6 +370,20 @@ class TrackerEngine {
     yaw = Math.atan2(Math.sin(yaw - this.yaw), Math.cos(yaw - this.yaw)) + this.yaw
     this.focusTarget = { yaw, pitch: Math.max(-1.2, Math.min(1.2, 0.3 - latRad * 0.85)) }
     this.emit()
+  }
+
+  /** Satellite-follow camera on/off (mission view only; see CameraRig). */
+  setFollow(v) {
+    if (this.follow === !!v) return
+    this.follow = !!v
+    if (this.follow) this.focusTarget = null // follow supersedes one-shot ease
+    this.emit()
+  }
+  /** OrbitScene calls this whenever the snapshot updates so the follow
+   *  camera always targets the freshly propagated state (real positions). */
+  syncFollowViewpoint(snapshot, id = this.selectedId) {
+    const s = snapshot.find((x) => x.id === id)
+    this.followSat = s ? { lat: s.lat, lon: s.lon, alt: s.alt } : null
   }
   /** Public accessor: { meta, rec } for featured or active constellation
    *  objects — used by analysis tools (maneuver lab) to seed real states. */

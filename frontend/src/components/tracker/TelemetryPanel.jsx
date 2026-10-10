@@ -21,9 +21,9 @@ const CITIES = [
 function Tile({ label, value, unit }) {
   return (
     <div className="bg-black/25 border border-hi/10 rounded-lg px-3 py-2.5">
-      <div className="text-[9px] uppercase tracking-[0.15em] text-mut">{label}</div>
-      <div className="font-mono text-fg text-sm tabular-nums mt-0.5">
-        {value}<span className="text-[10px] text-mut ml-1">{unit}</span>
+      <div className="text-[8px] uppercase tracking-[0.18em] text-mut">{label}</div>
+      <div className="font-mono text-fg text-[15px] font-semibold tabular-nums mt-1 leading-tight">
+        {value}<span className="text-[10px] font-normal text-mut ml-1">{unit}</span>
       </div>
     </div>
   )
@@ -31,6 +31,7 @@ function Tile({ label, value, unit }) {
 
 const fmtTime = (ms) => new Date(ms).toISOString().slice(11, 19)
 const fmtDay = (ms) => new Date(ms).toISOString().slice(5, 10)
+const fmtDayLong = (ms) => new Date(ms).toISOString().slice(0, 10)
 
 function countdown(ms) {
   if (ms <= 0) return 'NOW'
@@ -41,10 +42,21 @@ function countdown(ms) {
 /* ------------------------------------------------------------------ tabs */
 
 function TelemetryTab({ meta, live }) {
+  const engine = useEngine()
   const fp = live ? footprintOf(live.alt) : null
   const det = useMemo(() => tleDetails(meta.line1, meta.line2), [meta])
   return (
     <>
+      <div className="flex items-center justify-between mb-2 px-0.5">
+        <span className="text-[9px] font-mono tracking-[0.14em] text-mut">
+          SIM EPOCH <span className="text-hi tabular-nums">{fmtTime(engine.simMs)}{` `}
+            {fmtDayLong(engine.simMs)}</span>
+        </span>
+        <span className={`text-[9px] font-mono px-1.5 py-px rounded-full border
+          ${engine.isLive ? 'border-ok/50 text-ok' : 'border-cau/50 text-cau'}`}>
+          {engine.isLive ? 'REAL-TIME' : `SIM ×${engine.warp}`}
+        </span>
+      </div>
       <div className="bg-hi/[0.06] border border-hi/25 rounded-lg p-3 mb-3">
         <div className="font-bold text-fg text-sm">{meta.name}</div>
         <div className="text-[11px] text-hi/90 mt-0.5">{meta.description}</div>
@@ -74,7 +86,7 @@ function TelemetryTab({ meta, live }) {
         <div className="bg-black/25 border border-hi/10 rounded-lg px-3 py-2.5"
              title="Cylindrical Earth-shadow model: LIT when the spacecraft is outside the umbra cone.">
           <div className="text-[9px] uppercase tracking-[0.15em] text-mut">Sunlight</div>
-          <div className={`font-mono text-sm mt-0.5 ${live?.sunlit ? 'text-amber-300' : 'text-cyan-300'}`}>
+          <div className={`font-mono text-sm mt-0.5 ${live?.sunlit ? 'text-cau' : 'text-hi'}`}>
             {live ? (live.sunlit ? '☀ LIT' : '☾ ECLIPSE') : '——'}
           </div>
         </div>

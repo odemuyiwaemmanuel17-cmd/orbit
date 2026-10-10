@@ -393,3 +393,24 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
   source of truth; the globe never "fakes" rotation.
 - Commits kept reviewable per phase: c6b8af9 tokens (B), ccdff0d Earth+sun (C/D),
   e1e6b18 lighting/craft/orbits (E).
+
+## Addendum 2026-10-09 — Visual Refinement Phase 2
+
+- Earth shader stack extended (cloud-shadow approx, twilight scattering,
+  sun-aware atmosphere, graded night lights). One invariant held throughout:
+  every lighting quantity reads sunDirection(engine.simMs) through the
+  validated sun ephemeris; the globe never animates independently of the
+  coordinate math (orientation contract still pinned by earthTexture.test.js).
+- Follow camera replaces aim heuristics with real transforms:
+  geodeticToScene(latest SGP4 state) x globe quaternion -> camera lerp.
+  engine.syncFollowViewpoint runs on every snapshot tick; toggle in
+  SimulationControls; reduced-motion honored.
+- Spacecraft visuals: representative multi-part models per slot (iss/hubble/
+  regime) + optional modelGlb licensed-asset drop-in path (GLTFLoader,
+  dynamic import, procedural fallback on failure). Explicitly labeled: not
+  replicas, orientation illustrative. No fake telemetry anywhere.
+- Declutter pass: graticule deleted, orbit rings 7% unless selected
+  (glow pass on selection), models LOD'd at 1.6/4.5 units.
+- Verified: vitest 142/142, pytest 48/48, build green, preview routes +
+  texture assets 200. GPU shader execution not verifiable headless —
+  recorded as a residual risk for user visual QC.

@@ -67,3 +67,50 @@ blue-family, still perceptually distinct.
 F tracker panel/HUD redesign · G lab visual polish · H cinematic homepage ·
 I camera modes + responsive passes · J side-by-side visual QC vs reference,
 full regression + deployment prep.
+
+---
+
+# Refinement Phase 2 (2026-10-09)
+
+## Earth realism upgrades (simulation sync preserved)
+- Cloud shadows damp the day map under cloud cover (zero-offset overhead
+  approximation — labeled in shader comment; sun-parallax offset not modeled).
+- Copper twilight scattering band (gaussian around ndl≈0) on both surface and
+  atmosphere rim; atmosphere is now sun-aware: blue in-scatter on the day
+  limb, dimmed on night side, terminator glow; storm tint retained.
+- Night lights fade in with the terminator (0.30..1.25 gain) instead of a
+  flat multiplier; limb airglow adds subtle depth without bloom passes.
+- All lighting still derives from `sunDirection(engine.simMs)` — scrubbing
+  time moves terminator, glints, city lights and key light together.
+
+## Spacecraft models
+- `SpacecraftModels.jsx`: representative ISS (truss + four-wing array
+  groups + module cluster + radiators), Hubble-class telescope, GEO comsat,
+  EO imager, MEO nav craft — original geometry from public configuration
+  knowledge, explicitly NOT exact replicas; UI/labeling keeps orientation as
+  illustrative nadir-pointing.
+- GLB drop-in hook: catalog entries may carry `modelGlb`; SatMarker then
+  loads it via three GLTFLoader (dynamic import, failure -> procedural
+  fallback). No third-party GLB ships yet — search found no verified
+  direct-download permissively licensed ISS/HST GLB (see report).
+
+## Declutter
+- Graticule (decorative great circles) removed — the textured planet is the
+  reference surface.
+- Orbit paths: unselected 0.45 px @ 7%; selected/risk get 1.5 px core +
+  4 px @ 14% glow pass. Ground track unchanged (real propagated samples).
+
+## Camera / depth
+- FOLLOW mode (toolbar toggle): mission camera eases toward the selected
+  spacecraft's TRUE world position — geodeticToScene of the latest SGP4
+  state rotated by the globe group's live quaternion. No new magic-number
+  aim formulas; prefers-reduced-motion snaps instead of drifting.
+- Mission framing tightened (2.9→2.72, slightly higher latitude), camera
+  near plane 0.03 for close model inspection; LOD distances unchanged.
+
+## HUD / homepage
+- Mission HUD: SIM EPOCH readout (UTC date+time, REAL-TIME vs SIM×warp
+  badge — from engine state, not decoration), larger tabular numerals in
+  tiles, wider label tracking, LIT/ECLIPSE use token colors.
+- Hero: gradient re-aimed pri→hi→pri, stat cards retuned; structure and
+  links untouched. Remaining green-gradient residue: zero.

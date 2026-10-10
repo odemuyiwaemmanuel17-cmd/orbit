@@ -51,7 +51,7 @@ export default function Navbar() {
               Contact
             </a>
             <Link to="/tracker"
-               className="px-4 py-1.5 rounded-lg text-[13px] font-semibold bg-pri text-bg hover:bg-hi shadow-[0_0_18px_rgba(16,185,129,0.35)] transition">
+               className="px-4 py-1.5 rounded-lg text-[13px] font-semibold bg-pri text-bg hover:bg-hi shadow-[0_0_18px_rgba(59,130,246,0.35)] transition">
               Launch Tracker
             </Link>
           </div>

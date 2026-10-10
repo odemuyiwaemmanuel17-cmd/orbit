@@ -126,7 +126,7 @@ export default function Contact() {
                           className={`mt-1.5 ${inputCls} resize-y`} />
               </div>
               <button type="submit"
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm bg-pri text-bg hover:bg-hi shadow-[0_0_20px_rgba(16,185,129,0.35)] transition">
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm bg-pri text-bg hover:bg-hi shadow-[0_0_20px_rgba(59,130,246,0.35)] transition">
                 <Send size={14} /> Transmit Message
               </button>
             </form>

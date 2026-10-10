@@ -7,6 +7,7 @@ import { footprintOf } from '../../lib/analysis.js'
 import { geodeticToScene, sunDirection, REGIME_COLORS } from '../../lib/coords.js'
 import ConstellationField from './ConstellationField.jsx'
 import LabOrbit from './LabOrbit.jsx'
+import { selectCraftModel, useGlbCraft } from './SpacecraftModels.jsx'
 
 const GREEN = '#38D9FF'
 const CRIMSON = '#FF647C'
@@ -60,22 +61,31 @@ void main() {
 
 const EARTH_FRAG = `
 uniform sampler2D uDay; uniform sampler2D uNight; uniform sampler2D uOcean;
+uniform sampler2D uClouds;
 uniform vec3 uSun; uniform vec3 uCam;
 varying vec2 vUv; varying vec3 vPos;
 void main() {
   vec3 n = normalize(vPos);
   vec3 s = normalize(uSun);
   float ndl = dot(n, s);
-  float t = smoothstep(-0.12, 0.06, ndl);          // natural-day terminator
+  float t = smoothstep(-0.12, 0.06, ndl);              // natural-day terminator
+  float twilight = exp(-pow((ndl + 0.02) * 7.5, 2.0)); // warm scattering band
   vec3 day = texture2D(uDay, vUv).rgb;
-  vec3 dayCol = day * (0.05 + 1.10 * max(ndl, 0.0)) + vec3(0.015, 0.03, 0.06);
-  vec3 nightCol = texture2D(uNight, vUv).rgb * 1.25 + day * 0.012;
+  float shadow = texture2D(uClouds, vUv).a;            // overhead cloud shadow (zero-offset approx)
+  day *= mix(1.0, 0.70, shadow);
+  vec3 dayCol = day * (0.05 + 1.12 * max(ndl, 0.0)) + vec3(0.015, 0.03, 0.06);
+  vec3 night = texture2D(uNight, vUv).rgb;
+  // city lights shine where there is no sun; faint residual under twilight
+  vec3 nightCol = night * (0.30 + 0.95 * (1.0 - t)) + day * 0.012;
   vec3 col = mix(nightCol, dayCol, t);
+  col += day * vec3(0.85, 0.42, 0.18) * twilight * 0.16; // copper sunset band
   float ocean = texture2D(uOcean, vUv).r;
   vec3 v = normalize(uCam - vPos);
   vec3 h = normalize(v + s);
-  float spec = pow(max(dot(n, h), 0.0), 90.0) * ocean * t;
-  col += vec3(0.30, 0.45, 0.65) * spec;            // sun glint on water only
+  float fres = pow(1.0 - max(dot(n, v), 0.0), 3.0);
+  float spec = pow(max(dot(n, h), 0.0), 120.0) * ocean * t;
+  col += vec3(0.30, 0.45, 0.65) * spec * (0.55 + 0.9 * fres); // sun glint on water only
+  col += vec3(0.05, 0.12, 0.25) * fres * (0.22 + 0.78 * t);   // limb airglow, subtle
   gl_FragColor = vec4(col, 1.0);
 }`
 
@@ -85,31 +95,11 @@ varying vec2 vUv; varying vec3 vPos;
 void main() {
   vec4 c = texture2D(uClouds, vUv);
   float ndl = dot(normalize(vPos), normalize(uSun));
-  float lit = smoothstep(-0.15, 0.25, ndl);
-  gl_FragColor = vec4(c.rgb * mix(0.08, 1.0, lit), c.a * uOpacity);
+  float t = smoothstep(-0.15, 0.28, ndl);
+  float edge = exp(-pow(ndl * 5.5, 2.0));              // translucency glow at the terminator
+  vec3 base = c.rgb * mix(0.08, 1.02, t) + vec3(0.9, 0.5, 0.25) * edge * 0.18;
+  gl_FragColor = vec4(base, c.a * uOpacity * mix(0.7, 1.0, t));
 }`
-
-function Graticule() {
-  const geo = useMemo(() => {
-    const pts = []
-    const seg = (a, b) => pts.push(a.x, a.y, a.z, b.x, b.y, b.z)
-    const v = (lat, lon) => geodeticToScene(lat, lon, 0, new THREE.Vector3())
-    for (let lat = -60; lat <= 60; lat += 30) {
-      for (let lon = -180; lon < 180; lon += 6) seg(v(lat, lon), v(lat, lon + 6))
-    }
-    for (let lon = -180; lon < 180; lon += 30) {
-      for (let lat = -90; lat < 90; lat += 6) seg(v(lat, lon), v(lat + 6, lon))
-    }
-    const g = new THREE.BufferGeometry()
-    g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3))
-    return g
-  }, [])
-  return (
-    <lineSegments geometry={geo}>
-      <lineBasicMaterial color={GREEN} transparent opacity={0.08} />
-    </lineSegments>
-  )
-}
 
 function Earth() {
   const [tex, setTex] = useState(null)
@@ -132,6 +122,7 @@ function Earth() {
     vertexShader: EARTH_VERT, fragmentShader: EARTH_FRAG,
     uniforms: {
       uDay: { value: null }, uNight: { value: null }, uOcean: { value: null },
+      uClouds: { value: null },
       ...uniforms,
     },
   }), [uniforms])
@@ -145,17 +136,19 @@ function Earth() {
     earthMat.uniforms.uDay.value = tex.day
     earthMat.uniforms.uNight.value = tex.night
     earthMat.uniforms.uOcean.value = tex.ocean
+    earthMat.uniforms.uClouds.value = tex.clouds
     cloudMat.uniforms.uClouds.value = tex.clouds
   }, [tex, earthMat, cloudMat])
 
-  // Fresnel atmosphere; uStorm tints the rim amber/red during geomagnetic storms.
+  // Fresnel atmosphere, sun-aware: deep blue in-scatter on the day limb,
+  // copper glow along the terminator ring, amber/red during geomagnetic storms.
   const atmoMat = useMemo(() => new THREE.ShaderMaterial({
     transparent: true, depthWrite: false,
     side: THREE.BackSide, blending: THREE.AdditiveBlending,
-    uniforms: { uStorm: { value: 0 } },
-    vertexShader: 'varying vec3 vN; varying vec3 vV; void main(){ vN=normalize(normalMatrix*normal); vec4 mv=modelViewMatrix*vec4(position,1.0); vV=normalize(-mv.xyz); gl_Position=projectionMatrix*mv; }',
-    fragmentShader: 'uniform float uStorm; varying vec3 vN; varying vec3 vV; void main(){ float f=1.0-abs(dot(vN,vV)); vec3 calm=vec3(0.18,0.52,0.98); vec3 hot=vec3(1.0,0.45,0.25); gl_FragColor=vec4(mix(calm,hot,uStorm), pow(f,3.0)*(0.55+0.35*uStorm)); }',
-  }), [])
+    uniforms: { uStorm: { value: 0 }, uSun: uniforms.uSun },
+    vertexShader: 'varying vec3 vN; varying vec3 vV; varying vec3 vP; void main(){ vN=normalize(normalMatrix*normal); vec4 mv=modelViewMatrix*vec4(position,1.0); vV=normalize(-mv.xyz); vP=normalize(position); gl_Position=projectionMatrix*mv; }',
+    fragmentShader: 'uniform float uStorm; uniform vec3 uSun; varying vec3 vN; varying vec3 vV; varying vec3 vP; void main(){ float d=dot(vP,normalize(uSun)); float f=1.0-abs(dot(vN,vV)); float dayGlow=smoothstep(-0.3,0.55,d); float tw=exp(-pow((d+0.04)*5.5,2.0)); vec3 calm=vec3(0.18,0.52,0.98); vec3 hot=vec3(1.0,0.45,0.25); vec3 c=mix(calm,hot,uStorm); c=c*mix(0.22,1.0,dayGlow)+vec3(1.0,0.52,0.22)*tw*0.55; gl_FragColor=vec4(c, pow(f,3.0)*(0.30+0.55*dayGlow+0.45*tw)*(0.55+0.35*uStorm)); }',
+  }), [uniforms])
 
   useFrame(({ camera }, dt) => {
     const target = engine.weather?.storm
@@ -192,7 +185,6 @@ function Earth() {
           </mesh>
         )}
       </group>
-      <Graticule />
       <mesh material={atmoMat}>
         <sphereGeometry args={[1.05, 48, 48]} />
       </mesh>
@@ -324,11 +316,17 @@ function OrbitRings({ snapshot }) {
         const isSel = s.id === selected
         const isRisk = riskIds.has(s.id)
         return (
-          <Line key={s.id} points={pts}
-                color={isRisk ? CRIMSON : (REGIME_COLORS[s.meta.regime] ?? GREEN)}
-                lineWidth={isSel || isRisk ? 1.5 : 0.55}
-                transparent opacity={isRisk ? 0.9 : isSel ? 0.85 : 0.13}
-                toneMapped={false} />
+          <group key={s.id}>
+            {(isSel || isRisk) && (
+              <Line points={pts} color={isRisk ? CRIMSON : (REGIME_COLORS[s.meta.regime] ?? GREEN)}
+                    lineWidth={4} transparent opacity={0.14} toneMapped={false} />
+            )}
+            <Line points={pts}
+                  color={isRisk ? CRIMSON : (REGIME_COLORS[s.meta.regime] ?? GREEN)}
+                  lineWidth={isSel || isRisk ? 1.5 : 0.45}
+                  transparent opacity={isRisk ? 0.9 : isSel ? 0.95 : 0.07}
+                  toneMapped={false} />
+          </group>
         )
       })}
     </group>
@@ -361,48 +359,14 @@ function SunLight() {
 /* --------------------------------------------------- Spacecraft markers */
 
 /**
- * Generic 3-axis bus with solar wings — a category model (Earth-observation
- * imager vs comms/nav craft with dish), NOT a replica of any specific
- * spacecraft. Orientation is illustrative: boresight nadir-locked, which is
- * typical payload-pointing behavior but is not real attitude data.
+ * Distance-aware hybrid: full representative spacecraft model (per-slot:
+ * ISS truss station, Hubble-class telescope, GEO comsat, EO imager, nav
+ * craft — see SpacecraftModels.jsx for licensing/illustrative notes, plus
+ * an optional licensed-GLB drop-in) when near or selected; dots when far
+ * (drei Detailed = one THREE LOD, zero React churn on level switches).
+ * Selection grows with a smooth scale transition. Orientation is
+ * ILLUSTRATIVE nadir-pointing — no real attitude data is claimed.
  */
-function CraftModel({ regime }) {
-  const accent = REGIME_COLORS[regime] ?? '#38D9FF'
-  const span = regime === 'GEO' ? 0.085 : 0.062
-  const wing = (sign) => (
-    <mesh position={[sign * span * 0.58, 0, 0]}>
-      <boxGeometry args={[span, 0.0016, 0.026]} />
-      <meshStandardMaterial color="#16296b" emissive={accent} emissiveIntensity={0.16}
-                            metalness={0.35} roughness={0.55} />
-    </mesh>
-  )
-  return (
-    <group>
-      <mesh>
-        <boxGeometry args={[0.02, 0.024, 0.036]} />
-        <meshStandardMaterial color="#c8d6ea" metalness={0.55} roughness={0.4} />
-      </mesh>
-      {wing(1)}
-      {wing(-1)}
-      {regime === 'LEO' ? (
-        <mesh position={[0, 0, -0.022]}>
-          <boxGeometry args={[0.013, 0.013, 0.008]} />
-          <meshStandardMaterial color="#0b1220" metalness={0.25} roughness={0.15} />
-        </mesh>
-      ) : (
-        <mesh position={[0, 0, -0.026]} rotation={[Math.PI / 2, 0, 0]}>
-          <coneGeometry args={[0.016, 0.009, 16, 1, true]} />
-          <meshStandardMaterial color="#dbe7f7" metalness={0.4} roughness={0.5}
-                                side={THREE.DoubleSide} />
-        </mesh>
-      )}
-    </group>
-  )
-}
-
-/** Distance-aware hybrid: instanced-style dot when far, full model when
- *  near or selected (drei Detailed = one THREE LOD, zero React churn on
- *  level switches). Selection grows with a smooth scale transition. */
 function SatMarker({ s, sel }) {
   const inner = useRef()
   const pos = geodeticToScene(s.lat, s.lon, s.alt, new THREE.Vector3())
@@ -412,9 +376,12 @@ function SatMarker({ s, sel }) {
     if (len > 1e-6) q.setFromUnitVectors(NADIR0, pos.clone().multiplyScalar(-1 / len))
     return q
   }, [pos.x, pos.y, pos.z])
+  const glb = useGlbCraft(s.meta.modelGlb)
+  const Model = selectCraftModel(s.meta)
   useFrame((_, dt) => {
     if (inner.current) inner.current.scale.lerp(sel ? UP_SCALE : ONE, Math.min(1, dt * 8))
   })
+  const craft = glb ? <primitive object={glb} /> : <Model />
   const dot = (size, opacity) => (
     <mesh>
       <sphereGeometry args={[size, 8, 8]} />
@@ -427,20 +394,20 @@ function SatMarker({ s, sel }) {
       <group ref={inner}>
         {sel ? (
           <>
-            <CraftModel regime={s.meta.regime} />
+            {craft}
             <mesh>
-              <ringGeometry args={[0.045, 0.052, 32]} />
+              <ringGeometry args={[0.052, 0.058, 32]} />
               <meshBasicMaterial color="#38D9FF" transparent opacity={0.9}
                                  side={THREE.DoubleSide} toneMapped={false} />
             </mesh>
             <mesh>
-              <sphereGeometry args={[0.006, 8, 8]} />
+              <sphereGeometry args={[0.005, 8, 8]} />
               <meshBasicMaterial color="#F2F7FF" toneMapped={false} />
             </mesh>
           </>
         ) : (
           <Detailed distances={[1.6, 4.5]}>
-            <CraftModel regime={s.meta.regime} />
+            {craft}
             {dot(0.013, 0.95)}
             {dot(0.0085, 0.8)}
           </Detailed>
@@ -472,6 +439,9 @@ const KEYS = [
   { p: 1.00, d: 8.2, lat: 0.45, lon: 6.5 },
 ]
 const smooth = (t) => t * t * (3 - 2 * t)
+const CAM_TMP = new THREE.Vector3()
+const REDUCED_MOTION = typeof window !== 'undefined'
+  && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
 function CameraRig({ mission = false }) {
   const { camera } = useThree()
@@ -486,18 +456,31 @@ function CameraRig({ mission = false }) {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [mission])
-  useFrame(({ clock }) => {
+  useFrame(({ clock }, dt) => {
+    if (mission && engine.follow && engine.followSat && engine._globeObj) {
+      // Follow mode: aim at the satellite's TRUE world position —
+      // geodeticToScene of the latest propagated state, rotated by the
+      // globe group's actual quaternion. The camera lerps; the math does not.
+      const p = geodeticToScene(engine.followSat.lat, engine.followSat.lon,
+        engine.followSat.alt, CAM_TMP)
+        .applyQuaternion(engine._globeObj.quaternion)
+        .normalize()
+        .multiplyScalar(2.72 * engine.zoom)
+      camera.position.lerp(p, Math.min(1, dt * (REDUCED_MOTION ? 12 : 2.2)))
+      camera.lookAt(0, 0, 0)
+      return
+    }
     const p = mission ? 0.16 : progress.current
     let i = 0
     while (i < KEYS.length - 2 && p > KEYS[i + 1].p) i += 1
     const a = KEYS[i], b = KEYS[i + 1]
     const span = Math.max(1e-6, b.p - a.p)
     const t = smooth(Math.min(1, Math.max(0, (p - a.p) / span)))
-    const base = mission ? 2.9 : THREE.MathUtils.lerp(a.d, b.d, t)
+    const base = mission ? 2.72 : THREE.MathUtils.lerp(a.d, b.d, t)
     const d = base * engine.zoom
-    const lat = mission ? 0.3 : THREE.MathUtils.lerp(a.lat, b.lat, t)
+    const lat = mission ? 0.32 : THREE.MathUtils.lerp(a.lat, b.lat, t)
     const lon = (mission ? 0.7 : THREE.MathUtils.lerp(a.lon, b.lon, t))
-            + clock.elapsedTime * (mission ? 0.03 : 0.015) + engine.yaw * 0.25
+            + clock.elapsedTime * (mission ? (REDUCED_MOTION ? 0 : 0.03) : 0.015) + engine.yaw * 0.25
     camera.position.set(
       d * Math.cos(lat) * Math.cos(lon),
       d * Math.sin(lat),
@@ -511,6 +494,7 @@ function CameraRig({ mission = false }) {
 /** Globe + payload group; rotation follows drag input and focus easing. */
 function GlobeGroup({ children }) {
   const ref = useRef()
+  useEffect(() => { engine._globeObj = ref.current; return () => { engine._globeObj = null } }, [])
   useFrame((_, dt) => {
     if (engine.focusTarget) {
       const k = Math.min(1, dt * 2.2)
@@ -530,13 +514,19 @@ function GlobeGroup({ children }) {
 
 export default function OrbitScene({ mission = false, lab = null, overlay = null }) {
   const [snapshot, setSnapshot] = useState(() => engine.propagateAll())
-  useEffect(() => engine.subscribe((e) => {
-    if (e.snapshot) setSnapshot(e.snapshot)
-  }), [])
+  useEffect(() => {
+    engine.syncFollowViewpoint(snapshot)
+    return engine.subscribe((e) => {
+      if (e.snapshot) {
+        setSnapshot(e.snapshot)
+        engine.syncFollowViewpoint(e.snapshot)
+      }
+    })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Canvas
-      camera={{ fov: 45, near: 0.05, far: 60, position: [4, 2, 6] }}
+      camera={{ fov: 45, near: 0.03, far: 60, position: [4, 2, 6] }}
       gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
       dpr={[1, 1.75]}
       style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}
