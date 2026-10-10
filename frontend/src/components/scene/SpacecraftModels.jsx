@@ -166,6 +166,18 @@ export function selectCraftModel(meta) {
   return EarthObsModel
 }
 
+/** V3 true-scale mode: spacecraft POSITION is always true-scale; this
+ *  factor only converts the model's drawn SIZE from the ~10x visibility
+ *  exaggeration to real physical size (factor = real wingspan km /
+ *  (Earth radius km x nominal model wingspan in scene units)). */
+export function trueScaleFactor(meta) {
+  const realKm = meta.slot === 'iss' ? 109 : meta.slot === 'hubble' ? 13.2
+    : meta.regime === 'GEO' ? 12 : meta.regime === 'MEO' ? 5.3 : 6.5
+  const modelWingspan = meta.slot === 'iss' ? 0.176 : meta.slot === 'hubble' ? 0.14
+    : meta.regime === 'GEO' ? 0.26 : meta.regime === 'MEO' ? 0.124 : 0.085
+  return realKm / (6371.0 * modelWingspan)
+}
+
 /** Optional licensed-GLB path (see file header). Returns null when the
  *  entry carries no modelGlb or loading fails — caller falls back. */
 export function useGlbCraft(url) {

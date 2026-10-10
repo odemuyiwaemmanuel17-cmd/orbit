@@ -61,3 +61,19 @@ re-runnable: `cd frontend && npx vitest run && npx vite build`,
 - Replace stand-in craft once a license-verified ISS/HST GLB is sourced.
 - Visual-regression: add Playwright screenshot jobs in CI (needs browser env).
 - Ellipsoidal scene radius if sub-km placement fidelity is ever needed.
+
+## 6. Post-release hotfix (2026-10-10)
+
+- **Incident**: the live tracker crashed with `PRESETS is not defined`
+  (RouteErrorBoundary). Cause: during the V3 phase-7 edit of
+  `OrbitScene.jsx`, the import-application step silently missed —
+  `vite build`/esbuild does not check identifier resolution at module
+  scope, so an undefined runtime reference ships green.
+- **Fix**: restored `import { PRESETS, loadPreset } from '../../lib/quality.js'`
+  in `OrbitScene.jsx`; moved `trueScaleFactor` into `SpacecraftModels.jsx`
+  as an exported pure helper so it is covered by tests, not just the scene.
+- **Systemic guard**: new `tests/moduleWiring.test.js` statically scans
+  every `src/**` module for capitalized global-looking identifiers used
+  with `.`/`[` that are neither imported nor declared, and fails the suite.
+  Verified against the original bug (temporarily removing the import fails
+  the test) and green on the fixed tree (158/158).

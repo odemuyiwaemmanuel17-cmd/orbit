@@ -535,3 +535,18 @@ without touching its visual identity.
   units, explicit trade-offs, and honest BLOCKED list (browser visual QC,
   FPS capture, licensed GLB sourcing) — untested items are NOT marked
   complete per program rules.
+
+## 2026-10-10 - Hotfix: PRESETS runtime crash + module wiring guard
+
+- User-reported production crash: tracker RouteErrorBoundary showed
+  "PRESETS is not defined". Root cause: a missed import-application in
+  OrbitScene.jsx during V3 phase 7; esbuild/vite build cannot catch
+  unresolved module-scope identifiers, so it shipped green.
+- Fix: restored `import { PRESETS, loadPreset } from lib/quality.js`;
+  extracted `trueScaleFactor` into SpacecraftModels.jsx (exported,
+  testable); removed unused EARTH_RADIUS_KM import from OrbitScene.
+- New guard: tests/moduleWiring.test.js — static scan of src/** for
+  capitalized globals used but never imported/declared. Proven to flag
+  the original bug and clean on the fixed tree.
+- Evidence: vitest 158/158, vite build green, preview smoke / //tracker
+  /lab/elements all 200. Docs: V3_RELEASE.md section 6.

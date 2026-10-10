@@ -7,7 +7,8 @@ import { footprintOf } from '../../lib/analysis.js'
 import { geodeticToScene, sunDirection, REGIME_COLORS } from '../../lib/coords.js'
 import ConstellationField from './ConstellationField.jsx'
 import LabOrbit from './LabOrbit.jsx'
-import { selectCraftModel, useGlbCraft } from './SpacecraftModels.jsx'
+import { selectCraftModel, useGlbCraft, trueScaleFactor } from './SpacecraftModels.jsx'
+import { PRESETS, loadPreset } from '../../lib/quality.js'
 
 const GREEN = '#38D9FF'
 const CRIMSON = '#FF647C'
@@ -386,17 +387,10 @@ function SunLight() {
  * Selection grows with a smooth scale transition. Orientation is
  * ILLUSTRATIVE nadir-pointing — no real attitude data is claimed.
  */
-/** V3 true-scale mode: spacecraft POSITION is always true-scale; this
- *  switch only changes how much the model SIZE is exaggerated (default
- *  ~10x for visibility). Factor = real wingspan km / (Earth radius units). */
+/** V3 true-scale mode: positions are always true-scale; the toggle only
+ *  swaps model SIZE from the ~10x visibility exaggeration to real physical
+ *  size (trueScaleFactor lives in SpacecraftModels.jsx, unit-tested). */
 const TS_TMP = new THREE.Vector3()
-function trueScaleFactor(meta) {
-  const realKm = meta.slot === 'iss' ? 109 : meta.slot === 'hubble' ? 13.2
-    : meta.regime === 'GEO' ? 12 : meta.regime === 'MEO' ? 5.3 : 6.5
-  const modelWingspan = meta.slot === 'iss' ? 0.176 : meta.slot === 'hubble' ? 0.14
-    : meta.regime === 'GEO' ? 0.26 : meta.regime === 'MEO' ? 0.124 : 0.085
-  return realKm / (EARTH_RADIUS_KM * modelWingspan)
-}
 
 function SatMarker({ s, sel }) {
   const inner = useRef()
