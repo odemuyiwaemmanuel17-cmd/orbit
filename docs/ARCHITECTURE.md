@@ -540,3 +540,22 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
 - Tests: vitest 213/213 (12 new). pytest 48/48. Build green, /lab/j2 +
   chunk smoke 200. NEXT_UP leads with M18 SSO Designer (now one click
   away in the J2 lab).
+
+## Addendum 2026-10-27 — M18 Sun-Sync Designer Lab
+
+- lib/sso.js: composition-only module (validated kepler/j2/sun layers) +
+  the LTAN geometry (mean-solar-time node clock, RAAN<->LTAN inverse
+  pair, plane-normal/beta helper, live SSO classifier whose drift comes
+  from the j2 rate mismatch, not a magic coefficient).
+- /lab/sso (first DESIGN tag): altitude + LTAN sliders with 6 mission
+  presets, live SSO-family classification of the watched satellite,
+  drift-lock readout (|Ω̇ − sun rate| < 0.01°/day), beta + illumination
+  class with explicit hand-offs to the Eclipse and Solar Power labs,
+  and the signature visualization: the design plane NOW plus a +92-day
+  ghost plane and ghost sun — proof-by-picture that J2 walk == sun walk.
+- moduleWiring guard hardened same milestone: JSX-children stripper now
+  tolerates '>' inside expression holes (was flagging prose "Power." as
+  an identifier); re-proved against the original PRESETS regression
+  scenario after the relaxation (fail-with, pass-after).
+- Tests: vitest 227/227 (14 new). pytest 48/48. Build green, /lab/sso +
+  chunk smoke 200. NEXT_UP: M19 Conjunction pair view.

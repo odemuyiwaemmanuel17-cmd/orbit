@@ -30,7 +30,9 @@ function stripNoise(code) {
     .replace(/`(?:\\.|[^`\\])*`/gs, '``') // template literals (GLSL etc.)
     .replace(/'(?:\\.|[^'\\\n])*'/g, "''") // string literals
     .replace(/"(?:\\.|[^"\\\n])*"/g, '""')
-    .replace(/>([^<>]*)<\//g, '></') // JSX children (up to a closing tag only)
+    .replace(/>([^<]*)<\//g, '></') // JSX children up to the first closing tag
+    // (`>` may legitimately appear inside {expression} children — strings
+    // were stripped first, so only the closing `<` is a hard delimiter)
 }
 
 const GLOBALS = new Set(['Math', 'JSON', 'Object', 'Array', 'String', 'Number',

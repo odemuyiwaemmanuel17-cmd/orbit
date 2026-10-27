@@ -501,3 +501,32 @@ terms only).
   tracker's SGP4 contains), J₃ and higher, third bodies, drag. The lab
   isolates the AVERAGED drift so its geometry is visible — ghost orbits
   show where the plane actually goes at +30/+90/+365 days.
+
+## Sun-synchronous designer (M18)
+
+Source: `frontend/src/lib/sso.js`; validated in `tests/sso.test.js`
+(14 cases); UI at `/lab/sso` (first DESIGN-category lab). This module
+adds NO new orbital physics — it composes three validated layers
+(kepler.sunSyncInclinationDeg, j2SecularRatesDegDay, sun.js Meeus RA)
+and contributes the LTAN geometry:
+
+- LTAN (Local Time of ASCENDING NODE, MEAN solar time):
+  LTAN[h] = ((Ω − α☉)/15 + 12) mod 24. Sanity chain pinned by test:
+  node at the sun's RA ⇒ 12:00 noon crossing; dusk = noon + 90° RA;
+  dusk − dawn = 180°. Inverse: Ω = α☉ + (LTAN − 12)·15°.
+- The SSO condition itself is the pre-validated solve cos i =
+  Ω̇☉/(−3/2 J₂ (Re/p)² n̄) — the design card displays the DRIFT MISMATCH
+  |Ω̇(J2 at solved i) − 0.9856°/day| < 0.01°/day as a live proof of lock,
+  not just restating the solver.
+- β = asin(|n̂·ŝun|) with n̂ = (sin i sin Ω, −sin i cos Ω, cos i):
+  equinox tests pin the known structure — LTAN 12:00 ⇒ β ≈ 0°
+  (maximum eclipse class); LTAN 06/18 ⇒ β ≈ 82° at i = 98.2°
+  (dawn-dusk, umbra-free; ties to M13/M14 power behavior).
+- Live classification: any watched SGP4 object gets
+  {SSO ±0.5° | NEAR-SSO | not SSO} plus its actual LTAN; NEAR-SSO drift
+  is computed from the RATE MISMATCH of j2 at (i vs i_sso) — no invented
+  conversion constants (≈ 0.48 min/day per degree falls out of the math).
+- Disclosed omissions: equation of time (±16 min — LTAN is MEAN solar
+  time), the RAAN long-period J22 wiggle, seasonal β drift (±few degrees
+  over a season), and the ~12,000 km SSO ceiling returns an honest
+  "no solution" card instead of clamping.

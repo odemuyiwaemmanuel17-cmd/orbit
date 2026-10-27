@@ -37,11 +37,12 @@ const LABS = [
     note: 'RK4 on the averaged decay law: lifetime to the reentry band, perigee/apogee trajectory' },
   { to: '/lab/j2', icon: Orbit, tag: 'ANALYZE', title: 'J2 Secular Precession',
     note: 'Earth-oblateness node & apsidal drift with ghost orbits at +30/+90/+365 days' },
+  { to: '/lab/sso', icon: SunMedium, tag: 'DESIGN', title: 'Sun-Sync Designer',
+    note: 'Altitude ↔ inclination solution with LTAN targeting — the plane keeps pace with the sun' },
 ]
 
 const NEXT_UP = [
-  'SSO Designer',
-  'Conjunction & Avoidance', 'Mission Builder',
+  'Conjunction & Avoidance', 'Mission Builder', 'Preset Missions',
 ]
 
 export default function LabsIndexPage() {

@@ -644,3 +644,26 @@ without touching its visual identity.
   ARCHITECTURE M17 sections, ROADMAP M17 DONE.
 - Next: M18 SSO Designer (local-time LTAN targeting, altitude<->inclination
   solution — the sunSyncInclinationDeg math is already validated).
+
+## 2026-10-27 - M18 Sun-Sync Designer (22-milestone program)
+
+- Composition-first design: no new orbital physics — sso.js wires the
+  validated kepler SSO solver, j2 secular layer and Meeus sun RA, adding
+  only LTAN mean-solar-time geometry (test-pinned sanity chain: node at
+  sun's RA => 12:00, dusk = noon+90°, 18:00-06:00=180°).
+- Design card shows the LOCK PROOF (|Ω̇_J2 − 0.9856°/day| < 0.01°/day)
+  rather than just re-printing the solver; beta classes tie into M13/M14
+  (dawn-dusk umbra-free explicitly connected to the power labs).
+- Live classifier: watched-satellite SSO-family check + actual LTAN;
+  NEAR-SSO drift derived from j2 rate mismatch (~0.48 min/day per
+  degree falls out of math — replaced my initial made-up 0.07 h/season
+  constant during self-review before it shipped).
+- /lab/sso overlay: plane now + +92-day ghost plane + ghost sun =
+  repeat-lighting made visible. Honest ceiling: 15,000 km -> solvable:
+  false with reason, no clamping.
+- Guard upgrade shipped with it: moduleWiring JSX-children strip now
+  survives '>' inside expression holes (false positive on panel prose
+  "Power."); re-proved the guard still flags the original missing-PRESETS
+  scenario after relaxation.
+- Evidence: vitest 227/227 (14 new), pytest 48/48, build green, preview
+  smoke 200 all routes + chunk. ROADMAP M18 DONE. Next: M19 Conjunction.

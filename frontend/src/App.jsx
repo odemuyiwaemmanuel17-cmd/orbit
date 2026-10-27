@@ -22,6 +22,7 @@ const PowerLabPage = lazy(() => import('./pages/Lab/PowerLabPage.jsx'))
 const DragLabPage = lazy(() => import('./pages/Lab/DragLabPage.jsx'))
 const DecayLabPage = lazy(() => import('./pages/Lab/DecayLabPage.jsx'))
 const J2LabPage = lazy(() => import('./pages/Lab/J2LabPage.jsx'))
+const SsoDesignerPage = lazy(() => import('./pages/Lab/SsoDesignerPage.jsx'))
 const LabsIndexPage = lazy(() => import('./pages/Lab/LabsIndexPage.jsx'))
 
 /**
@@ -45,6 +46,7 @@ const LabsIndexPage = lazy(() => import('./pages/Lab/LabsIndexPage.jsx'))
  *   /lab/drag     -> ANALYZE: Atmospheric drag (US Standard Atmosphere 1976 + vis-viva decay rate)
  *   /lab/decay    -> ANALYZE: Orbit decay & lifetime (RK4 on the M16 averaged law)
  *   /lab/j2       -> ANALYZE: J2 secular precession (node & apsidal drift, ghost orbits)
+ *   /lab/sso      -> DESIGN: sun-synchronous designer (altitude <-> inclination, LTAN lock)
  *   /lab          -> ANALYZE/DESIGN index (all labs)
  */
 export default function App() {
@@ -197,6 +199,14 @@ export default function App() {
             element={
               <Suspense fallback={<SceneLoader label="LOADING J2 LAB" />}>
                 <J2LabPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/lab/sso"
+            element={
+              <Suspense fallback={<SceneLoader label="LOADING SSO DESIGNER" />}>
+                <SsoDesignerPage />
               </Suspense>
             }
           />

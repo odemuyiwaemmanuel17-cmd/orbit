@@ -306,3 +306,24 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 | linear drift wrap | Ω₀+Ω̇·t wrapped [0,360) | exact | match | 1e-9 |
 | one-period phase slip | (n̄−n)T at polar SSO a | −0.22° predicted | match | 1e-6 |
 | guards | a<=Re, e=1, dt NaN | throw Range/Type | throws | - |
+
+## Sun-synchronous designer — M18 (frontend/tests/sso.test.js)
+
+| Check | Reference | Expected | OrbitalPulse | Delta |
+|---|---|---|---|---|
+| LTAN round trip | design Ω then measure LTAN | identity 8 local times | match | 1e-9 |
+| dusk-noon geometry | +90° RA east of noon node | exact | match | 1e-9 |
+| dawn-dusk opposition | 18:00 − 06:00 = 180° | exact | match | 1e-9 |
+| sun RA year closure | 365 d vs tropical 365.2422 d | ~0.24° short | match | <0.4° |
+| plane normals | i=0 ⇒ +Z; i=90 Ω=0 ⇒ −Y | unit, signs | match | 1e-12 |
+| noon SSO at equinox | β = asin\|cos i sin δ☉\| | <1.5° (δ≈0) | match | - |
+| dawn/dusk SSO | β ≈ 90−(i−90) = 81.8° | 78–84° band | match | - |
+| dawn ≡ dusk | β symmetry at equinox | <1° apart | match | - |
+| 705 km design | i≈98.2°, T≈98.8 min, drift≈sun | bands + mismatch | match | <0.01°/day |
+| RAAN formula | Ω = α☉ + (10.5−12)·15 | 337.5° offset | match | 1e-9 |
+| monotone i(a) | 600<800<1000 km | increasing | match | - |
+| SSO ceiling | 15,000 km | solvable=false + reason | match | - |
+| LTAN classes | β>60 / β<25 / else | 3 labels | match | - |
+| exact design self-class | SSO flag, drift ~0, LTAN kept | 9.75 returned | match | 1e-6 |
+| +1° tilt drift | rate-mismatch / 15 h | 0.2–0.8 min/day | ~0.48 | derived |
+| 51.6° object | not SSO family | no drift claim | match | - |
