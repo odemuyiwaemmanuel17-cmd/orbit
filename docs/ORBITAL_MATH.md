@@ -432,3 +432,42 @@ Source: `frontend/src/lib/drag.js`; validated in `tests/drag.test.js`
 - Out of scope by design (M16): eccentric-orbit perigee pumping,
   multi-year integrated lifetime, reentry terminal phase, solar-flux
   history models.
+
+## Orbit decay & lifetime (M16)
+
+Source: `frontend/src/lib/decay.js`; validated in `tests/decay.test.js`
+(11 cases); UI at `/lab/decay`. **SIMPLIFIED — MEDIAN ATMOSPHERE.**
+
+- Instantaneous semimajor-axis rate from the vis-viva energy balance with
+  drag power ½·ρ·v³/B (non-rotating convention, matching M15's circular
+  law EXACTLY — pinned): da/dt = −a²·ρ(r)·v³/(μ·B) · 1000, where v² =
+  μ(2/r − 1/a) (vis-viva). The ×1000 is the ρ/B unit bridge (m⁻¹→km⁻¹);
+  dropping it silently inflates every lifetime 1000×, and the circular
+  identity test exists precisely because that bug was caught here.
+- Eccentric averaging: time mean over one period sampled UNIFORMLY IN
+  ECCENTRIC ANOMALY (dt ∝ (1 − e·cosE)dE, 90–360 samples). Perigee
+  pumping EMERGES from the sampling — no memorized eccentricity function
+  is asserted; robust invariants are tested instead (circular limit
+  identity, mean ∈ [min, max] of instantaneous, 360-vs-1440 grid
+  convergence <0.5%).
+- Integrator (documented, per program rules): classical RK4 on the scalar
+  state a [km], fixed step (user-selectable 0.25–16 d), hard limits:
+  stepDays > 0, total budget ≤ 40000 steps (throws beyond), termination =
+  perigee below the reentry band (120 km) OR the step's probe evaluations
+  leaving the tabulated atmosphere (terminal decay — see below).
+- Convergence cross-check: for ρ = ρ₀e^{−(z−z₀)/H} with frozen √(μa), the
+  ODE integrates analytically to z(t) = z₀ + H·ln(1 − βt), β = √(μa)ρ₀·1000/(B·H).
+  RK4 matches this independent root to <50 m over ~11 km of decay (a
+  synthetic thick atmosphere on a seconds timescale — clearly labeled as
+  an integrator check, not Earth data).
+- Lifetime ordering (200 < 300 < 500 km perigee) is asserted strictly
+  increasing on the REAL table with plausibility bands; an ISS-class
+  median estimate lands in the 500–20000-day band — the LOW end, because
+  USSA-1976 median densities sit below the real solar-activity-averaged
+  thermosphere; the UI states x2-denser air ≈ halves the lifetime.
+- Disclosed model limits: e held CONSTANT during integration (real
+  e-damping shrinks apogee first, so high-e lifetimes here are slightly
+  optimistic); orbit-averaged decay is invalid below ~150 km — REENTRY is
+  declared at first entry into the unresolvable terminal regime, not at a
+  precise threshold crossing; no solar-flux history, no lunar/solar
+  perturbations, no reentry physics after band entry.

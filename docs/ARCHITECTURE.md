@@ -496,3 +496,26 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
 - Tests: vitest 190/190 (14 new). pytest 48/48 (no backend change).
   Build green, /lab/drag + chunk smoke 200. NEXT_UP now leads with
   M16 Decay & Lifetime (integrates this module's da/dt with RK4).
+
+## Addendum 2026-10-27 — M16 Orbit Decay & Lifetime Lab
+
+- lib/decay.js (pure): vis-viva-consistent instantaneous da/dt (circular
+  ≡ M15 law pinned 1e-12 — a missing x1000 rho/B unit bridge was CAUGHT by
+  that identity during this milestone and fixed), eccentric-anomaly orbit
+  averaging with no memorized eccentricity functions, documented RK4
+  integrator with hard step budget (<= 40000) and reentry/terminal
+  termination semantics.
+- Cross-check strategy mirrors M13: numeric integrator vs an INDEPENDENT
+  analytic root (exponential atmosphere, frozen coefficient, seconds
+  timescale synthetic — labeled as an integrator validation, not Earth
+  data), plus rigorous invariants (mean bracket, monotone lifetime,
+  grid convergence) instead of asserted physics inequalities.
+- /lab/decay: LIVE SGP4 elements badge with assumed-B decay rate,
+  perigee/apogee/B/step controls, on-demand INTEGRATE with SVG perigee-
+  apogee-vs-time trajectory chart and reentry-band line, terminal-phase
+  and constant-e disclosures inside the results card, SHOW CALCULATION.
+- Honesty: lifetimes presented as median-atmosphere ESTIMATES with the
+  x2–x30 solar-cycle scaling stated in-panel; ISS-class band intentionally
+  marked as the low end; UI never says "predicted reentry date".
+- Tests: vitest 201/201 (11 new). Backend untouched (pytest 48/48 baseline
+  unchanged). Build green, /lab/decay + chunk smoke 200. ROADMAP M16 DONE.

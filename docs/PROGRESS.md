@@ -596,3 +596,29 @@ without touching its visual identity.
   ~81 m/day (median) vs published 40–250 band.
 - Next: M16 Decay & Lifetime — RK4 integration of da/dt (documented
   integrator + closed-form cross-check), eccentric perigee pumping.
+
+## 2026-10-27 - M16 Orbit Decay & Lifetime (22-milestone program)
+
+- lib/decay.js: da/dt = −a²ρv³/(μB)·1000 (vis-viva; circular identity with
+  M15 pinned 1e-12 — this guard caught a missing x1000 rho/B unit bridge
+  that would have made every lifetime 1000x too long; the lesson is now a
+  named comment in code and a table row in VALIDATION).
+- Eccentric-anomaly orbit averaging (90–360 samples); perigee pumping
+  emerges from sampling, tested via bracket + convergence invariants, NOT
+  via memorized eccentricity functions.
+- Documented RK4: fixed step 0.25–16 d, budget <=40000 steps enforced by
+  throw, terminates at reentry band or first unresolvable terminal probe
+  (disclosed: averaged model invalid <~150 km, so REENTRY = entered
+  terminal regime, not an exact threshold timestamp).
+- Validated against an independent analytic exponential-atmosphere root
+  (<50 m over 11 km) and real-table lifetime monotonicity (3.3 d < 65 d <
+  2118 d for h_p 200/300/500 at B=100); ISS-class median lands in the
+  500–20000 d band, marked LOW END because the median table is below the
+  activity-averaged thermosphere — stated in the UI.
+- /lab/decay: LIVE badge (assumed-B), perigee/apogee sliders with table
+  ceiling, on-demand integrate with perigee/apogee-vs-time SVG chart +
+  reentry band, SHOW CALCULATION with the full derivation and limits.
+- Evidence: vitest 201/201 (11 new), build green, preview smoke 200 on all
+  routes + chunk. Docs: ORBITAL_MATH/VALIDATION/ARCHITECTURE M16 sections,
+  ROADMAP M16 DONE.
+- Next: M17 J2 perturbation visualization.

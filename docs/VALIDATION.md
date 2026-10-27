@@ -271,3 +271,22 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 | decay sanity band | ISS-class B=108 @398 km, median | 40–250 m/day | ~81 m/day | order-of-mag |
 | power per mass | ½ρv³ product | 0.343 W/kg case | match | 1e-12 |
 | bad inputs | B<=0 | throw RangeError | throws | - |
+
+## Orbit decay & lifetime — M16 (frontend/tests/decay.test.js)
+
+| Check | Reference | Expected | OrbitalPulse | Delta |
+|---|---|---|---|---|
+| circular identity | M15 law −√(μa)·ρ/B·1000 at anchor rho | ratio 1 | match | 1e-12 rel |
+| unit-bridge regression guard | recomputed product hand form | ratio 1 (catches missing x1000) | match | 1e-12 rel |
+| eccentric mean bracket | mean ∈ [min, max] instantaneous | rigorous invariant | match | - |
+| perigee dominance | max/min rate ratio at e=0.05 | apogee rate << perigee rate | match | <1 ratio |
+| grid convergence | 360 vs 1440 EC samples | <0.5% mean difference | match | <0.005 |
+| range guards | perigee < 98.5, apogee > 864.1, e=1 | throw RangeError | throws | - |
+| RK4 vs analytic root | z = z0 + H ln(1 − beta t), frozen coeff | <50 m over 11.16 km | match | <0.05 km |
+| integrator limits | stepDays=0, budget>40000, e<0 | throw with messages | throws | - |
+| lifetime monotonicity | h_p 200/300/500 km, B=100 | strict increase | 3.3 < 65 < 2118 d | - |
+| lifetime plausibility | days/weeks vs months vs years bands | order-of-magnitude | match | - |
+| ISS-class median | B=108 @415 km, e~0 | REENTRY in 500–20000 d, rate 20–300 m/d | match (low end, disclosed) | - |
+| series integrity | a strictly ↓, t strictly ↑, first = start | all steps | match | exact |
+| terminal semantics | last resolved perigee | < 200 km at REENTRY | match | - |
+| bad inputs | B<=0, r>a ellipse check via NaN/Inf | throw | throws | - |
