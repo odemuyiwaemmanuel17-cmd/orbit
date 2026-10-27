@@ -1,0 +1,3 @@
+# Ownership-verification tokens must match byte-for-byte: keep LF, never
+# let core.autocrlf inject a trailing carriage return on Windows checkouts.
+frontend/public/.well-known/ory-verify.txt text eol=lf
