@@ -252,3 +252,22 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 | same scan as eclipse lab | orbitEclipseKm fractions reused | identical fu/fp | match | exact (no duplicate shadow model) |
 | M13 guards propagate | a<=R⊕, zero normal | throw | throws | - |
 | GEO duty sanity | cone vs cylindrical limit at 42164 km | within 1 pp, finite battery | match | <0.01 |
+
+## Atmospheric drag — M15 (frontend/tests/drag.test.js)
+
+| Check | Reference | Expected | OrbitalPulse | Delta |
+|---|---|---|---|---|
+| 37 table anchors | USSA-1976 Part 4 (98.5–864.1 km) | exact published rho | match | log10 <1e-12 |
+| midpoint interpolation | geometric mean of neighbor logs | log-linear identity | match | 1e-9 |
+| monotonic decrease | rho(z) strictly falling | all 20 km steps | match | exact |
+| range guard | z<98.5, z>864.1, NaN, Inf | throw, no extrapolation | throws | - |
+| scale height @~400 km | table derivative 22.1 km / ln(2.8028/1.8118) | 50.6 km | match | ±0.6 km |
+| corotation wind | ω⊕·r at 6769.4 km equator | 0.4936 km/s | match | 1e-9 |
+| drag magnitude | ½ρv_rel²/B hand product | identity | match | 1e-12 |
+| direction | retrograde vs v_rel (prograde case) | −ŷ, x/z zero | match | 1e-30 |
+| rho scaling | 193.9 vs 398.4 km anchors | ratio > 50 (~140 rho x ~1.04 v²) | match | - |
+| decay closed form | −√(μa)·ρ/B·1e3·86400 | identity at anchor | match | 1e-12 rel |
+| B inverse law | double B -> halve rate | exact 0.5 | match | 1e-12 |
+| decay sanity band | ISS-class B=108 @398 km, median | 40–250 m/day | ~81 m/day | order-of-mag |
+| power per mass | ½ρv³ product | 0.343 W/kg case | match | 1e-12 |
+| bad inputs | B<=0 | throw RangeError | throws | - |

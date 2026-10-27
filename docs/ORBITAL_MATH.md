@@ -394,3 +394,41 @@ model — the UI chip says so and the ignored effects are listed, not hidden.
 - Physical behavior verified: battery demand shrinks monotonically as β
   opens (1°-grid resolution noted where ties occur), zero past the cone
   half-angle — the quantitative form of the M13 high-β hygiene statement.
+
+## Atmospheric drag (M15)
+
+Source: `frontend/src/lib/drag.js`; validated in `tests/drag.test.js`
+(14 cases); UI at `/lab/drag`. Labeled **SIMPLIFIED — MEAN ATMOSPHERE**.
+
+- Density: U.S. Standard Atmosphere 1976 (NOAA/NRL/NASA, doc st76-1562,
+  Part 4 main tables; reproduced from pdas.com's "Table of the U.S.
+  Standard Atmosphere 1976"). 37 [geometric altitude km, rho kg/m³]
+  anchors from 98.5 to 864.1 km embedded verbatim in `USSA1976_RHO`,
+  interpolated LINEARLY IN log10(rho) vs geometric altitude (the table's
+  own segment structure). Outside the tabulated range the model THROWS —
+  no silent extrapolation into the solar-cycle regime it cannot speak to.
+  Disclosed: real thermospheric density varies x2–x30 with F10.7/Ap at
+  300–600 km; USSA-1976 is a solar-median mean and is presented as such.
+- Local scale height H = −dz/d(ln ρ) by finite difference on the model
+  itself; ~50 km near 400 km, tested against the table derivative.
+- Relative velocity with corotating atmosphere: v_rel = v − ω⊕ × r,
+  ω⊕ = OMEGA_EARTH_RADS (IAU-76/F51, constants.js); at the equator
+  ω·r ≈ 0.49 km/s at 400 km — tested exactly. Winds/circulation ignored.
+- Drag acceleration: a = ½ρ|v_rel|²/B directed opposite v_rel, where
+  B = m/(Cd·A) is the BALLISTIC COEFFICIENT taken as a user parameter
+  (representative bands shown: 20–400 kg/m²; TLE catalogs carry no
+  ballistic data, so any per-satellite number would be fabricated).
+- Circular-mean semimajor-axis decay (vis-viva energy chain, pinned in
+  the test header):
+  E = −μ/(2a); dE/dt = v·a_drag = −½ρv³/B; v² = μ/a ⇒
+  **da/dt = −√(μ·a)·ρ/B** (note the INVERSE dependence on B: heavy,
+  sleek craft fall slower). Unit bridge ρ/B [m⁻¹] → [km⁻¹] ×1000 is
+  tested to 1e-12 rel. at a tabulated anchor, plus an order-of-magnitude
+  sanity band (40–250 m/day for B≈108 kg/m² at 398 km, solar median —
+  consistent with published ISS-order decay, presented as a range check,
+  not as ISS data).
+- Dissipation power per unit mass P/m = ½ρ|v_rel|³ (W/kg) — the drag
+  counterpart of M14's generation budget.
+- Out of scope by design (M16): eccentric-orbit perigee pumping,
+  multi-year integrated lifetime, reentry terminal phase, solar-flux
+  history models.

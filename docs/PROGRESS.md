@@ -574,3 +574,25 @@ without touching its visual identity.
   public/.well-known/ory-verify.txt (dist + preview + dev verified 200);
   .gitattributes pins LF so the token stays byte-exact.
 - Next: M15 Drag (feed power-aging story), then M16 Decay, M17 J2.
+
+## 2026-10-27 - M15 Atmospheric Drag (22-milestone program)
+
+- Source integrity: web-verified the density table instead of trusting
+  memory — USSA-1976 Part 4 anchors extracted from pdas.com's published
+  table reproduction and embedded verbatim (37 rows, 98.5–864.1 km
+  geometric). Range ends THROW; no silent extrapolation.
+- lib/drag.js: log-linear density interpolation + finite-difference scale
+  height (~50.6 km @400 km, tested against table derivative), vector drag
+  with corotating atmosphere (ω⊕r = 0.49 km/s test-exact), circular-mean
+  da/dt = −√(μa)·ρ/B (inverse in B; unit bridge tested to 1e-12),
+  P/m = ½ρv_rel³. B is a labeled user parameter — catalogs have no
+  ballistic data, so none is invented.
+- /lab/drag: LIVE SGP4 badge (assumed-B disclaimer), scene retrograde
+  drag arrow, altitude slider over tabulated range, log-density sparkline,
+  SHOW CALCULATION with the vis-viva chain + explicit solar-cycle
+  limitation (real ρ swings x2–x30 with F10.7 — disclosed, not faked).
+- Evidence: vitest 190/190 (14 new), pytest 48/48, build green,
+  /lab/drag + chunk 200 preview. Sanity band: ISS-class B at 398 km ->
+  ~81 m/day (median) vs published 40–250 band.
+- Next: M16 Decay & Lifetime — RK4 integration of da/dt (documented
+  integrator + closed-form cross-check), eccentric perigee pumping.

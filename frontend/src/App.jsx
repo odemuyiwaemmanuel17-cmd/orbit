@@ -19,6 +19,7 @@ const AttitudeLabPage = lazy(() => import('./pages/Lab/AttitudeLabPage.jsx'))
 const WheelsLabPage = lazy(() => import('./pages/Lab/WheelsLabPage.jsx'))
 const EclipseLabPage = lazy(() => import('./pages/Lab/EclipseLabPage.jsx'))
 const PowerLabPage = lazy(() => import('./pages/Lab/PowerLabPage.jsx'))
+const DragLabPage = lazy(() => import('./pages/Lab/DragLabPage.jsx'))
 const LabsIndexPage = lazy(() => import('./pages/Lab/LabsIndexPage.jsx'))
 
 /**
@@ -39,6 +40,7 @@ const LabsIndexPage = lazy(() => import('./pages/Lab/LabsIndexPage.jsx'))
  *   /lab/wheels   -> ANALYZE: Reaction wheel slew bench (RK4 momentum exchange)
  *   /lab/eclipse  -> ANALYZE: Eclipse analysis (umbra/penumbra cones + sun ephemeris)
  *   /lab/power    -> ANALYZE: Solar power & battery sizing (M13 duty cycle + inverse-square flux)
+ *   /lab/drag     -> ANALYZE: Atmospheric drag (US Standard Atmosphere 1976 + vis-viva decay rate)
  *   /lab          -> ANALYZE/DESIGN index (all labs)
  */
 export default function App() {
@@ -167,6 +169,14 @@ export default function App() {
             element={
               <Suspense fallback={<SceneLoader label="LOADING POWER LAB" />}>
                 <PowerLabPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/lab/drag"
+            element={
+              <Suspense fallback={<SceneLoader label="LOADING DRAG LAB" />}>
+                <DragLabPage />
               </Suspense>
             }
           />

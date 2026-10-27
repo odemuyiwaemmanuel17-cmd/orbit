@@ -475,3 +475,24 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
   change). Build green, /lab/power + chunk smoke 200. docs/VALIDATION.md +
   docs/ORBITAL_MATH.md M14 sections added. NEXT_UP in /lab drops "Solar
   Power"; feeds M15 Drag/M16 Decay (orbit lifetime -> power aging story).
+
+## Addendum 2026-10-27 — M15 Atmospheric Drag Lab
+
+- New domain module lib/drag.js (pure, THREE-free, unit-suffixed):
+  USSA-1976 tabulated density (37 verbatim anchors from NOAA Part 4
+  tables, log-linear interpolation, hard range guard), finite-difference
+  scale height, vector drag with rigidly corotating atmosphere
+  (v_rel = v − ω⊕×r), circular-mean da/dt = −√(μa)·ρ/B with the unit
+  bridge m⁻¹→km⁻¹ tested, dissipation power per kg.
+- Ballistic coefficient is a USER PARAMETER with labeled representative
+  bands (20–400 kg/m²). TLE catalogs carry no Cd·A/m — the LIVE badge
+  states ASSUMED explicitly rather than inventing per-satellite values.
+- New page /lab/drag: LIVE SGP4 drag readout (rho, v_rel, a_drag nm/s²)
+  with retrograde drag-vector arrow in the scene (two-point finite
+  difference into scene, same convention as the lab axes overlay); test
+  altitude slider over the full tabulated range; SVG log-density sparkline
+  with live altitude marker; SHOW CALCULATION exposing the full
+  vis-viva->da/dt chain and the solar-cycle disclaimer.
+- Tests: vitest 190/190 (14 new). pytest 48/48 (no backend change).
+  Build green, /lab/drag + chunk smoke 200. NEXT_UP now leads with
+  M16 Decay & Lifetime (integrates this module's da/dt with RK4).

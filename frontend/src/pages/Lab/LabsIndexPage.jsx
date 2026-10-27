@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Sigma, Rocket, Waypoints, Fuel, GitCompareArrows, RadioTower, CalendarClock, Radar, Globe2, Signal, Axis3d, Disc3, Sun, BatteryCharging, Construction } from 'lucide-react'
+import { ArrowLeft, Sigma, Rocket, Waypoints, Fuel, GitCompareArrows, RadioTower, CalendarClock, Radar, Globe2, Signal, Axis3d, Disc3, Sun, BatteryCharging, Wind, Construction } from 'lucide-react'
 import OrbitScene from '../../components/scene/OrbitScene.jsx'
 
 const LABS = [
@@ -31,10 +31,12 @@ const LABS = [
     note: 'Umbra/penumbra cones on the Meeus sun ephemeris — live shadow state + fraction scan' },
   { to: '/lab/power', icon: BatteryCharging, tag: 'ANALYZE', title: 'Solar Power & Battery',
     note: 'Inverse-square flux x M13 duty cycle: energy margin, battery mass, array sizing' },
+  { to: '/lab/drag', icon: Wind, tag: 'ANALYZE', title: 'Atmospheric Drag',
+    note: 'US Standard Atmosphere 1976 density, corotating wind, vis-viva decay rate — live on SGP4' },
 ]
 
 const NEXT_UP = [
-  'Drag, Decay & J2',
+  'Decay & Lifetime (M16)', 'J2 Perturbation',
   'Conjunction & Avoidance', 'Mission Builder',
 ]
 
