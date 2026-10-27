@@ -471,3 +471,33 @@ Source: `frontend/src/lib/decay.js`; validated in `tests/decay.test.js`
   declared at first entry into the unresolvable terminal regime, not at a
   precise threshold crossing; no solar-flux history, no lunar/solar
   perturbations, no reentry physics after band entry.
+
+## J2 secular precession (M17)
+
+Source: `frontend/src/lib/j2.js`; validated in `tests/j2.test.js` (12
+cases); UI at `/lab/j2`. Label: **ANALYTICAL — FIRST ORDER** (secular
+terms only).
+
+- Equations — classical averaged secular set (Brouwer/Kozai), taken
+  verbatim from the documented SatelliteToolbox.jl J2 propagator form
+  (identical to Vallado ch. 9):
+      p  = a(1−e²)
+      n̄ = n·[1 + ¾ J₂ (Re/p)² √(1−e²) (2 − 3sin²i)]
+      Ω̇ = −3/2 J₂ (Re/p)² n̄ cos i
+      ω̇ = +3/4 J₂ (Re/p)² n̄ (4 − 5sin²i)
+      M(t) = M₀ + n̄ t   (phase swept through the Kepler equation)
+  with J2_EARTH = 1.08262668e-3 (EGM-96) and R_EARTH_EQUATORIAL_KM =
+  6378.137 (WGS84) from constants.js.
+- The RAAN line matches the PRE-VALIDATED kepler.j2NodalPrecessionDegDay
+  (Vallado 9-24) up to the n̄-vs-n₀ choice: the difference is second order
+  in J₂, and the two forms are tested to agree within 0.1%.
+- Anchors pinned by tests (no hand-waving on signs/structures):
+  ISS-class orbit → Ω̇ ≈ −5°/day (westward); i = 63.4349° → ω̇ = 0
+  (Molniya frozen apsidal line); i = 54.7356° → n̄ = n exactly (magic
+  angle); retrograde i=120° → eastward node; SSO altitude → Ω̇ =
+  +360°/tropical-year through the n̄ form (connects to the pre-validated
+  sunSyncInclinationDeg).
+- Disclosed omissions: short-period J₂ sinusoids (sub-degree wiggles the
+  tracker's SGP4 contains), J₃ and higher, third bodies, drag. The lab
+  isolates the AVERAGED drift so its geometry is visible — ghost orbits
+  show where the plane actually goes at +30/+90/+365 days.

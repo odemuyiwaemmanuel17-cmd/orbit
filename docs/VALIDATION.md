@@ -290,3 +290,19 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 | series integrity | a strictly ↓, t strictly ↑, first = start | all steps | match | exact |
 | terminal semantics | last resolved perigee | < 200 km at REENTRY | match | - |
 | bad inputs | B<=0, r>a ellipse check via NaN/Inf | throw | throws | - |
+
+## J2 secular precession — M17 (frontend/tests/j2.test.js)
+
+| Check | Reference | Expected | OrbitalPulse | Delta |
+|---|---|---|---|---|
+| magic inclination | 2−3sin²i=0 at 54.7356° | n̄ = n exactly | match | 1e-12 rel |
+| critical inclination | 4−5sin²i=0 at 63.4349° | ω̇ < 1e-6 °/day | match | Molniya physics |
+| ISS nodal anchor | published ≈ −5°/day regression | −5.8..−4.4 band | −5.0°/day class | in band |
+| retrograde sign | cos i < 0 eastward drift | Ω̇ > 0 at i=120° | match | sign exact |
+| SSO closure | sunSyncInclinationDeg(705 km)→98.2° | Ω̇ = 360/365.2422 °/day | match | <0.01 |
+| n̄ vs n₀ forms | pre-validated Vallado-9-24 rate | agree within 0.1% | match | <1e-3 rel |
+| equatorial/polar phase | (2−3sin²i)=+2/−1 | n̄ faster/slower, <0.2% | match | <2e-3 |
+| dt=0 identity | nu→E→M→nu Kepler round trip | elements preserved | match | 1e-6 deg |
+| linear drift wrap | Ω₀+Ω̇·t wrapped [0,360) | exact | match | 1e-9 |
+| one-period phase slip | (n̄−n)T at polar SSO a | −0.22° predicted | match | 1e-6 |
+| guards | a<=Re, e=1, dt NaN | throw Range/Type | throws | - |

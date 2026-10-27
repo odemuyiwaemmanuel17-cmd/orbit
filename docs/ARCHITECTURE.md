@@ -519,3 +519,24 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
   marked as the low end; UI never says "predicted reentry date".
 - Tests: vitest 201/201 (11 new). Backend untouched (pytest 48/48 baseline
   unchanged). Build green, /lab/decay + chunk smoke 200. ROADMAP M16 DONE.
+
+## Addendum 2026-10-27 — M17 J2 Secular Precession Lab
+
+- lib/j2.js (pure): Brouwer/Kozai first-order secular set (n̄, Ω̇, ω̇, phase
+  via Kepler), formulas anchored to the SatelliteToolbox.jl documented J2
+  propagator (web-verified, matches Vallado ch.9), RAAN delegating to the
+  PRE-VALIDATED kepler.j2NodalPrecessionDegDay as a cross-checked second
+  form (n̄ vs n0 — tested agreement <0.1%). propagateJ2SecularKm wraps all
+  angles into [0,360) and sweeps phase through the existing bracketed
+  Kepler solver — no new solver, no new constants.
+- /lab/j2: live SGP4 elements -> Ω̇/ω̇ badge; altitude/ecc/inclination/RAAN
+  sliders; scene overlay of the orbit plane now vs +30/+90/+365-day ghosts
+  (same eciToSceneKm/GMST projection as everything else, plus a celestial-
+  north pole reference line); auto-flags for CRITICAL i (63.43°),
+  SUN-SYNC i (from kepler.sunSyncInclinationDeg with one-click SET),
+  MAGIC i (54.74°) and RETROGRADE eastward node; SHOW CALCULATION lists
+  the omitted short-period terms explicitly (SGP4 keeps them, this lab
+  isolates the average).
+- Tests: vitest 213/213 (12 new). pytest 48/48. Build green, /lab/j2 +
+  chunk smoke 200. NEXT_UP leads with M18 SSO Designer (now one click
+  away in the J2 lab).

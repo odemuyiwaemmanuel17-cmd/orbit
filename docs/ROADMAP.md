@@ -50,7 +50,7 @@ each reuses validated lower-level physics.
 | 14 | Solar power (simplified, labeled) | **DONE** |
 | 15 | Atmospheric drag comparison | **DONE** |
 | 16 | Orbit decay demo (simplified, labeled) | **DONE** |
-| 17 | J2 perturbation visualization (math already in kepler.js) | TODO |
+| 17 | J2 perturbation visualization (math already in kepler.js) | **DONE** |
 | 18 | SSO designer (math already in kepler.js) | TODO |
 | 19 | Conjunction analyzer pair view | TODO |
 | 20 | Collision-avoidance maneuver | TODO |

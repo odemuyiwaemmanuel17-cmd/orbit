@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Sigma, Rocket, Waypoints, Fuel, GitCompareArrows, RadioTower, CalendarClock, Radar, Globe2, Signal, Axis3d, Disc3, Sun, BatteryCharging, Wind, Hourglass, Construction } from 'lucide-react'
+import { ArrowLeft, Sigma, Rocket, Waypoints, Fuel, GitCompareArrows, RadioTower, CalendarClock, Radar, Globe2, Signal, Axis3d, Disc3, Sun, BatteryCharging, Wind, Hourglass, Orbit, Construction } from 'lucide-react'
 import OrbitScene from '../../components/scene/OrbitScene.jsx'
 
 const LABS = [
@@ -35,10 +35,12 @@ const LABS = [
     note: 'US Standard Atmosphere 1976 density, corotating wind, vis-viva decay rate — live on SGP4' },
   { to: '/lab/decay', icon: Hourglass, tag: 'ANALYZE', title: 'Orbit Decay & Lifetime',
     note: 'RK4 on the averaged decay law: lifetime to the reentry band, perigee/apogee trajectory' },
+  { to: '/lab/j2', icon: Orbit, tag: 'ANALYZE', title: 'J2 Secular Precession',
+    note: 'Earth-oblateness node & apsidal drift with ghost orbits at +30/+90/+365 days' },
 ]
 
 const NEXT_UP = [
-  'J2 Perturbation',
+  'SSO Designer',
   'Conjunction & Avoidance', 'Mission Builder',
 ]
 

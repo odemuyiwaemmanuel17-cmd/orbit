@@ -622,3 +622,25 @@ without touching its visual identity.
   routes + chunk. Docs: ORBITAL_MATH/VALIDATION/ARCHITECTURE M16 sections,
   ROADMAP M16 DONE.
 - Next: M17 J2 perturbation visualization.
+
+## 2026-10-27 - M17 J2 Secular Precession (22-milestone program)
+
+- Formulas web-verified before coding (SatelliteToolbox.jl J2 propagator
+  docs; Vallado ch.9 structure): n̄ = n[1+¾J₂(Re/p)²√(1−e²)(2−3sin²i)],
+  Ω̇ = −3/2 J₂(Re/p)²n̄cos i, ω̇ = +3/4 J₂(Re/p)²n̄(4−5sin²i), phase via
+  the bracketed Kepler solver. RAAN cross-checked against the
+  pre-validated Vallado-9-24 form in kepler.js (<0.1%).
+- lib/j2.js + 12 tests anchored on REAL physics landmarks: ISS −5°/day
+  westward, Molniya critical i frozen ω̇, magic-angle n̄=n, retrograde
+  eastward node, SSO altitude -> exactly 360°/tropical-year, one-period
+  phase slip −0.22° matched analytically, wrap and dt=0 round-trip.
+- /lab/j2: ghost-orbit visualization of plane drift at +30/+90/+365 days
+  through the validated scene projection, celestial-north reference line,
+  auto-flags (CRITICAL/SUN-SYNC/MAGIC/RETROGRADE), one-click SET SSO
+  inclination, live SGP4 rate badge, SHOW CALCULATION disclosing the
+  omitted short-period J2 wiggles.
+- Evidence: vitest 213/213 (12 new), pytest 48/48, build green, preview
+  smoke 200 all routes + chunk. Docs: ORBITAL_MATH/VALIDATION/
+  ARCHITECTURE M17 sections, ROADMAP M17 DONE.
+- Next: M18 SSO Designer (local-time LTAN targeting, altitude<->inclination
+  solution — the sunSyncInclinationDeg math is already validated).
