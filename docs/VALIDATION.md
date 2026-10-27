@@ -228,3 +228,27 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 | mean motion vs sma | 2pi sqrt(a^3/mu) vs TLE period_min | <0.15 min | match | - |
 | texture orientation (existing) | earthTexture.test.js pins lambda(u), flip, north | unchanged | 14/14 pass | - |
 | sub-Earth vectors (axes overlay) | eciToSceneKm(unit*1km) | finite, unit-ish length, Z-up preserved | match | NaN-free |
+
+## Solar power & battery sizing — M14 (frontend/tests/power.test.js)
+
+| Check | Reference | Expected | OrbitalPulse | Delta |
+|---|---|---|---|---|
+| Earth-Sun distance envelope | Meeus low-precision R = 1.000140−0.016713cosM−0.000140cos2M | 0.983–1.017 AU all year | match | exact formula |
+| perihelion/aphelion dates | Jan 3 < 0.985 AU, Jul 4 > 1.015 AU | flux ratio > 1.06 | match | ~1e-5 AU |
+| flux inverse square | S = 1361/R_AU² (ASTM E490 constant) | identity | match | 1e-9 |
+| sunlit array power | hand product S·A·η·derate·cos(inc) | 1361·20·0.30·0.88 W | match | 1e-6 |
+| cosine incidence law | inc=60° halves output | exact 0.5 factor | match | 1e-9 |
+| unphysical params rejected | η>1 or 0, derate>1, area<0, inc>90, NaN | throw Range/TypeError | throws | - |
+| shadow->output factor | UMBRA 0, SUNLIT 1, PEN 1−obs/100 | matches M13 obscuration | match | exact |
+| no-shadow energy identity | gen=P·T/3600, dem=bus·T/3600, margin=P/bus | closed form | match | 1e-6 |
+| penumbra half-output credit | linear ramp average = 1/2 | gen at fu=0,fp=1 = 0.5·P·T/3600 | match | 1e-6 |
+| battery chain | E/(DOD·η_rt), mass=C/(Wh/kg) | closed-form arithmetic | match | 1e-9 |
+| β=90% sun never eclipses | plane normal along sun | 0 W shortfall, margin=P/bus | match | exact |
+| β=0 umbra vs analytic root | ψ_e/π cone root (same as M13) | within scan quantization | match | <0.006 (1° grid) |
+| sizing law self-consistency | area for margin=1 plugged back | margin = 1.000 | match | 1e-6 |
+| required area independent of installed area | linear-in-area model | identical for A=20 vs 40 | match | 1e-9 |
+| high-β power hygiene | battery mass vs β (0/30/60/80) | strictly decreasing -> 0 | match | - |
+| generation linear in area | double A -> double gen & P | identity | match | 1e-6 |
+| same scan as eclipse lab | orbitEclipseKm fractions reused | identical fu/fp | match | exact (no duplicate shadow model) |
+| M13 guards propagate | a<=R⊕, zero normal | throw | throws | - |
+| GEO duty sanity | cone vs cylindrical limit at 42164 km | within 1 pp, finite battery | match | <0.01 |

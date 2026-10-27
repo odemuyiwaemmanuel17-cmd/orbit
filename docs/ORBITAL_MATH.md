@@ -358,3 +358,39 @@ drives scene lighting, extracted verbatim and pinned by reference vectors.
   min/orbit in each region; the LIVE badge runs the same shadowStateKm on the
   real SGP4-propagated watch-satellite position every tick (REAL-TIME
   PROPAGATION label).
+
+## Solar array power & battery sizing (M14)
+
+Source: `frontend/src/lib/power.js`; validated in `tests/power.test.js`
+(18 cases); UI at `/lab/power`. Everything below is the **SIMPLIFIED**
+model — the UI chip says so and the ignored effects are listed, not hidden.
+
+- Irradiance: S(date) = S₀ / R_AU(date)², S₀ = SOLAR_CONSTANT_WM2 = 1361
+  W/m² (ASTM E490) and R_AU from the Meeus low-precision distance
+  (`sun.js:sunDistanceAu`, same mean-anomaly chain as the pinned RA/Dec
+  ephemeris). This applies the real ±3.44% annual flux modulation instead
+  of assuming 1 AU — accuracy ~1e-5 AU for this epoch range.
+- Sunlit array power: P = S·A·η_cell·derate·cos(inc). η and derate are
+  user parameters with representative defaults (Ga triple-junction flight
+  cells 28–32%; 5-yr LEO EOL/LOL derate 0.85–0.90) labeled
+  REPRESENTATIVE_DEFAULTS — never presented as a specific mission's
+  datasheet. Ignored (disclosed in SHOW CALCULATION): albedo/IR (~few % of
+  orbit-average), temperature/spectral coupling, self-shadowing,
+  drive/pointing losses beyond the single incidence angle.
+- Umbra duty cycle: NO second shadow model — fractions come from the
+  validated M13 `orbitEclipseKm` cone scan. Power accounting: umbra → 0 W;
+  penumbra → its linear obscuration ramp averages to exactly half output,
+  so energy credit = fractionPenumbra/2 (the choice is stated, not smuggled:
+  a quadratic exact-integral band average would be 1/3; the LEO penumbral
+  band is only ~63 km wide, so the difference is <0.1 pp of orbit energy).
+- Per-orbit balance: E_gen = P·(1 − f_u − f_p/2)·T/3600, E_dem = P_bus·T/3600,
+  margin = E_gen/E_dem. Battery worst-eclipse shortfall:
+  E_ecl = T/3600·[P_bus·f_u + max(P_bus − 0.5P, 0)·f_p];
+  capacity = E_ecl/(DOD·η_rt) with DOD 0.30 / η_rt 0.95 (LEO Li-ion design
+  practice, representative); mass = capacity/(150 Wh/kg) (cell-level).
+- Sizing law: output is linear in area, so the area achieving margin = 1 is
+  A_req = P_bus/(S·η·derate·cos(inc)·duty) — independent of installed area,
+  which the tests exploit (plugging A_req back must give margin ≡ 1).
+- Physical behavior verified: battery demand shrinks monotonically as β
+  opens (1°-grid resolution noted where ties occur), zero past the cone
+  half-angle — the quantitative form of the M13 high-β hygiene statement.

@@ -38,3 +38,17 @@ export function subsolarLonDeg(date = new Date()) {
   const { ra, gmstRad } = sunEquatorialRad(date)
   return ((ra / RAD_PER_DEG - gmstRad / RAD_PER_DEG + 540) % 360) - 180
 }
+
+/**
+ * Earth-Sun distance in AU — Meeus low-precision formula 30.4:
+ *   R = 1.000140 − 0.016713·cos M − 0.000140·cos 2M  (AU)
+ * with the SAME mean anomaly M(g) as sunEquatorialRad above, so irradiance
+ * scales with the true 1/r² variation (±3.44% year) instead of a blind
+ * 1 AU assumption. Exact to ~1e-5 AU for this epoch range.
+ */
+export function sunDistanceAu(date = new Date()) {
+  const jd = date.getTime() / 86400000 + 2440587.5
+  const n = jd - 2451545.0
+  const g = (357.528 + 0.98560028 * n) * RAD_PER_DEG
+  return 1.000140 - 0.016713 * Math.cos(g) - 0.000140 * Math.cos(2 * g)
+}

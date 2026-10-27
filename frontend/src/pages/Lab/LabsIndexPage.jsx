@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Sigma, Rocket, Waypoints, Fuel, GitCompareArrows, RadioTower, CalendarClock, Radar, Globe2, Signal, Axis3d, Disc3, Sun, Construction } from 'lucide-react'
+import { ArrowLeft, Sigma, Rocket, Waypoints, Fuel, GitCompareArrows, RadioTower, CalendarClock, Radar, Globe2, Signal, Axis3d, Disc3, Sun, BatteryCharging, Construction } from 'lucide-react'
 import OrbitScene from '../../components/scene/OrbitScene.jsx'
 
 const LABS = [
@@ -29,10 +29,12 @@ const LABS = [
     note: 'RK4 slew bench: momentum exchange, saturation limits, exact closed form' },
   { to: '/lab/eclipse', icon: Sun, tag: 'ANALYZE', title: 'Eclipse Analysis',
     note: 'Umbra/penumbra cones on the Meeus sun ephemeris — live shadow state + fraction scan' },
+  { to: '/lab/power', icon: BatteryCharging, tag: 'ANALYZE', title: 'Solar Power & Battery',
+    note: 'Inverse-square flux x M13 duty cycle: energy margin, battery mass, array sizing' },
 ]
 
 const NEXT_UP = [
-  'Solar Power', 'Drag, Decay & J2',
+  'Drag, Decay & J2',
   'Conjunction & Avoidance', 'Mission Builder',
 ]
 

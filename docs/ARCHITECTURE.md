@@ -449,3 +449,29 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
   date + TLE age vs sim + propagation status (NOMINAL/AGED/NO SOLUTION)
   + per-field frame definitions; fallbacks are never silent.
 - Tests: vitest 156/156 (14 new coordinate-integrity), pytest 48/48.
+
+## Addendum 2026-10-27 — M14 Solar Power & Battery Lab
+
+- New domain module lib/power.js (pure, THREE-free, unit-suffixed names):
+  inverse-square solar flux via new sun.js sunDistanceAu (Meeus formula
+  30.4, same pinned mean-anomaly chain), sunlit array power law, per-orbit
+  energy balance, worst-eclipse battery sizing, margin-neutral array
+  sizing. NO duplicate shadow model: eclipse fractions are the validated
+  M13 orbitEclipseKm scan (tested identity).
+- New page /lab/power (lazy chunk): LIVE badge (real SGP4 position ->
+  shadowStateKm -> instantaneous watts + output factor bar), TEST-ORBIT
+  a/β sliders with USE LIVE ORBIT capture, five array/load parameters with
+  representative defaults (labeled), on-demand ANALYZE (360-step scan),
+  energy-margin dashboard (ok/cau/crit thresholds), SHOW CALCULATION with
+  the full disclosed-simplification list.
+- Scene overlay reuses the M13 region-run polyline pattern (sunlit/
+  penumbra/umbra colored ring + sun marker).
+- Honesty contract: SIMPLIFIED MODEL chip; DOD 0.30 / 150 Wh/kg / η_rt 0.95
+  / η 0.30 / derate 0.88 are representative design-practice values, never
+  claimed as mission data; albedo/IR + thermal effects disclosed as ignored;
+  penumbra half-output average stated (1/3 quadratic alternative disclosed).
+- Tests: vitest 176/176 (18 new, incl. cone-root cross-check, sizing-law
+  self-consistency, high-β monot battery-hygiene). pytest 48/48 (no backend
+  change). Build green, /lab/power + chunk smoke 200. docs/VALIDATION.md +
+  docs/ORBITAL_MATH.md M14 sections added. NEXT_UP in /lab drops "Solar
+  Power"; feeds M15 Drag/M16 Decay (orbit lifetime -> power aging story).

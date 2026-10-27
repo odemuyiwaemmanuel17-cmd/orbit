@@ -550,3 +550,27 @@ without touching its visual identity.
   the original bug and clean on the fixed tree.
 - Evidence: vitest 158/158, vite build green, preview smoke / //tracker
   /lab/elements all 200. Docs: V3_RELEASE.md section 6.
+
+## 2026-10-27 - M14 Solar Power & Battery (22-milestone program)
+
+- lib/power.js: S = 1361/R_AU² via new sunDistanceAu (Meeus 30.4 — real
+  ±3.44% annual flux, not a blind 1 AU), P = S·A·η·derate·cos(inc),
+  duty cycle from the VALIDATED M13 cone scan (no shadow-model duplication,
+  pinned by test), penumbra half-output average stated (1/3 alternative
+  disclosed), worst-eclipse battery chain (DOD 0.30, η_rt 0.95, 150 Wh/kg
+  — labeled representative), margin-neutral sizing law.
+- /lab/power: LIVE instantaneous watts from SGP4 position + factor bar,
+  a/β test orbit + USE LIVE ORBIT, 5 engineering sliders, on-demand
+  ANALYZE, margin dashboard ok/cau/crit, SHOW CALCULATION with full
+  ignored-effects disclosure, M13-style shadow ring overlay.
+- Honest defaults: SIMPLIFIED MODEL chip; albedo/IR/thermal/self-shadow
+  explicitly ignored, never silently.
+- Evidence: vitest 176/176 (18 new: envelope dates, inverse-square identity,
+  cos law, rejection paths, energy closed forms, cone-root cross-check,
+  sizing self-consistency, high-β battery monotonicity), pytest 48/48,
+  build green, /lab/power + chunk 200. Docs: ORBITAL_MATH M14,
+  VALIDATION M14 table, ARCHITECTURE addendum, /lab NEXT_UP updated.
+- Hotfix note same day: Orynth ownership file deployed at
+  public/.well-known/ory-verify.txt (dist + preview + dev verified 200);
+  .gitattributes pins LF so the token stays byte-exact.
+- Next: M15 Drag (feed power-aging story), then M16 Decay, M17 J2.
