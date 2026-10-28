@@ -344,3 +344,25 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 | catalog sort + cap | 4 pairs, limit 3 | ascending, truncated | match | - |
 | dead candidate drop | NaN sampler in list | excluded, scan continues | match | - |
 | severity ladder | 0.5@fast / 0.5@slow / 5 / 30 / 150 / 5000 | CRIT/DANGER×2/WATCH/INT/BG | match | - |
+
+## Collision-avoidance maneuver — M20 (frontend/tests/avoidance.test.js)
+
+| Check | Reference | Expected | OrbitalPulse | Delta |
+|---|---|---|---|---|
+| in-track short lead | CW series dv(τ−⅔Ω²τ³) @60 s | match | match | 4e-8 km |
+| radial burn @Ωτ=π/2 | hand-exact (−2dv/Ω, +2dv/Ω) | 2 values | match | 1e-12 |
+| prograde burn @Ωτ=2π | dx=0, dy=−6π·dv/Ω | −16.99 km @1 m/s | match | 1e-9 |
+| secular drift linearity | dy(10T) = 2·dy(5T) | exact doubling | match | 1e-6 |
+| cross oscillator | peak dv/Ω @π/2, zero @2π, dv·τ small | 3 anchors | match | 1e-9 |
+| axis superposition | sum of single-axis runs = combined | linearity | match | 1e-12 |
+| miss-after Pythagoras | m⊥δ ⇒ √(m₀²+δ²) | 0.5 km exact | match | 1e-12 |
+| canceling burn | δ = m ⇒ miss 0 | < 1e-12 km | match | - |
+| no-burn branch | natural 5 km ≥ target 1 km | needed:false, Δv 0 | match | - |
+| closed-loop rec (Q-trail) | re-apply via forward CW model | miss ≥ target | match | 1e-6 |
+| closed-loop rec (3-D, 0.6T) | same, arbitrary miss vector | miss ≥ target | match | 1e-6 |
+| cheapest-axis witness | 2000-step ± scan per axis | rec ≤ scan min | match | 2e-5 |
+| zero-authority guard | cross burn @Ωτ=2π | never recommended | match | - |
+| ECI→Hill pipeline | analytic circular samplers (M19 contract) | pos/vel difference exact | match | 1e-9 |
+| Hill orthonormality | uR·uA=uA·uC=uC·uR=0, |u|=1 | 6 checks | match | 1e-12 |
+| aligned-geometry readout | A@(R,0,0) v@+y: Hill axes = ECI | exact (2,3,−1) | match | 1e-12 |
+| rotation preserves norm | |m_Hill| = |m_ECI| | match | match | 1e-9 |

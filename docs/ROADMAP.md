@@ -53,7 +53,7 @@ each reuses validated lower-level physics.
 | 17 | J2 perturbation visualization (math already in kepler.js) | **DONE** |
 | 18 | SSO designer (math already in kepler.js) | **DONE** |
 | 19 | Conjunction analyzer pair view | **DONE** |
-| 20 | Collision-avoidance maneuver | TODO |
+| 20 | Collision-avoidance maneuver | **DONE** |
 | 21 | Mission Builder (sequential events) | TODO |
 | 22 | Preset missions on real engines | TODO |
 

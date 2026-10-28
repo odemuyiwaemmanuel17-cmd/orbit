@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Sigma, Rocket, Waypoints, Fuel, GitCompareArrows, RadioTower, CalendarClock, Radar, Globe2, Signal, Axis3d, Disc3, Sun, BatteryCharging, Wind, Hourglass, Orbit, Construction } from 'lucide-react'
+import { ArrowLeft, Sigma, Rocket, Waypoints, Fuel, GitCompareArrows, RadioTower, CalendarClock, Radar, Globe2, Signal, Axis3d, Disc3, Sun, BatteryCharging, Wind, Hourglass, Orbit, Shield, Construction } from 'lucide-react'
 import OrbitScene from '../../components/scene/OrbitScene.jsx'
 
 const LABS = [
@@ -41,10 +41,12 @@ const LABS = [
     note: 'Altitude ↔ inclination solution with LTAN targeting — the plane keeps pace with the sun' },
   { to: '/lab/conj', icon: Radar, tag: 'ANALYZE', title: 'Conjunction Pair View',
     note: 'Paired-grid miss distance, TCA and rel speed from TLEs — Pc honestly withheld' },
+  { to: '/lab/avoid', icon: Shield, tag: 'ANALYZE', title: 'Avoidance Burn Planner',
+    note: 'Exact Clohessy-Wiltshire response: lead time, Hill-frame Δv and the cheapest collision-avoidance burn' },
 ]
 
 const NEXT_UP = [
-  'Avoidance Maneuver', 'Mission Builder', 'Preset Missions',
+  'Mission Builder', 'Preset Missions',
 ]
 
 export default function LabsIndexPage() {

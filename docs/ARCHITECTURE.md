@@ -582,3 +582,26 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
   1e-6 — the kind of independent root the program requires.
 - Tests: vitest 238/238 (11 new). pytest 48/48. Build green, /lab/conj +
   chunk smoke 200. NEXT_UP: M20 Avoidance maneuver.
+
+## Addendum 2026-10-27 — M20 Avoidance Burn Planner
+
+- lib/avoidance.js: exact Clohessy-Wiltshire impulse response (closed
+  forms at Ωτ = π/2, π, 2π pinned by tests), miss-after as |m₀ − δ|,
+  cheapest single-axis boundary burn via per-axis quadratic with SIGNED
+  Δv (both thrust directions searched — a direction-restricted first
+  cut was caught by the brute-scan witness test), and an ECI→Hill
+  rotation fed by the SAME M19 sampler contract, so SGP4 in the app and
+  analytic Kepler in tests validate one shared pipeline.
+- /lab/avoid: FIND CLOSEST APPROACH runs the M19 catalog screen (Δa band,
+  cap 60, adaptive step), takes the top pair, projects the TCA miss
+  vector into the primary's Hill frame; lead-time (5–240 min), target
+  miss and three signed Δv sliders drive the CW model LIVE (cheap closed
+  form, no on-demand needed after the scan); APPLY TO SLIDERS adopts the
+  recommendation; a Hill-plane SVG shows the miss point moving relative
+  to the target circle; TCA markers drawn through eciToSceneKm.
+- Fidelity label SIMPLIFIED — CW LINEARIZATION is shown in the panel;
+  SHOW CALCULATION lists the ignored effects (J2 drift over the lead,
+  eccentric reference, finite burn, execution error) rather than
+  hiding them.
+- Tests: vitest 259/259 (21 new). pytest 48/48. Build green, /lab/avoid
+  + chunk smoke 200. NEXT_UP: M21 Mission Builder.

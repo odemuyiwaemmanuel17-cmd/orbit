@@ -691,3 +691,27 @@ without touching its visual identity.
   correct GMST.
 - Evidence: vitest 238/238 (11 new), pytest 48/48, build green, preview
   smoke 200 all routes + chunk. ROADMAP M19 DONE. Next: M20 Avoidance.
+
+## 2026-10-27 - M20 Collision-Avoidance Maneuver (22-milestone program)
+
+- Hill/CW layer for M19's output: relative position at TCA rotated into
+  the primary's radial/in-track/cross frame, one impulsive Δv at a lead
+  time propagated EXACTLY with closed-form CW — no integrator needed,
+  so tests pin hand values (period-end drift −6π·Δv/Ω, quarter-period
+  radial↔in-track 2:1 coupling, pure cross oscillator).
+- The −3Ωτ secular term is surfaced as real behavior: long-lead prograde
+  burns close the in-track gap from the other side; the recommendation
+  therefore searches signed burns on all three axes and picks the
+  cheapest boundary root of |m₀ − Δv·r| = target.
+- Test-first caught a real physics-adjacent bug: restricting Δv to the
+  positive response direction overestimated cost (15 % cheaper opposite
+  thrust in the witness geometry); the brute-force ± scan test is now
+  the permanent cheapest-axis witness.
+- Honest limits carried forward: no Pc (M19), linearization range
+  disclosed, circular reference radius = primary |r| at TCA, J2 drift
+  over the lead quantified-then-ignored in SHOW CALCULATION.
+- /lab/avoid: scan reuses screenCatalogKm (top pair), live sliders for
+  lead/Δv axes/target, recommendation chip with APPLY, Hill-plane SVG,
+  TCA segment overlay via the validated scene projection.
+- Evidence: vitest 259/259 (21 new), pytest 48/48, build green, preview
+  smoke 200 routes + chunk. ROADMAP M20 DONE. Next: M21 Mission Builder.

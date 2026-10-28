@@ -564,3 +564,41 @@ TLEs carry none, and we refuse to fabricate one.
 - Catalog scale controls (documented limits): candidate prefilter by
   osculating-Δa band (default ±250 km), cap 60 candidates × 15 pairs,
   adaptive step 60–240 s, hard 200,000-sample grid guard.
+
+## Collision-avoidance maneuver (M20)
+
+Source: `frontend/src/lib/avoidance.js`; validated in
+`tests/avoidance.test.js` (21 cases); UI at `/lab/avoid`.
+Label: **SIMPLIFIED — CW LINEARIZATION** (disclosed everywhere it is used).
+
+- Clohessy-Wiltshire (Hill) exact impulse response on a circular
+  reference, frame x = radial-out, y = in-track, z = cross-track. One
+  impulsive relative Δv (vx,vy,vz) applied at zero initial relative
+  state, propagated closed-form to TCA:
+    x(τ) = 2(cos Ωτ−1)·vx/Ω + 2 sin Ωτ·vy/Ω
+    y(τ) = (2−2cos Ωτ)·vx/Ω + (4 sin Ωτ−3Ωτ)·vy/Ω
+    z(τ) = sin Ωτ·vz/Ω            (cross-track is a pure oscillator)
+  with Ω = √(μ/a³) from the centralized constants module. The −3Ωτ secular
+  term is the physics behind "a prograde burn eventually puts you BEHIND":
+  the burner trades altitude for slower mean motion; tests pin the exact
+  values at Ωτ = π/2, π, 2π (e.g. after one full period a prograde Δv
+  leaves zero radial offset and drift −6π·Δv/Ω in-track).
+- Post-maneuver geometry: moving the primary by δ shifts the separation
+  vector by −δ (secondary keeps its trajectory — stated, not assumed),
+  so miss-after = |m₀ − δ(τ)|, exact Pythagoras verified.
+- Cheapest boundary burn: per axis the CW response is a FIXED direction
+  r̂ (scaled by the signed Δv — negative = opposite thrust, equally
+  executable), so |m₀ − Δv·r| = target is a quadratic in Δv; with
+  natural < target the roots straddle the infeasible interval and the
+  smallest-|Δv| root is that axis's minimum. The three axes are compared
+  and the least-cost one wins. A signed-direction-only first version was
+  caught and fixed by the brute-scan cross-check test (opposite thrust was
+  15 % cheaper on the radial axis in the witness geometry).
+- ECI→Hill pipeline feeds M19 outputs: relativeStateAtTcaKm consumes the
+  SAME sampler contract (posKm+velKmS), toHillFrameKm builds uR/uA/uC
+  (orthonormality and right-handedness asserted; norm-preserving rotation
+  checked against the ECI magnitude).
+- Disclosed simplifications: linearization (separations ≪ orbital radius),
+  circular reference = primary |r| at TCA, J2 secular drift between burn
+  and TCA ignored, finite-burn/attitude/Δv-budget constraints out of scope,
+  no execution errors, no Pc (M19 limits inherited).
