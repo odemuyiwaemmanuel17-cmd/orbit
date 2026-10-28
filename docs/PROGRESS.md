@@ -667,3 +667,27 @@ without touching its visual identity.
   scenario after relaxation.
 - Evidence: vitest 227/227 (14 new), pytest 48/48, build green, preview
   smoke 200 all routes + chunk. ROADMAP M18 DONE. Next: M19 Conjunction.
+
+## 2026-10-27 - M19 Conjunction Pair View (22-milestone program)
+
+- Sampler-contract architecture: one screening implementation, two
+  ephemeris backends (SGP4 live / analytic Kepler in tests) — validation
+  now actually covers the production path.
+- Paired-grid screening: identical sample times for both objects,
+  min |Δr|, argmin TCA (±step/2 disclosed), relV at TCA; NaN samples
+  counted and excluded, all-dead windows return a reason, never a
+  number.
+- Independent analytic roots derived from scratch (no code restatement):
+  constant phasing separation 2a sin(Δθ/2); concentric |Δa| via law of
+  cosines argument; perpendicular polar orbits with quarter-period delay
+  -> EXACT miss = a at T/8 with relV = v√3 (velocity triangle 120°) —
+  all matched to 1e-6. First two derivation attempts were WRONG (chord
+  approximation and a sign slip) and the exact algebra + tests caught
+  them before shipping.
+- Pc refused by design: covariance does not exist in TLEs; severity
+  bands are labeled distance+speed heuristics.
+- /lab/conj: Δa-banded candidates (cap 60), 1–7 day windows, ranked
+  list, click-to-project TCA separation segment in the scene at the
+  correct GMST.
+- Evidence: vitest 238/238 (11 new), pytest 48/48, build green, preview
+  smoke 200 all routes + chunk. ROADMAP M19 DONE. Next: M20 Avoidance.

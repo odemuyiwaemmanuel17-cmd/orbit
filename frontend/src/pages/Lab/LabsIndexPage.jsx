@@ -39,10 +39,12 @@ const LABS = [
     note: 'Earth-oblateness node & apsidal drift with ghost orbits at +30/+90/+365 days' },
   { to: '/lab/sso', icon: SunMedium, tag: 'DESIGN', title: 'Sun-Sync Designer',
     note: 'Altitude ↔ inclination solution with LTAN targeting — the plane keeps pace with the sun' },
+  { to: '/lab/conj', icon: Radar, tag: 'ANALYZE', title: 'Conjunction Pair View',
+    note: 'Paired-grid miss distance, TCA and rel speed from TLEs — Pc honestly withheld' },
 ]
 
 const NEXT_UP = [
-  'Conjunction & Avoidance', 'Mission Builder', 'Preset Missions',
+  'Avoidance Maneuver', 'Mission Builder', 'Preset Missions',
 ]
 
 export default function LabsIndexPage() {

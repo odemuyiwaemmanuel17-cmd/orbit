@@ -530,3 +530,37 @@ and contributes the LTAN geometry:
   time), the RAAN long-period J22 wiggle, seasonal β drift (±few degrees
   over a season), and the ~12,000 km SSO ceiling returns an honest
   "no solution" card instead of clamping.
+
+## Conjunction screening & pair view (M19)
+
+Source: `frontend/src/lib/conjunction.js`; validated in
+`tests/conjunction.test.js` (11 cases); UI at `/lab/conj`.
+**DISTANCE SCREENING — NO Pc** is the label, and the reason is real:
+collision probability requires covariance (a CDM from the 18th SDS);
+TLEs carry none, and we refuse to fabricate one.
+
+- Sampler contract: screenPairKm takes two functions
+  (tMs) -> {posKm, velKmS}. The app fulfils it with SGP4
+  (sm.propagate); the tests fulfil it with the analytic circular
+  solution — identical code path under both, which is what makes the
+  analytic validation meaningful for production behavior.
+- Paired grid: both ephemerides are sampled at IDENTICAL times (the only
+  correct way to difference positions); miss = min |r₁−r₂|, TCA = argmin
+  (resolution ±step/2, disclosed), relVel = |v₁−v₂| at TCA.
+- Analytic closed forms the tests reproduce:
+  * coplanar circular phasing Δθ ⇒ CONSTANT separation 2a·sin(Δθ/2);
+  * concentric circular, aligned at t0 ⇒ min = |a₁−a₂| (law of cosines
+    guarantees every later angle gap is farther);
+  * perpendicular polar orbits crossing at P with B delayed T/4:
+    |Δ(t)|² = r²[2 − 2 sin φA sin φB] ⇒ EXACT minimum = a at t = T/8,
+    and the velocity triangle there has 120° between tangents ⇒
+    relV = v√3. All matched to 1e-6 on the grid (T/8 lands on it).
+- NaN policy: invalid samples are COUNTED and excluded (never interpolated
+  over); an all-invalid window returns {missKm: null, reason} — the UI
+  shows "no valid ephemeris", never a phantom miss distance.
+- Severity bands (CRITICAL<1 km gated by relVel>1 km/s, DANGER<10,
+  WATCH<50, INTERESTING<200) are a labeled heuristic over
+  distance+speed — explicitly NOT Pc, explicitly screening-grade.
+- Catalog scale controls (documented limits): candidate prefilter by
+  osculating-Δa band (default ±250 km), cap 60 candidates × 15 pairs,
+  adaptive step 60–240 s, hard 200,000-sample grid guard.

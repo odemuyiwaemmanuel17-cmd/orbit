@@ -327,3 +327,20 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 | exact design self-class | SSO flag, drift ~0, LTAN kept | 9.75 returned | match | 1e-6 |
 | +1° tilt drift | rate-mismatch / 15 h | 0.2–0.8 min/day | ~0.48 | derived |
 | 51.6° object | not SSO family | no drift claim | match | - |
+
+## Conjunction screening — M19 (frontend/tests/conjunction.test.js)
+
+| Check | Reference | Expected | OrbitalPulse | Delta |
+|---|---|---|---|---|
+| coplanar phasing pair | constant 2a·sin(θ/2), θ=30°, a=7000 | 3622.4 km | match | 1e-6 |
+| concentric aligned | min = \|a1−a2\| at t0 | 150 km exact | match | 1e-6 |
+| perpendicular polar T/4 delay | analytic \|Δ\|²=r²(2−2 sinφA sinφB) | miss = a at T/8 | match | 1e-6 |
+| velocity triangle at TCA | 120° tangents ⇒ relV = v√3 | 13.072 km/s | match | 1e-6 |
+| TCA grid accuracy | analytic T/8, step T/2000 | within one step | match | ±step |
+| exact co-location | both at P at t0 | miss < 7 m, TCA = start | match | - |
+| paired-grid guards | step<=0, empty window, >200k samples | throw | throws | - |
+| all-NaN window | dead ephemeris | miss null + reason | match | - |
+| corruption counting | flaky 1-in-3 NaN | bad>0, valid min kept | match | 14000±0.5 |
+| catalog sort + cap | 4 pairs, limit 3 | ascending, truncated | match | - |
+| dead candidate drop | NaN sampler in list | excluded, scan continues | match | - |
+| severity ladder | 0.5@fast / 0.5@slow / 5 / 30 / 150 / 5000 | CRIT/DANGER×2/WATCH/INT/BG | match | - |

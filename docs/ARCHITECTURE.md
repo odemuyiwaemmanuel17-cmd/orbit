@@ -559,3 +559,26 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
   scenario after the relaxation (fail-with, pass-after).
 - Tests: vitest 227/227 (14 new). pytest 48/48. Build green, /lab/sso +
   chunk smoke 200. NEXT_UP: M19 Conjunction pair view.
+
+## Addendum 2026-10-27 — M19 Conjunction Pair View
+
+- lib/conjunction.js: propagation-agnostic sampler contract
+  (tMs -> {posKm, velKmS}) — the app injects SGP4, tests inject analytic
+  Kepler, and BOTH exercise the identical screening code. Paired-grid
+  min-distance/TCA/relV, NaN accounting with disclosed failure, catalog
+  scan with sorting/cap, labeled severity heuristic (distance + speed,
+  explicitly NOT Pc).
+- Honesty core: the lab NEVER prints a collision probability. TLEs have
+  no covariance; the "DISTANCE SCREENING — NO Pc" chip and SHOW METHOD
+  explain what CDM/18th SDS data would be required, and TCA resolution
+  (±step/2) plus day-scale TLE error are disclosed as uncertainty.
+- /lab/conj: primary = watch-sat; candidates prefiltered by osculating
+  Δa band (<=60), window 1–7 days with adaptive 60–240 s steps, ranked
+  miss list with severity badges; selecting a pair resamples BOTH
+  ephemerides at the TCA and draws the separation segment in the scene
+  through the validated eciToSceneKm/GMST projection.
+- Analytic anchors new to the repo: perpendicular-polar T/4 geometry
+  (exact miss = a, relV = v√3 at T/8) derived chord-free and matched to
+  1e-6 — the kind of independent root the program requires.
+- Tests: vitest 238/238 (11 new). pytest 48/48. Build green, /lab/conj +
+  chunk smoke 200. NEXT_UP: M20 Avoidance maneuver.
