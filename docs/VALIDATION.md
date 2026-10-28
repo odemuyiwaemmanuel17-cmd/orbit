@@ -366,3 +366,26 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 | Hill orthonormality | uR·uA=uA·uC=uC·uR=0, |u|=1 | 6 checks | match | 1e-12 |
 | aligned-geometry readout | A@(R,0,0) v@+y: Hill axes = ECI | exact (2,3,−1) | match | 1e-12 |
 | rotation preserves norm | |m_Hill| = |m_ECI| | match | match | 1e-9 |
+
+## Mission builder (sequential events) — M21 (frontend/tests/mission.test.js)
+
+| Check | Reference | Expected | OrbitalPulse | Delta |
+|---|---|---|---|---|
+| coast invariants | Kepler: a,e,i,Ω,ω fixed; ΔM = n·Δt | exact | match | 1e-12 |
+| coast full period | ν returns to start | identity | match | 1e-9 |
+| circular phase advance | ν̇ = n exactly | linear | match | 1e-9 |
+| prograde from circular | vis-viva a' = (2/r−v'²/μ)⁻¹, rp fixed | both exact | match | 1e-6 |
+| prograde at perigee | rp invariant, ra grows | apsis law | match | 1e-6 |
+| prograde at apogee | ra invariant, rp grows (+retro mirror: rp shrinks) | apsis law | match | 1e-6 |
+| normal burn tilt | i' = atan(Δv/v) exact | 2.241° @300 m/s | match | 1e-9 |
+| Hohmann end-to-end | vs M3 hohmannTransferKm | a=r₂, e<1e-9, ΣΔv, t=T/2 | match | 1e-5 km |
+| 1-min-early burn witness | circularization misses | e ∈ (1e-6, 0.05) | match | - |
+| J2 coast drift | Ω̇ (M17 rates) × Δt; two-body = 0 | +1°/day class | match | 1e-6 |
+| mass law inverts budget | m0 e^{−dv/ve} ↔ dvAvailable | 500 kg exact | match | 1e-9 |
+| sequence→dry mass | m0 = dry + propellantForDv(Σdv) | ends at dry | match | 1e-6 |
+| exp additivity | order [300,500] = [500,300] | equal propellant | match | 1e-9 |
+| escape guard | dv beyond v_esc | throws /escape/ | throws | - |
+| deorbit flag | −150 m/s @400 km | rp < R_E flagged, run valid | match | - |
+| input guards | bad type/dv/dt/elements0 | 5 throws | throws | - |
+| timeline accrual | burns instant, coasts accrue | 10/10/15 min | match | - |
+| state↔elements identity | elementsToState(stateToElements(s)) | same state | match | 1e-6 km |

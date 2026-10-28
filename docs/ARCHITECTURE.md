@@ -605,3 +605,27 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
   hiding them.
 - Tests: vitest 259/259 (21 new). pytest 48/48. Build green, /lab/avoid
   + chunk smoke 200. NEXT_UP: M21 Mission Builder.
+
+## Addendum 2026-10-27 — M21 Mission Builder (sequential events)
+
+- lib/mission.js COMPOSES validated engines instead of new physics:
+  applyBurnKm (M2) for impulses, coastTwoBodyKm (Kepler invariants) or
+  propagateJ2SecularKm (M17) for legs, rocket-equation ledger (M4).
+  The end-to-end Hohmann test executes the generic engine and must match
+  hohmannTransferKm (M3) to sub-centimeter in a — the program's
+  cross-milestone consistency proof.
+- runMissionKm returns per-step before/after elements, cumulative
+  timeline (burns instant, coasts accrue), periapsis bookkeeping with a
+  below-surface FLAG (deorbit legs stay displayable) and a hard THROW on
+  escape-grade burns (the two-body coast has no hyperbolic branch —
+  refusing beats emitting garbage elements).
+- /lab/mission: event list editor (add/remove/reorder burns & coasts,
+  direction select from BURN_DIRECTIONS), J2-coast toggle, Isp/wet-mass/
+  dry-floor sliders with live capability margin, on-demand RUN MISSION
+  (setTimeout 16 keeps the 10 Hz heartbeat alive), per-step table +
+  GO/NO-GO chips, and ghost polylines per leg drawn through the
+  validated eciToSceneKm/GMST contract, oldest leg dimmest.
+- Starting orbit is the live satellite's osculating elements (SGP4 →
+  stateToElementsKm at simMs), so every mission begins from truth.
+- Tests: vitest 280/280 (21 new). pytest 48/48. Build green, /lab/mission
+  + chunk smoke 200. NEXT_UP: M22 Preset Missions.

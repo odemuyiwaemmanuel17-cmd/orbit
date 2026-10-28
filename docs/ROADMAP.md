@@ -54,7 +54,7 @@ each reuses validated lower-level physics.
 | 18 | SSO designer (math already in kepler.js) | **DONE** |
 | 19 | Conjunction analyzer pair view | **DONE** |
 | 20 | Collision-avoidance maneuver | **DONE** |
-| 21 | Mission Builder (sequential events) | TODO |
+| 21 | Mission Builder (sequential events) | **DONE** |
 | 22 | Preset missions on real engines | TODO |
 
 Fidelity labels in use: REAL-TIME PROPAGATION (SGP4/TLE) - ANALYTICAL MODEL

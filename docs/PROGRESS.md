@@ -715,3 +715,27 @@ without touching its visual identity.
   TCA segment overlay via the validated scene projection.
 - Evidence: vitest 259/259 (21 new), pytest 48/48, build green, preview
   smoke 200 routes + chunk. ROADMAP M20 DONE. Next: M21 Mission Builder.
+
+
+## 2026-10-27 - M21 Mission Builder, sequential events (22-milestone program)
+
+- Composed, not re-derived: M2 impulse burns, M17 secular-J2 coast, M4
+  rocket ledger, M3 Hohmann as the end-to-end oracle. The generic
+  event engine reproduces the closed-form transfer to 1e-5 km in a and
+  e < 1e-9 — cross-milestone validation the program exists to do.
+- Apsis-law tests caught MY own wrong physics expectation mid-work:
+  "retrograde at apogee raises perigee" is backwards (prograde raises
+  it; retrograde at apogee lowers perigee) — corrected and the mirror
+  case is now also pinned.
+- Propellant ledger: multiplicative e^{-dv/ve} per burn; order-
+  invariance asserted; dry-mass floor is an explicit slider, GO/NO-GO
+  derived not hand-waved; capability row honest (no implicit dry mass).
+- Escape-grade burns THROW (two-body coast cannot carry a hyperbolic
+  leg); deorbit-style burns FLAG periapsis-below-surface and keep the
+  run displayable — refusing vs warning is chosen per physics, not by
+  convenience.
+- /lab/mission: reorderable event list, live Δv margin, on-demand RUN,
+  per-step element table, ghost polylines per leg through the validated
+  scene projection, START anchored to the live SGP4 osculating orbit.
+- Evidence: vitest 280/280 (21 new), pytest 48/48, build green, preview
+  smoke 200 route + chunk. ROADMAP M21 DONE. Next: M22 Preset Missions.

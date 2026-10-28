@@ -25,6 +25,7 @@ const J2LabPage = lazy(() => import('./pages/Lab/J2LabPage.jsx'))
 const SsoDesignerPage = lazy(() => import('./pages/Lab/SsoDesignerPage.jsx'))
 const ConjunctionLabPage = lazy(() => import('./pages/Lab/ConjunctionLabPage.jsx'))
 const AvoidanceLabPage = lazy(() => import('./pages/Lab/AvoidanceLabPage.jsx'))
+const MissionBuilderPage = lazy(() => import('./pages/Lab/MissionBuilderPage.jsx'))
 const LabsIndexPage = lazy(() => import('./pages/Lab/LabsIndexPage.jsx'))
 
 /**
@@ -51,6 +52,7 @@ const LabsIndexPage = lazy(() => import('./pages/Lab/LabsIndexPage.jsx'))
  *   /lab/sso      -> DESIGN: sun-synchronous designer (altitude <-> inclination, LTAN lock)
  *   /lab/conj     -> ANALYZE: Conjunction pair view (TLE distance screening, honest no-Pc)
  *   /lab/avoid    -> ANALYZE: Avoidance burn planner (exact CW impulse response in the Hill frame)
+ *   /lab/mission  -> DESIGN:  Mission Builder (sequential coast/burn events on the live orbit)
  *   /lab          -> ANALYZE/DESIGN index (all labs)
  */
 export default function App() {
@@ -227,6 +229,14 @@ export default function App() {
             element={
               <Suspense fallback={<SceneLoader label="LOADING AVOIDANCE LAB" />}>
                 <AvoidanceLabPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/lab/mission"
+            element={
+              <Suspense fallback={<SceneLoader label="LOADING MISSION BUILDER" />}>
+                <MissionBuilderPage />
               </Suspense>
             }
           />

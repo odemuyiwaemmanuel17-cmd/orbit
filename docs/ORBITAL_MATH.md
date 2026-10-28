@@ -602,3 +602,35 @@ Label: **SIMPLIFIED — CW LINEARIZATION** (disclosed everywhere it is used).
   circular reference = primary |r| at TCA, J2 secular drift between burn
   and TCA ignored, finite-burn/attitude/Δv-budget constraints out of scope,
   no execution errors, no Pc (M19 limits inherited).
+
+## Mission builder — sequential events (M21)
+
+Source: `frontend/src/lib/mission.js`; validated in
+`tests/mission.test.js` (21 cases); UI at `/lab/mission`.
+Label: **ANALYTICAL — IMPULSIVE + KEPLER/J2** (composes validated engines:
+M2 burns, M3 Hohmann as reference, M4 rocket equation, M17 J2 drift).
+
+- Event model: `burn {dirKey, dvMps}` applies the M2 RSW impulse at the
+  CURRENT state of the sequence and re-solves full state→elements;
+  `coast {minutes}` advances mean anomaly M ← M + n·Δt (two-body, exact
+  Kepler invariants: a, e, i, Ω, ω untouched) or, with j2Secular on,
+  delegates the whole leg to the M17 `propagateJ2SecularKm` (n̄ phase +
+  Ω̇,ω̇ drift). Burns are instantaneous — coast time accrues, burn time
+  does not.
+- Propellant ledger (M4 law, inverted): each burn multiplies mass by
+  e^(−Δv/(Isp·g0)); because the exponential depends only on the SUM of
+  Δv, ordering cannot change propellant cost — asserted as a property.
+  GO/NO-GO compares end mass against an explicit dry-mass floor.
+- Honest failure modes: an escape-grade burn THROWS (no hyperbolic legs
+  are emitted for a two-body engine to chew on); a burn driving periapsis
+  below the surface is FLAGGED per step (impacting leg) and the run
+  stays geometrically valid so the user can see what went wrong.
+- Validation spine: the generic engine executed event-by-event must
+  reproduce the M3 Hohmann closed form — dv1/coast/dv2 lands a = r₂ to
+  1e-5 km (sub-centimeter), e < 1e-9, transfer-leg a_T and e_T exact — plus
+  independent vis-viva, apsis-preservation (prograde at perigee fixes
+  rp, prograde at apogee fixes ra), exact atan(Δv/v) plane tilt, and a
+  1-minute-early-burn sensitivity witness proving phase matters.
+- Disclosed simplifications: finite burn, thrust misalignment, third
+  body, inter-event drag, J2 periodic terms, transfer-window search —
+  all out of scope and listed in SHOW METHOD.
