@@ -629,3 +629,25 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
   stateToElementsKm at simMs), so every mission begins from truth.
 - Tests: vitest 280/280 (21 new). pytest 48/48. Build green, /lab/mission
   + chunk smoke 200. NEXT_UP: M22 Preset Missions.
+
+## Addendum 2026-10-27 — M22 Preset Missions (program finale)
+
+- lib/presets.js is DATA + COMPOSITION only: a sourced vacuum-spec engine
+  table (Aestus, RL10B-2, SPT-100, NEXT-C — each with its citation string
+  in code) and four builders that COMPUTE every Δv from the validated
+  M3 Hohmann/vis-viva primitives, then hand the event list to the M21
+  engine. Nothing in a preset is a typed-in mission number.
+- The GEO reposition shows the program's phase-discipline: the coast is
+  an integer number of drift-ellipse periods so the return burn is
+  exactly at apogee (symmetric Δv), and the ACTUAL drift angle (~14.9°)
+  is reported instead of force-fitting the nominal 15°.
+- Electric propulsion honesty: every preset displays continuous-thrust
+  time t = Δv·m/F alongside the impulsive model (days for Hall/ion,
+  seconds for chemical), so the SIMPLIFIED label carries a quantified
+  meaning instead of being a disclaimer.
+- /lab/presets: preset cards with engine spec + source, wet-mass slider,
+  FLY PRESET MISSION (on-demand), per-event table with target-check
+  line, per-leg ghost polylines through the scene projection contract.
+- LabsIndex NEXT_UP block retired into a 22/22 delivered banner.
+- Tests: vitest 295/295 (15 new). pytest 48/48. Build green,
+  /lab/presets + chunk smoke 200. PROGRAM COMPLETE: M1-M22 all DONE.

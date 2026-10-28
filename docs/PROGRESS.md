@@ -739,3 +739,27 @@ without touching its visual identity.
   scene projection, START anchored to the live SGP4 osculating orbit.
 - Evidence: vitest 280/280 (21 new), pytest 48/48, build green, preview
   smoke 200 route + chunk. ROADMAP M21 DONE. Next: M22 Preset Missions.
+
+## 2026-10-27 - M22 Preset Missions on real engines — PROGRAM COMPLETE (22/22)
+
+- Finale milestone: lib/presets.js + /lab/presets. Engine specs pulled from
+  same-day web verification (Wikipedia Aestus/RL10/SPT-100/NEXT-C, DLR
+  paper) and stored WITH their citations in code; every mission Δv is
+  computed from the M3/M21 primitives at load — the lab cannot drift from
+  its physics because there are no mission constants to drift from.
+- Four reference profiles: Aestus GTO->GEO apogee kick (1397 m/s computed,
+  lands in the literature 1.3-1.55 km/s window); SPT-100 four-step shell
+  raise (staircase total provably between direct Hohmann and 1.15x it);
+  NEXT-C SSO disposal putting perigee exactly on the M16 -100 km band
+  (~2.6 kg propellant on a 500 kg bus — the electric story in one number);
+  integer-lap GEO reposition where symmetry is engineered, not hoped for.
+- Test discipline: Δv re-derived from raw μ/r arithmetic IN the test (not
+  imported), full sequence executed on the validated M21 engine, targets
+  checked, engine table under a data contract, plus the signed-Δv Hohmann
+  catch (inward transfers return negative kicks — magnitude belongs to the
+  event, direction to dirKey) found by running, not by reading.
+- Environment note: two racing npm installs corrupted a fresh worktree's
+  node_modules (ENOTEMPTY); wiped and reinstalled once, lesson recorded —
+  one installer per worktree.
+- Evidence: vitest 295/295 (15 new), pytest 48/48, build green, preview
+  smoke 200 route + chunk. ROADMAP M22 DONE — 22/22 milestones delivered.

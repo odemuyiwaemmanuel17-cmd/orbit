@@ -634,3 +634,37 @@ M2 burns, M3 Hohmann as reference, M4 rocket equation, M17 J2 drift).
 - Disclosed simplifications: finite burn, thrust misalignment, third
   body, inter-event drag, J2 periodic terms, transfer-window search —
   all out of scope and listed in SHOW METHOD.
+
+## Preset missions on real engines (M22 — program finale)
+
+Source: `frontend/src/lib/presets.js`; validated in
+`tests/presets.test.js` (15 cases); UI at `/lab/presets`.
+Label: **SIMPLIFIED — IMPULSIVE APPROX.** for electric presets.
+
+- Engine table (vacuum specs verified 2026-10-27 against the cited
+  sources, none from memory): Aestus 29.6 kN / 324 s (Wikipedia "Aestus",
+  DLR 2014 HTS); RL10B-2 110.1 kN / 465.5 s (Wikipedia "RL10"); SPT-100
+  80 mN / 1600 s / 1.35 kW (Wikipedia "SPT-100"); NEXT-C 237 mN /
+  4170 s / 6.9 kW (Wikipedia "NEXT-C", flew DART).
+- Four reference presets, every Δv COMPUTED from the M3/M21 primitives:
+  *GTO->GEO apogee kick* (Ariane-class 1000 km x 35786 km @ 6°; the kick
+  = v_circ(r_a) − v_apogee(GTO) from vis-viva, lands in the classic
+  1.3-1.55 km/s window); *LEO shell raise 450->550* (four mini-Hohmanns,
+  total between the direct Hohmann and 1.15x it — the spiral-vs-impulse
+  ordering falls out of the math, and the 80 mN engine makes it ~4 days
+  of thrusting at 500 kg, shown honestly as t = Δv·m/F); *SSO disposal*
+  (two lowers + final retrograde putting PERIGEE exactly at the M16
+  −100 km reentry band; NEXT-C spends only ~2.6 kg from a 500 kg bus);
+  *GEO reposition* (retrograde kick onto a lower/faster drift ellipse;
+  coast = INTEGER laps of the drift period so the return burn sits
+  exactly at apogee and equals the entry kick; drift angle reported as
+  computed, ~14.9°, not forced to nominal 15°).
+- Validation contract per preset: (a) the Δv re-derived from raw μ and
+  radii in the test, (b) the full sequence executed on runMissionKm,
+  (c) final elements vs declared targets, (d) engine data-contract test
+  (positive, finite, sourced).
+- Disclosed gaps vs a real flight (SHOW METHOD): finite-thrust spiral
+  losses, power/eclipse duty cycle (owned by the M14 lab), station-
+  keeping margin, injection dispersions, J2 during long coasts
+  (available in the Mission Builder), transfer windows. Presets are
+  labeled REFERENCE PROFILES.

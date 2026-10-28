@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Sigma, Rocket, Waypoints, Fuel, GitCompareArrows, RadioTower, CalendarClock, Radar, Globe2, Signal, Axis3d, Disc3, Sun, BatteryCharging, Wind, Hourglass, Orbit, Shield, ClipboardList, Construction } from 'lucide-react'
+import { ArrowLeft, Sigma, Rocket, Waypoints, Fuel, GitCompareArrows, RadioTower, CalendarClock, Radar, Globe2, Signal, Axis3d, Disc3, Sun, BatteryCharging, Wind, Hourglass, Orbit, Shield, ClipboardList, Layers, CheckCircle2 } from 'lucide-react'
 import OrbitScene from '../../components/scene/OrbitScene.jsx'
 
 const LABS = [
@@ -45,10 +45,8 @@ const LABS = [
     note: 'Exact Clohessy-Wiltshire response: lead time, Hill-frame Δv and the cheapest collision-avoidance burn' },
   { to: '/lab/mission', icon: ClipboardList, tag: 'DESIGN', title: 'Mission Builder',
     note: 'Chain coast + burn events on the live orbit with per-step propellant and a Hohmann-validated engine' },
-]
-
-const NEXT_UP = [
-  'Preset Missions',
+  { to: '/lab/presets', icon: Layers, tag: 'DESIGN', title: 'Preset Missions',
+    note: 'GTO→GEO, shell raise, SSO disposal, GEO reposition — flown on real engines with cited specs' },
 ]
 
 export default function LabsIndexPage() {
@@ -81,17 +79,16 @@ export default function LabsIndexPage() {
           ))}
         </div>
 
-        <div className="glass rounded-xl p-4 border border-hi/10">
+        <div className="glass rounded-xl p-4 border border-ok/20">
           <div className="flex items-center gap-2 mb-2">
-            <Construction size={14} className="text-amber-400" />
-            <span className="text-[11px] font-semibold text-fg">On the roadmap</span>
+            <CheckCircle2 size={14} className="text-ok" />
+            <span className="text-[11px] font-semibold text-fg">22/22 milestones delivered</span>
           </div>
-          <div className="flex flex-wrap gap-1.5">
-            {NEXT_UP.map((n) => (
-              <span key={n} className="px-2 py-0.5 rounded-full text-[9px] font-mono border border-hi/15 text-mut">
-                {n.toUpperCase()}
-              </span>
-            ))}
+          <div className="text-[10px] text-mut leading-snug">
+            Every lab from the aerospace program is live: two-body analysis through
+            conjunction screening, avoidance planning and preset missions on
+            real engines. Each number ships with its equation, its source and
+            its fidelity label.
           </div>
         </div>
       </main>

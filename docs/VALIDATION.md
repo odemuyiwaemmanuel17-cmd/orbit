@@ -389,3 +389,22 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 | input guards | bad type/dv/dt/elements0 | 5 throws | throws | - |
 | timeline accrual | burns instant, coasts accrue | 10/10/15 min | match | - |
 | state↔elements identity | elementsToState(stateToElements(s)) | same state | match | 1e-6 km |
+
+## Preset missions on real engines — M22 (frontend/tests/presets.test.js)
+
+| Check | Reference | Expected | OrbitalPulse | Delta |
+|---|---|---|---|---|
+| P1 apogee-kick Δv | raw vis-viva: √(μ/r_a)−√(μ(2/r_a−1/a_GTO)) | re-derived match | match | 1e-9 |
+| P1 classic window | literature GTO->GEO kick 1.3-1.55 km/s | inside | 1397 m/s | - |
+| P1 execution | M21 engine -> circular GEO | a=r_a, e<1e-9, i=6° | match | 1e-5 km |
+| P1 coast length | T_GTO/2 from raw a | exact | match | 1e-9 |
+| P2 staircase bounds | direct Hohmann ≤ sum < 1.15×direct | ordering | match | - |
+| P2 execution | 12 events -> 550 km circular | a,e,i | match | 1e-4 km |
+| P2 thrust time | t=Δv·m/F @ 80 mN, 500 kg | > 3 days | 4.1 d | - |
+| P3 disposal perigee | r_p = RE−100 via aF=(r0+rpT)/2 | exact band edge | match | 1e-5 km |
+| P3 propellant | 500(1−e^(−Σdv/ve)), ve=40.9 km/s | ~2.6 kg | match | (2,4) |
+| P4 drift-ellipse a | a=(μ/n′²)^{1/3}, n′=ω_sid+0.75°/d | raw Kepler | match | 1e-6 |
+| P4 integer laps | coast = N·T_drift, 14° < drift < 16° | symmetric return | 20 laps, 14.9° | 1e-9 |
+| P4 execution | back to circular GEO, equal kicks | Σdv=2·dv_out | match | 1e-9 |
+| engine table | cited specs, all positive finite | 4 rows | contract pass | - |
+| burn-time helper | 100 m/s·1000 kg / 1 N | 100000 s | exact | - |
