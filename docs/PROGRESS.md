@@ -763,3 +763,22 @@ without touching its visual identity.
   one installer per worktree.
 - Evidence: vitest 295/295 (15 new), pytest 48/48, build green, preview
   smoke 200 route + chunk. ROADMAP M22 DONE — 22/22 milestones delivered.
+
+## 2026-10-27 - Hotfix: LabsIndexPage "SunMedium is not defined" + guard rule 2
+
+- Symptom (user screenshot): /lab crashed with the Signal-anomaly boundary.
+  Root cause: M18 added the SSO card `icon: SunMedium` while its edit to
+  the lucide import line silently dropped nothing but never included
+  SunMedium — a BARE value reference the PRESETS-era guard (rule 1:
+  `NAME.`/`NAME[` only) could not see. Shipped broken since 56fa73a.
+- Fix: SunMedium added to the import; verified by re-breaking (removing it
+  makes the new rule fail with exactly that identifier) then restoring.
+- moduleWiring.test.js rule 2: every PascalCase/CONSTANT identifier used
+  as a VALUE must be imported/declared. Required a real JSX-aware strip:
+  frame-stack children/expression tracking with a brace-aware tag scanner
+  (attribute `{x > y}` comparisons, prose inside `{cond && <p>…}</p>`,
+  destructuring params `({ icon: Icon })`, `([Mock, t, b]) =>`, multi-
+  declarator `const a = …, B = …`). Each false-positive class was fixed
+  by teaching the stripper the syntax, never by whitelisting names.
+- Evidence: vitest 296/296 (1 new guard test), pytest 48/48, build green,
+  preview smoke /lab + / = 200, server killed, port verified free.
