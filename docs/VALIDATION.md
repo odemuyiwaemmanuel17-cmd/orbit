@@ -408,3 +408,20 @@ mu = 398600.4418 km^3/s^2 (EGM-96, lib/constants.js). Values captured 2026-10-06
 | P4 execution | back to circular GEO, equal kicks | Σdv=2·dv_out | match | 1e-9 |
 | engine table | cited specs, all positive finite | 4 rows | contract pass | - |
 | burn-time helper | 100 m/s·1000 kg / 1 N | 100000 s | exact | - |
+
+### Cinematic landing (2026-10-30)
+
+| Check | Reference | Expected | Result | Delta |
+|---|---|---|---|---|
+| Scene windows | tiling [0,1], contiguous | 5 windows | pass | exact |
+| Camera waypoints | cameraAt(k.p) vs k.pos/look | exact through 9 keys | pass | 1e-9 |
+| Camera continuity | max step over 1000 samples | < 0.06 units | pass | - |
+| Camera clearance | radius whole flight | > 1.08 (no subsurface) | pass | - |
+| ISS telemetry | independent vis-viva on st.rKm | match speed | pass | 1e-4 |
+| Ring mapping | scene radius vs 1+0.26log10(1+h/90) | match | pass | 1e-6 |
+| Ring closure | SGP4 secular drift over 1 period | < 0.01 units | pass (0.0054) | - |
+| Beam anchors | endpoints vs station/sat | < 1e-9 at sat | pass | - |
+| Transfer Δv | raw vis-viva Hohmann 428->1200 | match hohmann.js | pass | 1e-9 |
+| Transfer endpoints | altToRadius(r − 6378.137) WGS84 | match | pass | 1e-6 |
+| Real browser | headless Chrome + CDP, forward+reverse scroll | 0 console errors | pass after flat-array fix | - |
+| Tracker regression | /tracker headless render post-refactor | scene + HUD live | pass | - |

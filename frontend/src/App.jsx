@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Landing from './pages/Landing.jsx'
+const CinematicLandingPage = lazy(() => import('./pages/CinematicLandingPage.jsx'))
 import RouteErrorBoundary from './components/common/RouteErrorBoundary.jsx'
 import SceneLoader from './components/common/SceneLoader.jsx'
 
@@ -31,7 +32,8 @@ const LabsIndexPage = lazy(() => import('./pages/Lab/LabsIndexPage.jsx'))
 
 /**
  * OrbitalPulse route shell.
- *   /            -> approved landing experience (untouched visuals)
+ *   /            -> CINEMATIC 3D landing (scroll-driven orbital journey; legacy site at /platform)
+ *   /platform   -> original marketing scrollytelling site (preserved intact)
  *   /tracker     -> Mission Control (engineering interface)
  *   /lab/elements -> ANALYZE: Orbital Elements Lab (analytic two-body)
  *   /lab/maneuver -> DESIGN:  Maneuver Lab (impulsive burns on live states)
@@ -62,7 +64,12 @@ export default function App() {
     <BrowserRouter>
       <RouteErrorBoundary>
         <Routes>
-          <Route path="/" element={<Landing />} />
+          <Route path="/" element={
+            <Suspense fallback={<SceneLoader label="INITIALIZING ORBITAL THEATER" />}>
+              <CinematicLandingPage />
+            </Suspense>
+          } />
+          <Route path="/platform" element={<Landing />} />
           <Route
             path="/tracker"
             element={

@@ -782,3 +782,32 @@ without touching its visual identity.
   by teaching the stripper the syntax, never by whitelisting names.
 - Evidence: vitest 296/296 (1 new guard test), pytest 48/48, build green,
   preview smoke /lab + / = 200, server killed, port verified free.
+
+## 2026-10-30 - CINEMATIC: scroll-driven 3D landing world at /
+
+- The marketing route `/` is now ONE continuous WebGL world flown by a
+  Catmull-Rom camera through 9 keyed waypoints over five narrative windows
+  (enter / track / analyze / design / reveal) — not stacked sections.
+  The legacy landing page is preserved intact at `/platform`.
+- Shared Earth extracted to src/scene/earthMaterial.js (same validated
+  shader: ACES, terminator, twilight band, ocean specular, cloud shadow,
+  Fresnel) used by BOTH the tracker and the cinematic scene — no shader
+  fork. OrbitScene refactored onto it; tracker verified pixel-live in a
+  headless run after the refactor.
+- lib/cinematic.js is PURE and unit-tested: window tiling, monotone fades,
+  camera exactness through every waypoint, <0.06-unit step continuity,
+  radius >1.08 the whole flight, and the honesty spine — telemetry/rings/
+  beams/transfer re-derived against independent vis-viva and geodetic math.
+- All positions come from the real TLE snapshot + satellite.js SGP4 (the
+  same catalog as the tracker); overlays label every number "SGP4 model
+  estimate — not onboard telemetry" and show the snapshot date.
+- Perf tiers (mobile/desktop/reduced-motion) + WebGL-absent static
+  fallback with identical copy. Hero satellite is procedural LVLH-oriented
+  geometry; beams render only to stations actually in view.
+- Found by REAL browser audit (headless Chrome + CDP): drei Line geometry
+  setPositions needs FLAT arrays — nested arrays produced NaN instance
+  data spamming computeBoundingSphere every frame. Fixed with pts.flat();
+  fresh-page console now 0 errors across the full forward+reverse scroll.
+- Evidence: vitest 314/314 (18 new), pytest 48/48, build green, preview
+  smoke / + /platform + /tracker = 200, headless screenshots of all five
+  scenes + reverse scroll, /tracker regression shot clean.

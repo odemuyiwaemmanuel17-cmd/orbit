@@ -651,3 +651,31 @@ Milestone 1 lands the shared services ANALYZE/DESIGN will reuse:
 - LabsIndex NEXT_UP block retired into a 22/22 delivered banner.
 - Tests: vitest 295/295 (15 new). pytest 48/48. Build green,
   /lab/presets + chunk smoke 200. PROGRAM COMPLETE: M1-M22 all DONE.
+
+---
+
+## Cinematic landing layer (2026-10-30)
+
+```
+/ (CinematicLandingPage)          /platform (legacy landing)     /tracker
+        |                                 |                        |
+        v                                 v                        v
+  lib/cinematic.js (PURE)  <---- shared contracts ---->  lib/{coords,kepler,hohmann,sun,stations}.js
+  scene/earthMaterial.js   <---- ONE Earth shader ---->  components/scene/OrbitScene.jsx
+  landing/CinematicScene.jsx (R3F: Earth, rings, hero sat, beams, transfer, camera rig)
+```
+
+- Scroll progress lives in a `progressRef` (rAF reads `scrollY / (5.2vh -
+  1)`); the 3D scene consumes the ref every frame WITHOUT React re-renders.
+  Overlays re-render on a 0.0015-quantized value only when it changes.
+- Camera: uniform Catmull-Rom over CAM_KEYS (p, pos, look pairs). Damped
+  lerp in CameraRig (damping from qualityTier; reduced-motion snaps).
+- Orbit rings rebuild on a 2 s epoch bucket because rings are inertial
+  shapes viewed in the Earth-fixed frame (GMST creep) — same rule as the
+  tracker's ground track.
+- Beams call `geometry.setPositions(pts.flat())` per frame: drei's
+  LineGeometry is FLAT-array API (nested arrays => NaN instance buffers,
+  caught only by a real-browser console audit, not by node-env tests).
+- Fallback chain: supportsWebGL false -> static page with identical copy;
+  texture load failure -> dark-sphere placeholder mesh; propagate null ->
+  ring/marker silently skipped (never fabricated positions).

@@ -60,3 +60,9 @@ each reuses validated lower-level physics.
 Fidelity labels in use: REAL-TIME PROPAGATION (SGP4/TLE) - ANALYTICAL MODEL
 (two-body, Hohmann) - SIMPLIFIED MODEL (drag/decay/power) - EDUCATIONAL MODEL
 (reaction wheel). Never present a simplified number without its label.
+
+## Post-program
+
+| # | Item | Status |
+|---|---|---|
+| C1 | Scroll-driven cinematic 3D landing world at / (5 scenes, real SGP4 data, perf tiers, WebGL fallback; legacy landing preserved at /platform) | **DONE 2026-10-30** |
